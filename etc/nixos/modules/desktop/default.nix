@@ -6,10 +6,10 @@ in {
   services.xserver.layout = "us";
 
   hm.home.packages = with pkgs; [
+    brave 
     discord
     slack
-    gnome.seahorse
-    gnome.gnome-font-viewer
+    font-manager
     tdesktop
     vlc
   ];

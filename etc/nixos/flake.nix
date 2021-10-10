@@ -8,6 +8,8 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
   };
 
   nixConfig = {
@@ -34,6 +36,7 @@
           system = import (path + "/system.nix");
           specialArgs = { inherit inputs lib; };
           modules = [
+            { nixpkgs.overlays = [ inputs.neovim-nightly-overlay.overlay ]; }
             (import path)
           ] ++ mapFilesRecToList import ./modules;
         };

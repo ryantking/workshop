@@ -42,20 +42,20 @@ bind-key [ copy-mode
 # Neovim integration
 is_vim="ps -o state= -o comm= -t '#{pane_tty}' | grep -iqE '^[^TXZ ]+ +(\\S+\\/)?g?(view|n?vim?x?)(diff)?$'"
 
-bind-key -n 'C-Left' if -F '#{pane_at_left}' '' 'select-pane -L'
-bind-key -n 'C-Down' if -F '#{pane_at_bottom}' '' 'select-pane -D'
-bind-key -n 'C-Up' if -F '#{pane_at_top}' '' 'select-pane -U'
-bind-key -n 'C-Right' if -F '#{pane_at_right}' '' 'select-pane -R'
+bind-key -n 'C-Left' if-shell "$is_vim" 'send-keys C-Left' { if -F '#{pane_at_left}' '' 'select-pane -L' }
+bind-key -n 'C-Down' if-shell "$is_vim" 'send-keys C-Down' { if -F '#{pane_at_bottom}' '' 'select-pane -D' }
+bind-key -n 'C-Up' if-shell "$is_vim" 'send-keys C-Up' { if -F '#{pane_at_top}' '' 'select-pane -U' }
+bind-key -n 'C-Right' if-shell "$is_vim" 'send-keys C-Right' { if -F '#{pane_at_right}' '' 'select-pane -R' }
 
 bind-key -T copy-mode-vi 'C-Left' if -F '#{pane_at_left}' '' 'select-pane -L'
 bind-key -T copy-mode-vi 'C-Down' if -F '#{pane_at_bottom}' '' 'select-pane -D'
 bind-key -T copy-mode-vi 'C-Up' if -F '#{pane_at_top}' '' 'select-pane -U'
 bind-key -T copy-mode-vi 'C-Right' if -F '#{pane_at_right}' '' 'select-pane -R'
 
-bind -n 'M-Left' 'resize-pane -L 1'
-bind -n 'M-Down' 'resize-pane -D 1'
-bind -n 'M-Up' 'resize-pane -U 1'
-bind -n 'M-Right' 'resize-pane -R 1'
+bind -n 'M-Left' if-shell "$is_vim" 'send-keys M-Left' 'resize-pane -L 1'
+bind -n 'M-Down' if-shell "$is_vim" 'send-keys M-Down' 'resize-pane -D 1'
+bind -n 'M-Up' if-shell "$is_vim" 'send-keys M-Up' 'resize-pane -U 1'
+bind -n 'M-Right' if-shell "$is_vim" 'send-keys M-Right' 'resize-pane -R 1'
 
 bind-key -T copy-mode-vi M-Left resize-pane -L 1
 bind-key -T copy-mode-vi M-Down resize-pane -D 1

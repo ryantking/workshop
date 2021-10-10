@@ -16,6 +16,8 @@ in {
     hm.programs.alacritty.enable = true;
 
     hm.programs.alacritty.settings = {
+      env.TERM = "xterm-256color";
+
       font = {
         size = font.size;
         

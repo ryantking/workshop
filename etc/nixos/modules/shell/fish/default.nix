@@ -27,7 +27,7 @@ in {
         };
 
         shellAliases = {
-          cp = "z";
+          cd = "z";
           cat = "bat --plain";
           tree = "exa -T";
           ".." = "cd ..";

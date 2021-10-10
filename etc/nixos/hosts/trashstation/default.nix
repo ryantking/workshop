@@ -70,8 +70,6 @@
     coreutils
     pciutils
     usbutils
-
-    vim # TODO: remove
   ];
 
   imports = [ inputs.home-manager.nixosModules.home-manager ];
@@ -83,10 +81,6 @@
   };
   hm.programs.home-manager.enable = true;
   hm.systemd.user.startServices = true;
-
-  hm.home.packages = with pkgs; [
-    brave 
-  ];
 
   modules = {
     hardware = {
@@ -104,6 +98,11 @@
         default = "alacritty";
         alacritty.enable = true;
       };
+    };
+
+    editors = {
+      default = "neovim";
+      neovim.enable = true;
     };
 
     shell = {
