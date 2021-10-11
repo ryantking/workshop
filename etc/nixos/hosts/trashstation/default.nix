@@ -3,7 +3,7 @@
 {
   require = [ ./hardware-configuration.nix ];
 
-  system.stateVersion = "21.05"; # Did you read the comment?
+  system.stateVersion = "21.05"; 
 
   boot = {
     loader = {
@@ -128,6 +128,10 @@
         sshAgent = true;
         cacheTTL = 28800;
       };
+    };
+
+    devel = {
+      nix.enable = true;
     };
 
     theme = {

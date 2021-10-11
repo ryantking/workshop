@@ -83,6 +83,7 @@
                                                                 :Lua {:diagnostics {:globals ["vim"]}}}})}})
 
 (null-ls.config {})
+
 (lspconfig.null-ls.setup {})
 
 (def- linters ["shellcheck" "hadolint" "markdownlint"])
@@ -95,23 +96,24 @@
 
 (defn- parse-fennel-output [params done]
   (if (not params.output) (done)
-      (let [lines (str.split params.output "\n")
-            message (str.trim (. lines 2))
-            row (string.match (. lines 1) ":(%d+)")
-            col (length (. params.content (tonumber row)))]
-        (done [{:severity 1 : message : row : col}]))))
+    (let [lines (str.split params.output "\n")
+          message (str.trim (. lines 2))
+          row (string.match (. lines 1) ":(%d+)")
+          col (length (. params.content (tonumber row)))]
+      (done [{:severity 1 : message : row : col}]))))
 
-(null-ls.register {:name "fennel"
-                   :method null-ls.methods.DIAGNOSTICS
-                   :filetypes ["fennel"]
-                   :generator (nls-helpers.generator_factory {:command "fennel"
-                                                              :args ["--compile" "-"]
-                                                              :output "raw"
-                                                              :to_stdin true
-                                                              :from_stderr true
-                                                              :on_output parse-fennel-output})})
-
-(null-ls.register {:name "fnlindent"
-                   :method null-ls.methods.FORMATTING
-                   :filetypes ["fennel"]
-                   :generator (nls-helpers.formatter_factory {:command "fnlindent" :args ["-"] :to_stdin true})})
+; (null-ls.register
+;   {:name "fennel"
+;    :method null-ls.methods.DIAGNOSTICS
+;    :filetypes ["fennel"]
+;    :generator (nls-helpers.generator_factory
+;                 {:command "fennel"
+;                  :args ["--globals" "jit,unpack" "--raw-errors" "-"]
+;                  :output "raw"
+;                  :to_stdin true
+;                  :from_stderr true
+;                  :on_output
+;                   (nls-helpers.diagnostics.from_patterns
+;                     [{:pattern "[%w-/]+:(%d+): Parse error: (.*)"
+;                       :groups [:row :message]}])})})
+; 

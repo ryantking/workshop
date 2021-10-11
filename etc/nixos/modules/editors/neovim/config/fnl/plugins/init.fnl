@@ -14,6 +14,7 @@
   "wbthomason/packer.nvim" {:event :VimEnter}
   "tsbohc/zest.nvim" {:setup-mod "zest"}
   "Olical/aniseed" {}
+  "Olical/conjure" {}
   "LionC/nest.nvim" {}
   "folke/which-key.nvim" (use-mod-config :which-key)
 

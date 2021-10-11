@@ -10,6 +10,10 @@
     };
 
     neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
+
+    rnix-lsp.url = "github:nix-community/rnix-lsp";
+
+    treefmt.url = "github:numtide/treefmt";
   };
 
   nixConfig = {
@@ -36,11 +40,26 @@
           system = import (path + "/system.nix");
           specialArgs = { inherit inputs lib; };
           modules = [
-            { nixpkgs.overlays = [ inputs.neovim-nightly-overlay.overlay ]; }
+            {
+              nixpkgs.overlays = [
+                inputs.neovim-nightly-overlay.overlay
+                (final: prev: {
+                  fennel = prev.fennel.overrideAttrs (old: {
+                    src = prev.fetchFromGitHub {
+                      owner = "bakpakin";
+                      repo = "Fennel";
+                      rev = "6ba3c845c98d7371c5bb6869a08f4698960573fe";
+                      sha256 = "sha256-97NfFaq4Xz1mwzcAbYDT98Eyd1RJRd41gIj+64x3teE=";
+                    };
+                  });
+                })
+              ];
+            }
             (import path)
           ] ++ mapFilesRecToList import ./modules;
         };
-    in {
+    in
+    {
       lib = lib.internal;
       nixosConfigurations = mapFiles mkNixosConfig ./hosts;
       nixosModules = mapFilesRec import ./modules;

@@ -4,7 +4,8 @@ let
   inherit (lib) mkEnableOption mkIf;
 
   cfg = config.modules.shell;
-in {
+in
+{
   options.modules.shell = {
     bat.enable = mkEnableOption "bat";
     bottom.enable = mkEnableOption "bottom";
@@ -79,7 +80,7 @@ in {
       ];
 
       sessionVariables = {
-        PAGER = "most -s -w"; 
+        PAGER = "most -s -w";
       };
 
       activation = mkIf cfg.bat.enable {

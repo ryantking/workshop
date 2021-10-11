@@ -6,11 +6,21 @@ let
   inherit (lib.internal.options) mkEnableOpt';
   inherit (config.nixpkgs) system;
 
-  cfg = config.modules.editors.neovim;
-in {
-  options.modules.editors.neovim = {
-    enable = mkEnableOption "Neovim editor";
+  pluginGit = ref: repo: pkgs.vimUtils.buildVimPluginFrom2Nix {
+    pname = "${lib.strings.sanitizeDerivationName repo}";
+    version = ref;
+    src = builtins.fetchGit {
+      url = "https://github.com/${repo}.git";
+      ref = ref;
+    };
   };
+
+  plugin = pluginGit "HEAD";
+
+  cfg = config.modules.editors.neovim;
+in
+{
+  options.modules.editors.neovim = { enable = mkEnableOption "Neovim editor"; };
 
   config = mkIf cfg.enable (mkMerge [
     {
@@ -22,41 +32,55 @@ in {
         withNodeJs = true;
         withPython3 = true;
 
-	extraConfig = ''
-lua<<EOF
-vim.g["aniseed#env"] = { module = "core", compile = false }
-EOF
-	'';
+/*
+        extraConfig = "lua require'core'";
+        /*   "let g:sqlite_clib_path = '${pkgs.sqlite.out}/lib/libsqlite3.so'\n" + */
+        /*   ''let g:conjure#client#fennel#aniseed#aniseed_module_prefix = "aniseed."''; */
 
         plugins = with pkgs.vimPlugins; [
-	  { plugin = aniseed; }
-	  { plugin = packer-nvim; }
-	  {
-	    plugin = pkgs.fetchFromGitHub {
-	      owner = "tsbohc";
-	      repo = "zest.nvim";
-	      rev = "06cd8b2c35f0cda66f348fa3a6225c746cad2edc";
-	      sha256 = "sha256-WQJWMYyhHAIuy8YQPZgbnS1oG0nOyqPqemvs0YBnFP8=";
-	    };
-	  }
-
-          # temporary until packer is going
-          vim-addon-nix 
-          vim-fish
+          {
+            plugin = (plugin "rktjmp/hotpot.nvim");
+            config = "lua require'hotpot'";
+          }
+          {
+            plugin = (plugin "tsbohc/zest.nvim");
+            config = "lua require'zest'.setup()";
+          }
         ];
+
+        extraPackages = with pkgs; [
+          gnumake
+          sqlite
+          selene
+          stylua
+          fennel
+          fnlfmt
+          shellcheck
+          shfmt
+          shellharden
+        ];
+	*/
       };
 
-      hm.home.file = {
-        ".config/nvim/fnl".source = ./config/fnl;
-        ".config/nvim/after".source = ./config/after;
-        ".config/nvim/spell".source = ./config/spell;
-        ".config/nvim/plugin" = {
-          source = ./config/plugin;
-          recursive = true;
-        };
-      };
+      /* hm.home.file = { */
+      /*   ".config/nvim/fnl".source = ./config/fnl; */
+      /*   ".config/nvim/after".source = ./config/after; */
+      /*   ".config/nvim/spell".source = ./config/spell; */
+      /*   ".config/nvim/plugin" = { */
+      /*     source = ./config/plugin; */
+      /*     recursive = true; */
+      /*   }; */
+      /* }; */
 
-      hm.home.packages = with pkgs; [ ctags neovim-remote fzf sqlite fennel gcc ];
+      # hm.home.packages = with pkgs; [ ctags neovim-remote ];
     }
+    /*
+    (mkIf config.modules.devel.nix.enable {
+      hm.programs.neovim = {
+        # extraPackages = with pkgs; [ inputs.rnix-lsp.defaultPackage.${system} ];
+        # extraConfig = "lua require'lspconfig'.rnix.setup{}";
+      };
+    })
+    */
   ]);
 }
