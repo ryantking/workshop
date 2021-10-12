@@ -58,6 +58,7 @@ in {
 
     whohas = "branch -a --contains";
     ignore = "!gi() { curl -sL https://www.toptal.com/developers/gitignore/api/$@ ;}; gi";
+    fixbare = "config remote.origin.fetch \"+refs/heads/*:refs/remotes/origin/*\"";
   };
 
   ignores = [

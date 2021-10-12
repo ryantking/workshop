@@ -11,37 +11,37 @@
 
 (def-plugins
   ;; Base
-  "wbthomason/packer.nvim" {:event :VimEnter}
-  "tsbohc/zest.nvim" {:setup-mod "zest"}
-  "Olical/aniseed" {}
-  "Olical/conjure" {}
-  "LionC/nest.nvim" {}
-  "folke/which-key.nvim" (use-mod-config :which-key)
+  ; "wbthomason/packer.nvim" {:event :VimEnter}
+  ; "tsbohc/zest.nvim" {:setup-mod "zest"}
+  ; "Olical/aniseed" {}
+  ; "Olical/conjure" {}
+  ; "LionC/nest.nvim" {}
+  ; "folke/which-key.nvim" (use-mod-config :which-key)
 
   ;; GUI
-  "shaunsingh/nord.nvim" {}
-  "glepnir/galaxyline.nvim" {:mod "galaxyline" :requires []}
-  "romgrk/barbar.nvim" {:requires [devicons]}
-  "karb94/neoscroll.nvim" {:setup-mod "neoscroll"}
+  ; "shaunsingh/nord.nvim" {}
+  ; "glepnir/galaxyline.nvim" {:mod "galaxyline" :requires []}
+  ; "romgrk/barbar.nvim" {:requires [devicons]}
+  ; "karb94/neoscroll.nvim" {:setup-mod "neoscroll"}
   "glepnir/dashboard-nvim" {:mod "dashboard"}
-  "lukas-reineke/indent-blankline.nvim" {:mod "indent-blankline" :after ["nvim-treesitter"]}
-  "dstein64/nvim-scrollview" {}
+  ; "lukas-reineke/indent-blankline.nvim" {:mod "indent-blankline" :after ["nvim-treesitter"]}
+  ; "dstein64/nvim-scrollview" {}
 
   ;; Text Editing
-  "tpope/vim-repeat" {}
-  "tpope/vim-surround" {}
-  "nvim-treesitter/nvim-treesitter" {:mod "treesitter" :run ":TSUpdate"}
+  ; "tpope/vim-repeat" {}
+  ;0"tpope/vim-surround" {}
+  ;0"nvim-treesitter/nvim-treesitter" {:mod "treesitter" :run ":TSUpdate"}
   "lewis6991/spellsitter.nvim" {:setup-mod "spellsitter" :after ["nvim-treesitter"]}
-  "ggandor/lightspeed.nvim" {:event [:BufEnter]}
-  "windwp/nvim-autopairs" {:mod "autopairs" :after ["nvim-compe"]}
-  "terrortylor/nvim-comment" {:setup-mod "nvim_comment" :event [:BufEnter]}
+  ;0"ggandor/lightspeed.nvim" {:event [:BufEnter]}
+  ;0"windwp/nvim-autopairs" {:mod "autopairs" :after ["nvim-compe"]}
+  ;0"terrortylor/nvim-comment" {:setup-mod "nvim_comment" :event [:BufEnter]}
 
   ;; File Navigation
-  "kyazdani42/nvim-tree.lua" {:event [:BufEnter]}
-  "nvim-telescope/telescope-fzf-native.nvim" {:run "make"}
-  "nvim-telescope/telescope-frecency.nvim" {:requires ["tami5/sql.nvim"]}
-  "ahmedkhalf/project.nvim" {}
-  "nvim-telescope/telescope.nvim" {:mod "telescope"}
+  ;0"kyazdani42/nvim-tree.lua" {:event [:BufEnter]}
+  ;0"nvim-telescope/telescope-fzf-native.nvim" {:run "make"}
+  ;0"nvim-telescope/telescope-frecency.nvim" {:requires ["tami5/sql.nvim"]}
+  ;0"ahmedkhalf/project.nvim" {}
+  ;0"nvim-telescope/telescope.nvim" {:mod "telescope"}
 
   ;; Version Control
   "lewis6991/gitsigns.nvim" {:setup-mod "gitsigns" :event [:BufEnter] :requires [plenary]}
@@ -73,7 +73,7 @@
   "hrsh7th/nvim-compe" {:mod "compe" :event [:InsertEnter]}
 
   ;; Utilities
-  "aserowy/tmux.nvim" {:mod "tmux"}
-  "akinsho/nvim-toggleterm.lua" {:mod "term"}
+  ;0"aserowy/tmux.nvim" {:mod "tmux"}
+  ;0"akinsho/nvim-toggleterm.lua" {:mod "term"}
   "ellisonleao/glow.nvim" {:ft [:markdown] :run ":GlowInstall"}
   "windwp/nvim-spectre" {:setup-mod "spectre" :requires [plenary popup]})

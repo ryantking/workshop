@@ -72,6 +72,11 @@
     usbutils
   ];
 
+  programs.git = {
+    enable = true;
+    config.init.defaultBranch = "master";
+  };
+
   imports = [ inputs.home-manager.nixosModules.home-manager ];
 
   hm.home.stateVersion = "21.05";

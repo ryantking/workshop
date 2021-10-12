@@ -74,9 +74,11 @@ in
         fd
         iotop
         most
-        tealdeer
         ripgrep
         ripgrep-all
+        sd
+        gnumake
+        tealdeer
       ];
 
       sessionVariables = {
