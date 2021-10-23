@@ -49,38 +49,39 @@ in {
     };
 
     colors = mkOption {
-      description = "16-color palette for theming apps. Based on the base16 scheme.";
+      description =
+        "16-color palette for theming apps. Based on the base16 scheme.";
       type = types.submodule {
-        options = listToAttrs (map (name: nameValuePair name (mkColorOption name)) [
-          "bg0"
-          "bg1"
-          "bg2"
-          "bg3"
-          "fg0"
-          "fg1"
-          "fg2"
-          "fg3"
-          "alert"
-          "primary"
-          "secondary"
-          "tertiary"
-          "quaternary"
-          "quinary"
-          "senary"
-          "septary"
-        ]);
+        options = listToAttrs
+          (map (name: nameValuePair name (mkColorOption name)) [
+            "bg0"
+            "bg1"
+            "bg2"
+            "bg3"
+            "fg0"
+            "fg1"
+            "fg2"
+            "fg3"
+            "alert"
+            "primary"
+            "secondary"
+            "tertiary"
+            "quaternary"
+            "quinary"
+            "senary"
+            "septary"
+          ]);
       };
     };
 
     fonts = mkOption {
-      description = "Fonts to use throught the system";
+      description = "Fonts to use throughout the system";
       type = types.submodule {
         options = {
           sans = mkFontOption "Sans-serif font";
           serif = mkFontOption "Serif font";
           mono = mkFontOption "Monospace font";
           ui = mkFontOption "Font to use for UI elements";
-          term = mkFontOption "Font to use for the terminal";
         };
       };
     };

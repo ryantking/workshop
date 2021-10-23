@@ -4,8 +4,7 @@ let
   inherit (lib) mkEnableOption mkIf;
 
   cfg = config.modules.shell;
-in
-{
+in {
   options.modules.shell = {
     bat.enable = mkEnableOption "bat";
     bottom.enable = mkEnableOption "bottom";
@@ -24,9 +23,7 @@ in
         config = { pager = "less -FR"; };
       };
 
-      bottom = mkIf cfg.bottom.enable {
-        enable = true;
-      };
+      bottom = mkIf cfg.bottom.enable { enable = true; };
 
       broot = mkIf cfg.broot.enable {
         enable = true;
@@ -55,13 +52,9 @@ in
         enableAliases = true;
       };
 
-      jq = mkIf cfg.jq.enable {
-        enable = true;
-      };
+      jq = mkIf cfg.jq.enable { enable = true; };
 
-      nnn = mkIf cfg.nnn.enable {
-        enable = true;
-      };
+      nnn = mkIf cfg.nnn.enable { enable = true; };
 
       zoxide = mkIf cfg.zoxide.enable {
         enable = true;
@@ -71,19 +64,20 @@ in
 
     home = {
       packages = with pkgs; [
+        copyq
         fd
+        gnumake
         iotop
         most
+        procs
+        pstree
         ripgrep
         ripgrep-all
         sd
-        gnumake
         tealdeer
       ];
 
-      sessionVariables = {
-        PAGER = "most -s -w";
-      };
+      sessionVariables = { PAGER = "most -s -w"; };
 
       activation = mkIf cfg.bat.enable {
         "batCacheBuild" = {

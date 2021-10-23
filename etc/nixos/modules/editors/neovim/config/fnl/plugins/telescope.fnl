@@ -6,7 +6,9 @@
                          :override_file_sorter true
                          :override_generic_sorter true}}})
 
-(project.setup {:patterns [".git" "lua" "zshrc"]})
+(project.setup
+  {:detection_methods ["pattern"]
+   :patterns [".git" "lua"]})
 
 (telescope.load_extension "fzf")
 (telescope.load_extension "frecency")

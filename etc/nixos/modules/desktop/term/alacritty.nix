@@ -4,7 +4,7 @@ let
   inherit (lib) mapAttrs removePrefix mkEnableOption mkIf;
   inherit (config.modules.theme) colors;
 
-  font = config.modules.theme.fonts.term;
+  font = config.modules.theme.fonts.mono;
 
   cfg = config.modules.desktop.term.alacritty;
 in {
@@ -20,7 +20,7 @@ in {
 
       font = {
         size = font.size;
-        
+
         normal.family = font.family;
         italic.family = font.family;
         bold.family = font.family;
@@ -55,10 +55,7 @@ in {
         };
       };
 
-      window = {
-        dimension.columns = 120;
-      };
+      window = { dimension.columns = 120; };
     };
   };
 }
-

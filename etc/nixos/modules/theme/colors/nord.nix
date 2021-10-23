@@ -21,39 +21,38 @@ let
   c-purple = "#b48ead";
 
   cfg = config.modules.theme;
-in
-  mkIf (cfg.colorscheme == "nord") {
-    modules.theme.colors = {
-      bg0 = c-dark0;
-      bg1 = c-dark1;
-      bg2 = c-dark2;
-      bg3 = c-dark3;
-      fg0 = c-light0;
-      fg1 = c-light1;
-      fg2 = c-light2;
-      fg3 = c-blue2;
-      alert = c-red;
-      primary = c-blue1;
-      secondary = c-green;
-      tertiary = c-purple;
-      quaternary = c-orange;
-      quinary = c-yellow;
-      senary = c-blue3;
-      septary = c-blue0;
-    };
+in mkIf (cfg.colorscheme == "nord") {
+  modules.theme.colors = {
+    bg0 = c-dark0;
+    bg1 = c-dark1;
+    bg2 = c-dark2;
+    bg3 = c-dark3;
+    fg0 = c-light0;
+    fg1 = c-light1;
+    fg2 = c-light2;
+    fg3 = c-blue2;
+    alert = c-red;
+    primary = c-blue1;
+    secondary = c-green;
+    tertiary = c-purple;
+    quaternary = c-orange;
+    quinary = c-yellow;
+    senary = c-blue3;
+    septary = c-blue0;
+  };
 
-    hm.programs = {
-      bat.config.theme = "Nord";
-      git.delta.options.syntax-theme = "Nord";
+  hm.programs = {
+    bat.config.theme = "Nord";
+    git.delta.options.syntax-theme = "Nord";
 
-      neovim = {
-        plugins = [ pkgs.vimPlugins.nord-nvim ];
-        extraConfig = ''
-            let g:nord_borders = v:true
-            color nord
-            hi IndentBlanklineContextChar guifg=${c-purple}
-            hi VertSplit guifg=${c-blue1}
-        '';
-      };
+    neovim = {
+      plugins = [ pkgs.vimPlugins.nord-nvim ];
+      extraConfig = ''
+        let g:nord_borders = v:true
+        color nord
+        hi IndentBlanklineContextChar guifg=${c-purple}
+        hi VertSplit guifg=${c-blue1}
+      '';
     };
-  }
+  };
+}

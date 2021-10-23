@@ -1,17 +1,19 @@
 { config, lib, inputs, pkgs, ... }:
 
-let
-  cfg = config.modules.desktop;
+let cfg = config.modules.desktop;
 in {
   services.xserver.layout = "us";
 
   hm.home.packages = with pkgs; [
-    brave 
+    brave
     discord
-    slack
     font-manager
+    protonmail-bridge
+    signal-desktop
+    slack
     tdesktop
     vlc
+    zoom-us
   ];
 
   fonts = {
@@ -23,7 +25,7 @@ in {
       roboto
       roboto-slab
       scientifica
-      (nerdfonts.override { fonts = [ "FiraCode" "RobotoMono" ]; })
+      (nerdfonts.override { fonts = [ "FiraCode" ]; })
     ];
 
     fontconfig = {
@@ -38,4 +40,3 @@ in {
 
   hm.fonts.fontconfig.enable = true;
 }
-

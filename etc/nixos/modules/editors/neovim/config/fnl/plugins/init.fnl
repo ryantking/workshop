@@ -44,9 +44,9 @@
   ;0"nvim-telescope/telescope.nvim" {:mod "telescope"}
 
   ;; Version Control
-  "lewis6991/gitsigns.nvim" {:setup-mod "gitsigns" :event [:BufEnter] :requires [plenary]}
-  "TimUntersberger/neogit" {:mod "neogit" :requires [plenary "sindrets/diffview.nvim"]}
-  "ThePrimeagen/git-worktree.nvim" {:setup-mod "git-worktree"}
+  ;"lewis6991/gitsigns.nvim" {:setup-mod "gitsigns" :event [:BufEnter] :requires [plenary]}
+  ;"TimUntersberger/neogit" {:mod "neogit" :requires [plenary "sindrets/diffview.nvim"]}
+  ;"ThePrimeagen/git-worktree.nvim" {:setup-mod "git-worktree"}
 
   ;; Language Specific
   "ray-x/go.nvim" {:mod "go" :ft ["go" "gomod"]}

@@ -14,6 +14,11 @@
     rnix-lsp.url = "github:nix-community/rnix-lsp";
 
     treefmt.url = "github:numtide/treefmt";
+
+    tmux-fzf = {
+      url = "github:sainnhe/tmux-fzf";
+      flake = false;
+    };
   };
 
   nixConfig = {
@@ -31,9 +36,14 @@
       inherit (lib.internal.files) mapFiles mapFilesRec mapFilesRecToList;
 
       supportedSystems = [ "x86_64-linux" ];
-      forAllSystems = f: nixpkgs.lib.genAttrs supportedSystems (system: f system);
+
+      forAllSystems = f:
+        nixpkgs.lib.genAttrs supportedSystems (system: f system);
+
       nixpkgsFor = forAllSystems (system: import nixpkgs { inherit system; });
-      lib = nixpkgs.lib.extend (final: prev: { internal = import ./lib final; });
+
+      lib =
+        nixpkgs.lib.extend (final: prev: { internal = import ./lib final; });
 
       mkNixosConfig = path:
         nixosSystem {
@@ -41,27 +51,20 @@
           specialArgs = { inherit inputs lib; };
           modules = [
             {
-              nixpkgs.overlays = [
-                inputs.neovim-nightly-overlay.overlay
-                (final: prev: {
-                  fennel = prev.fennel.overrideAttrs (old: {
-                    src = prev.fetchFromGitHub {
-                      owner = "bakpakin";
-                      repo = "Fennel";
-                      rev = "6ba3c845c98d7371c5bb6869a08f4698960573fe";
-                      sha256 = "sha256-97NfFaq4Xz1mwzcAbYDT98Eyd1RJRd41gIj+64x3teE=";
-                    };
-                  });
-                })
-              ];
+              nixpkgs.overlays = [ inputs.neovim-nightly-overlay.overlay ]
+                ++ self.overlays;
             }
             (import path)
           ] ++ mapFilesRecToList import ./modules;
         };
-    in
-    {
+
+    in {
       lib = lib.internal;
+
       nixosConfigurations = mapFiles mkNixosConfig ./hosts;
+
       nixosModules = mapFilesRec import ./modules;
+
+      overlays = mapFilesRecToList import ./overlays;
     };
 }

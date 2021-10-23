@@ -3,7 +3,7 @@
 {
   require = [ ./hardware-configuration.nix ];
 
-  system.stateVersion = "21.05"; 
+  system.stateVersion = "21.05";
 
   boot = {
     loader = {
@@ -24,14 +24,18 @@
     extraOptions = ''
       experimental-features = nix-command flakes
     '';
-   };
+  };
 
   time.timeZone = "America/New_York";
 
   networking = {
-    hostName = "trashstation"; 
+    hostName = "trashstation";
     useDHCP = false;
     interfaces.enp1s0.useDHCP = true;
+    networkmanager = {
+      enable = true;
+      packages = [ pkgs.networkmanager-openvpn ];
+    };
   };
 
   i18n.defaultLocale = "en_US.UTF-8";
@@ -43,10 +47,11 @@
   security.sudo.wheelNeedsPassword = false;
   users = {
     mutableUsers = false;
-    users.root.hashedPassword = "$6$xL0fzTOIJV5KEQ$clkH7gC8TThDI/2cqBmpi2eVDH5JTWXUMlPnh4Qwq3LhmB9tSwrlPlgF51V0lXBZtzyQnuQJX4.hM0pr2JcpV0";
+    users.root.hashedPassword =
+      "$6$xL0fzTOIJV5KEQ$clkH7gC8TThDI/2cqBmpi2eVDH5JTWXUMlPnh4Qwq3LhmB9tSwrlPlgF51V0lXBZtzyQnuQJX4.hM0pr2JcpV0";
   };
 
-  user  = {
+  user = {
     name = "rking";
     uid = 1000;
     description = "Ryan King";
@@ -54,7 +59,8 @@
     isNormalUser = true;
     useDefaultShell = true;
     extraGroups = [ "wheel" "networkmanager" ];
-    hashedPassword = "$6$xL0fzTOIJV5KEQ$clkH7gC8TThDI/2cqBmpi2eVDH5JTWXUMlPnh4Qwq3LhmB9tSwrlPlgF51V0lXBZtzyQnuQJX4.hM0pr2JcpV0";
+    hashedPassword =
+      "$6$xL0fzTOIJV5KEQ$clkH7gC8TThDI/2cqBmpi2eVDH5JTWXUMlPnh4Qwq3LhmB9tSwrlPlgF51V0lXBZtzyQnuQJX4.hM0pr2JcpV0";
   };
 
   environment.systemPackages = with pkgs; [
@@ -76,6 +82,7 @@
     enable = true;
     config.init.defaultBranch = "master";
   };
+
 
   imports = [ inputs.home-manager.nixosModules.home-manager ];
 
@@ -135,9 +142,7 @@
       };
     };
 
-    devel = {
-      nix.enable = true;
-    };
+    devel = { nix.enable = true; };
 
     theme = {
       colorscheme = "nord";
@@ -156,18 +161,12 @@
           pkg = pkgs.roboto-slab;
         };
         mono = {
-          family = "RobotoMono Nerd Font";
+          family = "Fira Code Nerd Font";
           style = "Light";
           size = 12;
           pkg = pkgs.nerdfonts.override;
         };
         ui = sans;
-        term = {
-          family = "scientifica";
-          style = "Medium";
-          size = 11;
-          pkg = pkgs.scientifica;
-        };
       };
     };
   };

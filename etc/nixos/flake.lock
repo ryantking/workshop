@@ -255,7 +255,24 @@
         "neovim-nightly-overlay": "neovim-nightly-overlay",
         "nixpkgs": "nixpkgs_2",
         "rnix-lsp": "rnix-lsp",
+        "tmux-fzf": "tmux-fzf",
         "treefmt": "treefmt"
+      }
+    },
+    "tmux-fzf": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1628515396,
+        "narHash": "sha256-QbBqv1cFSuGR97layXoeBpd5MP6PGlRhmLbRd6KYh6Y=",
+        "owner": "sainnhe",
+        "repo": "tmux-fzf",
+        "rev": "8bba6a429d3ec808031f972384f0bd28b0ce38c1",
+        "type": "github"
+      },
+      "original": {
+        "owner": "sainnhe",
+        "repo": "tmux-fzf",
+        "type": "github"
       }
     },
     "treefmt": {
