@@ -9,7 +9,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
+    # neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
 
     rnix-lsp.url = "github:nix-community/rnix-lsp";
 
@@ -51,7 +51,7 @@
           specialArgs = { inherit inputs lib; };
           modules = [
             {
-              nixpkgs.overlays = [ inputs.neovim-nightly-overlay.overlay ]
+              nixpkgs.overlays = [] # [ inputs.neovim-nightly-overlay.overlay ]
                 ++ self.overlays;
             }
             (import path)

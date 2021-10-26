@@ -89,6 +89,18 @@ in {
       meta.homepage = "https://github.com/norcalli/nvim.lua/";
     };
 
+    packer-nvim = buildVimPluginFrom2Nix {
+      pname = "packer.nvim";
+      version = "10-18-21";
+      src = fetchFromGitHub {
+        owner = "wbthomason";
+        repo = "packer.nvim";
+        rev = "797f15afd80dcfe213d421e969f9f5f62af3a728";
+        sha256 = "sha256-8nRQ+wOUKGQTkPZjpqiC8tvFXaGZfyH93yv9pfxxJv4=";
+      };
+      meta.homepage = "https://github.com/wbthomasan/packer.nvim";
+    };
+
     project-nvim = buildVimPluginFrom2Nix {
       pname = "project.nvim";
       version = "2021-09-29";

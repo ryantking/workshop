@@ -25,75 +25,6 @@ let
       tree-sitter-markdown
     ]);
 
-  basePlugins = with pkgs.vimPlugins; [
-    impatient-nvim
-    hotpot-nvim
-    zest-nvim
-    nvim-lua
-    guihua-lua
-    nvim-web-devicons
-    vim-repeat
-    project-nvim
-  ];
-
-  optionalPlugins = with pkgs.vimPlugins; [
-    # Base
-    plenary-nvim
-    popup-nvim
-    packer-nvim
-
-    # UI
-    feline-nvim
-    barbar-nvim
-    indent-blankline-nvim
-    nvim-tree-lua
-    neoscroll-nvim
-    nvim-scrollview
-
-    # Editor
-    vim-surround
-    vim-matchup
-    lightspeed-nvim
-    nvim-autopairs
-    comment-nvim
-
-    # Code
-    vim-nix
-    fennel-vim
-    treesitter
-    nvim-treesitter-textobjects
-    nvim-treesitter-refactor
-    nvim-lspconfig
-    null-ls-nvim
-    trouble-nvim
-    lsp_signature-nvim
-    navigator-lua
-    nvim-cmp
-    cmp-buffer
-    cmp-path
-    cmp-spell
-    cmp-look
-    cmp-calc
-    cmp-treesitter
-    cmp-nvim-lsp
-    cmp-nvim-lua
-    cmp_luasnip
-    luasnip
-    friendly-snippets
-
-    # Tools
-    telescope-nvim
-    telescope-frecency-nvim
-    telescope-fzf-native-nvim
-    gitsigns-nvim
-    neogit
-    diffview-nvim
-    git-worktree-nvim
-    tmux-nvim
-    toggleterm-nvim
-    which-key-nvim
-  ];
-
   cfg = config.modules.editors.neovim;
 in {
   options.modules.editors.neovim = { enable = mkEnableOption "Neovim editor"; };
@@ -101,13 +32,16 @@ in {
   config.hm = mkIf cfg.enable (mkMerge [{
     programs.neovim = {
       enable = true;
-      package = pkgs.neovim-nightly;
+      # package = pkgs.neovim-nightly;
       vimAlias = true;
       vimdiffAlias = true;
       withNodeJs = true;
       withPython3 = true;
 
       extraConfig = ''
+        let &runtimepath=split(&runtimepath, ",")[0] . expand(",$HOME/Workshop/etc/nvim,$HOME/.config/nvim,$HOME/.local/share/nvim/site,$VIMRUNTIME")
+        let &packpath=&runtimepath
+
         lua << EOF
         require'impatient'
         require'hotpot'
@@ -116,7 +50,14 @@ in {
         EOF
       '';
 
-      plugins = basePlugins ++ (map mkOptional optionalPlugins);
+      plugins = with pkgs.vimPlugins; [
+        impatient-nvim
+        nvim-lua
+        hotpot-nvim
+        zest-nvim
+        (mkOptional packer-nvim)
+        (mkOptional treesitter)
+      ];
 
       extraPackages = with pkgs; [
         gcc

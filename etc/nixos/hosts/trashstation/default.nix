@@ -83,7 +83,6 @@
     config.init.defaultBranch = "master";
   };
 
-
   imports = [ inputs.home-manager.nixosModules.home-manager ];
 
   hm.home.stateVersion = "21.05";
@@ -116,6 +115,8 @@
       default = "neovim";
       neovim.enable = true;
     };
+
+    services = { sshd.enable = true; };
 
     shell = {
       bat.enable = true;

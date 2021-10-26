@@ -30,6 +30,7 @@ in {
           cd = "z";
           cat = "bat --plain";
           tree = "exa -T";
+          nvim = "nvim --startuptime /tmp/nvim-startuptime";
           ".." = "cd ..";
         };
 
