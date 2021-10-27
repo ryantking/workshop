@@ -12,6 +12,9 @@ in {
     services.openssh = {
       enable = true;
       passwordAuthentication = true;
+      extraConfig = ''
+        StreamLocalBindUnlink yes
+      '';
     };
 
     user.openssh.authorizedKeys.keys = [

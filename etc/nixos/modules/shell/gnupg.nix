@@ -19,8 +19,8 @@ in {
       programs.gnupg.agent.enable = true;
 
       environment.shellInit = ''
-        export GPG_TTY="$(tty)"
-        gpg-connect-agent /bye
+          export GPG_TTY="$(tty)"
+          gpg-connect-agent /bye
       '';
 
       hm = {
