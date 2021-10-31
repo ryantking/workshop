@@ -16,6 +16,7 @@
     users.nix.configureBuildUsers = true;
 
     nix = {
+      gc.user = "${config.user.name}";
       nixPath = [ "darwin=/etc/${config.environment.etc.darwin.target}" ];
       extraOptions = ''
         extra-platforms = x86_64-darwin

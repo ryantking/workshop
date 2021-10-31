@@ -39,10 +39,8 @@
       "$6$xL0fzTOIJV5KEQ$clkH7gC8TThDI/2cqBmpi2eVDH5JTWXUMlPnh4Qwq3LhmB9tSwrlPlgF51V0lXBZtzyQnuQJX4.hM0pr2JcpV0";
   };
 
-  hardware = {
-    cpu.vendor = "intel";
-    gpu.vendor = "nvidia";
-  };
+  cpuVendor = "intel";
+  gpuVendor = "nvidia";
 
   theme = {
     colorscheme = "nord";

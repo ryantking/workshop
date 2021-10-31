@@ -12,7 +12,8 @@
       enable = true;
       enableSSHSupport = true;
     };
-  } // lib.optionalAttrs pkgs.stdenvNoCC.isLinux { ssh.startAgent = false; };
+    ssh = lib.optionalAttrs pkgs.stdenvNoCC.isLinux { startAgent = false; };
+  };
 
   hm = {
     programs.gpg.enable = true;

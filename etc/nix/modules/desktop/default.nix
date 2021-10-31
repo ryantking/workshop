@@ -9,7 +9,7 @@
     hm.fonts = lib.optionalAttrs pkgs.stdenvNoCC.isLinux { fontconfig.enable = true; };
 
     fonts = {
-      enableFontDir = true;
+      fontDir.enable = true;
 
       fonts = with pkgs; [
         corefonts
