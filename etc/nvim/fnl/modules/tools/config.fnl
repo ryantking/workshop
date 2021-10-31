@@ -12,15 +12,15 @@
               :override_file_sorter true
               :override_generic_sorter true}}})
 
-    (call "project_nvim" :setup
-      {:detection_methods ["pattern"]
-       :patterns [".git" "lua"]})
+    ; (call "project_nvim" :setup
+      ; {:detection_methods ["pattern"]
+       ; :patterns [".git" "lua"]})
 
     (packload "telescope-fzf-native.nvim")
     (telescope.load_extension "fzf")
     (packload "telescope-frecency.nvim")
     (telescope.load_extension "frecency")
-    (telescope.load_extension "projects")
+    ;(telescope.load_extension "projects")
     (when (contains packer_plugins :git_worktree)
       (telescope.load_extension "git_worktree"))))
 
@@ -38,7 +38,7 @@
 
 (fn M.which-key [] (require "modules.tools.which-key"))
 
-(fn M.toggleterm [] 
+(fn M.toggleterm []
   (call "toggleterm" :setup
     {:open_mapping "<C-t>"
      :shade_terminals false
