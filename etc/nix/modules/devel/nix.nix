@@ -2,14 +2,7 @@
 
 {
   hm = {
-    home.packages = with pkgs; [
-      cachix
-      manix
-      nixfmt
-      nixpkgs-review
-      nix-diff
-      nix-index
-    ];
+    home.packages = with pkgs; [ cachix manix nixfmt nixpkgs-review nix-diff nix-index ];
   } // lib.optionalAttrs pkgs.stdenvNoCC.isLinux {
     systemd.user = {
       services.nix-index-update = {

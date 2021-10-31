@@ -48,17 +48,7 @@
     };
 
     home = {
-      packages = with pkgs; [
-        fd
-        mosh
-        most
-        procs
-        pstree
-        ripgrep
-        ripgrep-all
-        sd
-        tealdeer
-      ];
+      packages = with pkgs; [ fd mosh most procs pstree ripgrep ripgrep-all sd tealdeer ];
 
       sessionVariables = { PAGER = "most -s -w"; };
 

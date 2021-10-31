@@ -14,12 +14,18 @@
     '';
 
     trustedUsers = [ "${config.user.name}" "root" "@admin" "@wheel" ];
+    readOnlyStore = true;
 
     gc = {
       automatic = true;
       options = "--delete-older-than 30d";
-      user = "rking";
+      user = "${config.user.name}";
     };
+
+    nixPath = [
+      "nixpkgs=/etc/${config.environment.etc.nixpkgs.target}"
+      "home-manager=/etc/${config.environment.etc.home-manager.target}"
+    ];
 
     binaryCaches = [
       "https://ryantking.cachix.org"

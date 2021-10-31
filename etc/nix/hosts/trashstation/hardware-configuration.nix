@@ -25,7 +25,7 @@
     };
   };
 
-  swapDevices = [ { device = "/dev/disk/by-label/swap"; } ];
+  swapDevices = [{ device = "/dev/disk/by-label/swap"; }];
 
   hardware.video.hidpi.enable = lib.mkDefault true;
 }

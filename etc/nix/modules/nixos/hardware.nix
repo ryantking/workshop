@@ -43,11 +43,7 @@ in {
 
       user.extraGroups = [ "audio" "pulse" ];
     }
-    (mkIf (cfg.cpu.vendor != null) {
-      hardware.cpu.${cfg.vendor}.updateMicrocode = true;
-    })
-    (mkIf (cfg.gpu.vendor == "nvidia") {
-      services.xserver.videoDrivers = [ "nvidia" ];
-    })
+    (mkIf (cfg.cpu.vendor != null) { hardware.cpu.${cfg.vendor}.updateMicrocode = true; })
+    (mkIf (cfg.gpu.vendor == "nvidia") { services.xserver.videoDrivers = [ "nvidia" ]; })
   ];
 }

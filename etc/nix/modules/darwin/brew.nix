@@ -23,10 +23,6 @@ in {
       "teamookla/speedtest"
     ];
 
-    brews = [
-      "beeftornado/rmtree/brew-rmtree"
-      "teamookla/speedtest/speedtest"
-      "ykman"
-    ];
+    brews = [ "beeftornado/rmtree/brew-rmtree" "teamookla/speedtest/speedtest" "ykman" ];
   };
 }

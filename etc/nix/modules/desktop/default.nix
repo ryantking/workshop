@@ -6,8 +6,7 @@
   config = {
     environment.variables.TERMINAL = "alacritty";
 
-    hm.fonts =
-      lib.optionalAttrs pkgs.stdenvNoCC.isLinux { fontconfig.enable = true; };
+    hm.fonts = lib.optionalAttrs pkgs.stdenvNoCC.isLinux { fontconfig.enable = true; };
 
     fonts = {
       enableFontDir = true;

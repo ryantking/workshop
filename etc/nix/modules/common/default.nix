@@ -1,10 +1,10 @@
-{ pkgs, ... }:
+{ inputs, pkgs, ... }:
 
 {
   imports = [ ./nixpkgs.nix ./options.nix ./home-manager.nix ];
 
-  config = {
-    environment.systemPackages = with pkgs; [
+  config.environment = {
+    systemPackages = with pkgs; [
       file
       git
       neovim
@@ -16,5 +16,10 @@
       coreutils
       pciutils
     ];
+
+    etc = {
+      home-manager.source = "${inputs.home-manager}";
+      nixpkgs.source = "${inputs.nixpkgs}";
+    };
   };
 }

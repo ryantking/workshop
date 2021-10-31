@@ -43,13 +43,8 @@
 
   outputs = inputs@{ self, nixpkgs, darwin, treefmt, ... }:
     let
-      modules = [
-        ./modules/desktop
-        ./modules/theme
-        ./modules/shell
-        ./modules/devel
-        ./modules/editors
-      ];
+      modules =
+        [ ./modules/desktop ./modules/theme ./modules/shell ./modules/devel ./modules/editors ];
 
       overlays = [ inputs.neovim-nightly-overlay.overlay ] ++ map import [
         ./overlays/fennel.nix

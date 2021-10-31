@@ -5,8 +5,7 @@
   environment.shells = [ pkgs.fish ];
   user.shell = pkgs.fish;
 
-  users =
-    lib.optionalAttrs pkgs.stdenvNoCC.isLinux { defaultUserShell = pkgs.fish; };
+  users = lib.optionalAttrs pkgs.stdenvNoCC.isLinux { defaultUserShell = pkgs.fish; };
 
   hm.programs.fish = {
     enable = true;

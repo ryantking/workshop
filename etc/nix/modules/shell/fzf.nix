@@ -15,10 +15,8 @@ in {
     defaultCommand = "${fdCommand}";
     defaultOptions = [ "${fzfOpts}" ];
     fileWidgetCommand = "${fdCommand} --type f";
-    fileWidgetOptions =
-      [ "${fzfOpts} --preview 'bat --color=always --plain {}'" ];
+    fileWidgetOptions = [ "${fzfOpts} --preview 'bat --color=always --plain {}'" ];
     changeDirWidgetCommand = "${fdCommand} --type d";
-    changeDirWidgetOptions =
-      [ "${fzfOpts} --preview 'exa -l --tree --level=2 --color=always {}'" ];
+    changeDirWidgetOptions = [ "${fzfOpts} --preview 'exa -l --tree --level=2 --color=always {}'" ];
   };
 }

@@ -8,10 +8,8 @@ in {
     nixosSystem {
       system = import (path + "/system.nix");
       specialArgs = { inherit inputs lib; };
-      modules = [
-        { nixpkgs.overlays = [ overlays ]; }
-        (import path)
-      ] ++ mapFilesRecToList import ../modules;
+      modules = [ { nixpkgs.overlays = [ overlays ]; } (import path) ]
+        ++ mapFilesRecToList import ../modules;
     };
 }
 

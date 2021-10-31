@@ -24,8 +24,7 @@
           logformat =
             "--format=format:'%C(blue)%h%C(reset) - %C(green)(%ar)%C(reset) %s %C(italic)- %an%C(reset)%C(magenta bold)%d%C(reset)'";
           defaultBranch = remote:
-            ''
-              !b() { git remote show ${remote} | grep "HEAD branch" | sed 's/.*: //' ;};'';
+            ''!b() { git remote show ${remote} | grep "HEAD branch" | sed 's/.*: //' ;};'';
         in {
           a = "add";
           aa = "add -A";
@@ -70,10 +69,8 @@
           shs = "stash show --patch";
 
           whohas = "branch -a --contains";
-          ignore =
-            "!gi() { curl -sL https://www.toptal.com/developers/gitignore/api/$@ ;}; gi";
-          fixbare = ''
-            config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"'';
+          ignore = "!gi() { curl -sL https://www.toptal.com/developers/gitignore/api/$@ ;}; gi";
+          fixbare = ''config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"'';
         };
 
         ignores = [
@@ -141,15 +138,7 @@
     };
 
     home = {
-      packages = with pkgs; [
-        git-crypt
-        git-up
-        git-my
-        git-open
-        git-trim
-        git-subrepo
-        git-standup
-      ];
+      packages = with pkgs; [ git-crypt git-up git-my git-open git-trim git-subrepo git-standup ];
 
       file.".config/gh/hosts.yml".source = ./hosts.yml;
 

@@ -2,12 +2,8 @@
 
 {
   homebrew = {
-    taps = [
-      "homebrew/cask"
-      "homebrew/cask-fonts"
-      "homebrew/cask-versions"
-      "homebrew/cask-drivers"
-    ];
+    taps =
+      [ "homebrew/cask" "homebrew/cask-fonts" "homebrew/cask-versions" "homebrew/cask-drivers" ];
 
     brews = [ "mas" ];
 
@@ -17,6 +13,7 @@
       "brave-browser"
       "discord"
       "displaperture"
+      "docker"
       "element"
       "expressvpn"
       "ferdi-beta"
