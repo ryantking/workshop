@@ -1,7 +1,7 @@
 { pkgs, ... }:
 
 {
-  imports = [ ./nix.nix ./go.nix ];
+  imports = [ ./nix.nix ./go.nix ./rust.nix ];
 
-  config = { hm.home.packages = with pkgs; [ gnumake ]; };
+  config = { hm.home.packages = with pkgs; [ gnumake treefmt ]; };
 }

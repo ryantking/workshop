@@ -3,9 +3,6 @@
 {
   user.name = "rking";
 
-  # services.nix-daemon.enable = true;
-  # nix.useDaemon = true;
-
   theme = {
     colorscheme = "nord";
 

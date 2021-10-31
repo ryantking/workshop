@@ -3,10 +3,11 @@
 {
   hm = {
     home.packages = with pkgs; [
+      cachix
       manix
       nixfmt
-      nix-diff
       nixpkgs-review
+      nix-diff
       nix-index
     ];
   } // lib.optionalAttrs pkgs.stdenvNoCC.isLinux {

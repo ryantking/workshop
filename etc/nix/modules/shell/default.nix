@@ -50,6 +50,7 @@
     home = {
       packages = with pkgs; [
         fd
+        mosh
         most
         procs
         pstree

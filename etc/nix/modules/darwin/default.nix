@@ -6,5 +6,6 @@
   config = {
     system.stateVersion = 4;
     programs.zsh.enable = true;
+    environment.darwinConfig = "$HOME/Workshop/etc/nix/flake.nix";
   };
 }

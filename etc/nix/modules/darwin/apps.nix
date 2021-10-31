@@ -18,6 +18,7 @@
       "discord"
       "displaperture"
       "element"
+      "expressvpn"
       "ferdi-beta"
       "gpg-suite"
       "karabiner-elements"
