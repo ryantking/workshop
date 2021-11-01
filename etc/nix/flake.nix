@@ -87,7 +87,10 @@
 
     in {
       nixosConfigurations = {
-        trashstation = mkNixosConfig { baseModule = ./hosts/trashstation; };
+        trashstation = mkNixosConfig {
+          baseModule = ./hosts/trashstation;
+          extraModules = modules ++ [ ./modules/services/sshd.nix ];
+        };
       };
 
       darwinConfigurations = {

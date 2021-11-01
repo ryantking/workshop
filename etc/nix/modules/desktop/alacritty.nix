@@ -17,7 +17,6 @@
           y = 20;
         };
 
-        decorations = "buttonless";
         opacity = 0.5;
         dynamic_title = true;
       };
