@@ -9,7 +9,6 @@
     hm.fonts = lib.optionalAttrs pkgs.stdenvNoCC.isLinux { fontconfig.enable = true; };
 
     fonts = {
-      fontDir.enable = true;
 
       fonts = with pkgs; [
         corefonts
@@ -20,17 +19,19 @@
         scientifica
         (nerdfonts.override { fonts = [ "FiraCode" "Monoid" ]; })
       ];
-    } // lib.optionalAttrs pkgs.stdenvNoCC.isLinux {
-      enableGhostscriptFonts = true;
+    } // lib.optionalAttrs pkgs.stdenvNoCC.isDarwin { enableFontDir = true; }
+      // lib.optionalAttrs pkgs.stdenvNoCC.isLinux {
+        fontDir.enable = true;
+        enableGhostscriptFonts = true;
 
-      fontconfig = {
-        enable = true;
-        defaultFonts = with config.theme.fonts; {
-          monospace = [ mono.family ];
-          sansSerif = [ sans.family ];
-          serif = [ serif.family ];
+        fontconfig = {
+          enable = true;
+          defaultFonts = with config.theme.fonts; {
+            monospace = [ mono.family ];
+            sansSerif = [ sans.family ];
+            serif = [ serif.family ];
+          };
         };
       };
-    };
   };
 }
