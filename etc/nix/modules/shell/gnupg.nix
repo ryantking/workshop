@@ -12,11 +12,12 @@
       enable = true;
       enableSSHSupport = true;
     };
+
     ssh = lib.optionalAttrs pkgs.stdenvNoCC.isLinux { startAgent = false; };
   };
 
   hm = {
-    programs.gpg.enable = true;
+    programs.gpg = { enable = true; };
 
     home.packages = with pkgs; [ gpg-tui pinentry-curses ];
 

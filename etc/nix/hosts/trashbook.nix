@@ -1,7 +1,11 @@
 { inputs, pkgs, ... }:
 
 {
-  user.name = "rking";
+  user = {
+    description = "Ryan King";
+    name = "rking";
+    home = "/Users/rking";
+  };
 
   theme = {
     colorscheme = "nord";

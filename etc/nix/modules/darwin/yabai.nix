@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 
 {
   services = {
@@ -9,20 +9,14 @@
       config = {
         layout = "bsp";
         window_placement = "second_child";
-        top_padding = 8;
-        bottom_padding = 8;
-        left_padding = 8;
-        right_padding = 8;
-        window_gap = 16;
+        top_padding = 48;
+        bottom_padding = 18;
+        left_padding = 18;
+        right_padding = 18;
+        window_gap = 18;
         window_shadow = "on";
         window_border = "off";
-        window_border_placement = "insert";
-        window_border_width = 4;
-        window_border_radius = 4;
-        active_window_border_topmost = "off";
-        active_window_border_color = "0xFF88C0D0";
-        normal_window_border_color = "0xFF2E3440";
-        insert_window_border_color = "0xFFBF616A";
+        wintow_topmost = "on";
       };
 
       extraConfig = ''
@@ -30,6 +24,7 @@
         yabai -m rule --add app='^System Preferences$' manage=off
         yabai -m rule --add title='Preferences$' manage=off
         yabai -m rule --add title='Settings$' manage=off
+        yabai -m rule --add title='SentinelOne$' manage=off
 
         sudo yabai --load-sa
         yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
@@ -49,6 +44,7 @@
         cmd + alt - right : yabai -m window --focus east
 
         cmd + alt + shift - left : yabai -m window --swap west || (yabai -m window --display west; yabai -m display --focus west)
+        yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
         cmd + alt + shift - down : yabai -m window --swap north || (yabai -m window --display north; yabai -m display --focus north)
         cmd + alt + shift - up : yabai -m window --swap south || (yabai -m window --display south; yabai -m display --focus south)
         cmd + alt + shift - right : yabai -m window --swap east || (yabai -m window --display east; yabai -m display --focus east)
@@ -106,6 +102,43 @@
         cmd + ctrl + shift - 2  : yabai -m window --display 2; yabai -m display --focus 2
         cmd + ctrl + shift - 3  : yabai -m window --display 3; yabai -m display --focus 3
       '';
+    };
+
+    spacebar = {
+      enable = true;
+      package = pkgs.spacebar;
+      config = {
+        position = "top";
+        height = 28;
+        title = "on";
+        spaces = "on";
+        clock = "off";
+        power = "on";
+        padding_left = 20;
+        padding_right = 20;
+        spacing_left = 25;
+        spacing_right = 25;
+        text_font = ''"Monoid Nerd Font Mono:Retina:14.0"'';
+        icon_font = ''"Monoid Nerd Font Mono:Retina:14.0"'';
+        background_color = "0xff2E3440";
+        foreground_color = "0xffD8DEE9";
+        space_icon_color = "0xff8fBcBB";
+        power_icon_color = "0xffEBCBDB";
+        battery_icon_color = "0xffA3BE8C";
+        dnd_icon_color = "0xffA3Be8C";
+        clock_icon_color = "0xff81a1C1";
+        power_icon_strip = " ";
+        space_icon_strip = "I II III IV V VI VII VIII IX X";
+        spaces_for_all_displays = "on";
+        display_separator = "on";
+        display_separator_icon = "";
+        clock_icon = "";
+        dnd_icon = "";
+        clock_format = ''"%d/%m/%y %R"'';
+        right_shell = "on";
+        right_shell_icon = "";
+        right_shell_command = "whoami";
+      };
     };
   };
 }

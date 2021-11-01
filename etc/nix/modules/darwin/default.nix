@@ -5,6 +5,7 @@
 
   config = {
     system.stateVersion = 4;
+    users.nix.configureBuildUsers = true;
     programs.zsh.enable = true;
     services.nix-daemon.enable = true;
 
@@ -13,10 +14,9 @@
       etc = { darwin.source = "${inputs.darwin}"; };
     };
 
-    users.nix.configureBuildUsers = true;
-
     nix = {
       gc.user = "${config.user.name}";
+      useDaemon = true;
       nixPath = [ "darwin=/etc/${config.environment.etc.darwin.target}" ];
       extraOptions = ''
         extra-platforms = x86_64-darwin

@@ -15,17 +15,16 @@ set -g renumber-windows on
 # Key bindings
 # -----------------------------------------------------------------------------
 
-# Cycle through panes
-unbind C-a
-bind C-a select-pane -t :.+
-
-# Custom bindings
 bind n next-window # Cycle through windows
-bind R source-file ~/.tmux.conf # Reload settings
 bind-key d detach # Detach client
+bind R source-file ~/.config/tmux/tmux.conf # Reolad
 bind-key A command-prompt "rename-window %%" # Rename window
 bind-key -T copy-mode-vi v send-keys -X begin-selection # setup 'v' begin/end selection (match vim)
 bind c new-window -c "#{pane_current_path}"
+
+# Cycle through panes
+unbind C-a
+bind C-a select-pane -t :.+
 
 # Split windows
 bind-key - split-window -v
@@ -38,6 +37,10 @@ bind-key -r > swap-window -t +1
 # Copy/paste mode
 bind-key Escape copy-mode
 bind-key [ copy-mode
+
+# Use vim-like bindings
+set -g status-keys vi
+setw -g mode-keys vi
 
 # Neovim integration
 is_vim="ps -o state= -o comm= -t '#{pane_tty}' | grep -iqE '^[^TXZ ]+ +(\\S+\\/)?g?(view|n?vim?x?)(diff)?$'"
@@ -69,11 +72,12 @@ bind-key -T copy-mode-vi M-Right resize-pane -R 1
 set-option -g status-style fg=default,bg=default
 set -g status-position bottom
 
-set -g status-left "#S"
+set -g status-left "#[fg=cyan]#[fg=black]#[bg=cyan] #[bg=brightblack]#[fg=white] #S#[fg=brightblack]#[bg=default] "
+set -g status-left-length 40
+set -g status-right "#[fg=cyan]#[fg=black]#[bg=cyan] #[bg=brightblack]#[fg=white] #h#[fg=brightblack]#[bg=default]"
 set -g status-justify centre
-setw -g window-status-format ' #(echo "#{pane_current_command}") '
-setw -g window-status-current-format ' #(echo "#{pane_current_command}") '
-set -g status-right "%b %d %R"
+set -g window-status-current-format "#[fg=cyan]#[fg=black]#[bg=cyan]#I #[bg=brightblack]#[fg=white] #W#[fg=brightblack]#[bg=default] "
+set -g window-status-format "#[fg=magenta]#[fg=black]#[bg=magenta]#I #[bg=brightblack]#[fg=white] #W#[fg=brightblack]#[bg=default] "
 
 setw -g window-status-style fg=default,bg=default
 setw -g window-status-current-style fg=cyan,bold
