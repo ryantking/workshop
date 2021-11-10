@@ -41,12 +41,6 @@
  {:config configs.hlslens
   :keys ["/" "?" "*" "#"]}
 
- "mg979/vim-visual-multi"
- {:keys
-  ["<Ctrl>" "<M>" "<C-n>" "<C-n>" "<M-n>" "<S-Down>" "<S-Up>" "<M-Left>" "<M-i>"
-   "<M-Right>" "<M-D>" "<M-Down>" "<C-d>" "<C-Down>" "<S-Right>" "<C-LeftMouse>"
-   "<M-LeftMouse>" "<M-C-RightMouse>"]}
-
  "numToStr/Comment.nvim"
  {:config #(call "Comment" :setup)
   :keys "g"}

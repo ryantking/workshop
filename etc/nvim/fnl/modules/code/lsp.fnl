@@ -4,7 +4,7 @@
   (call "navigator" :setup
     {:border "single"
      :keymaps [{:key "gd" :func "definition()"}]
-     :on_attach #(call "modules.tools.which-key" :add-lsp-bindings $2)
+     :on_attach #(call "keymap.leader" :register-lsp $2)
      :icons
      {
       ; :code_lens_action_icon " "

@@ -27,11 +27,23 @@
     };
 
     security.sudo.wheelNeedsPassword = false;
-    services.xserver = {
-      enable = true;
-      layout = "us";
-      displayManager.sddm.enable = true;
-      desktopManager.plasma5.enable = true;
+
+    services = {
+      xserver = {
+        enable = true;
+        layout = "us";
+        displayManager.sddm.enable = true;
+        desktopManager.plasma5.enable = true;
+      };
+
+      avahi = {
+        enable = true;
+
+        publish = {
+          enable = true;
+          userServices = true;
+        };
+      };
     };
 
     environment.systemPackages = with pkgs; [ psmisc usbutils ];

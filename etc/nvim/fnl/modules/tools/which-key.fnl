@@ -1,62 +1,18 @@
-(import-macros {:def-augroup au-
-                :def-keymap ki-
-                :def-autocmd-fn fau-} "zest.macros")
+(import-macros {:def-augroup au- :let-g g-} "zest.macros")
 
 (local {: setup : register} (require "which-key"))
-
 
 (local M {})
 
 (fn M.config []
-  (let [{: setup : register} (require "which-key")
-        margin (-> (nvim.fn.winwidth 0) (- 120) (/ 2) (math.max 0))]
+  (let [margin (-> (nvim.fn.winwidth 0) (- 120) (/ 2) (math.max 0))]
     (setup
       {:plugins {:spelling true}
        :window {:border "shadow"
                 :margin [1 margin 2 margin]}
        :layout {:align "center"}
        :ignore_missing true})
-    (register
-      {:w ["<cmd>w!<CR>" "Save"]
-       :q ["<cmd>q!<CR>" "Quit"]
-       :y ["\"+y" "Yank to clipboard"]
-       :Y ["\"+yy" "Yank line to clipboard"]
-       :p ["<Plug>(miniyank-startput)" "Put most recent item after"]
-       :P ["<Plug>(miniyank-startPut)" "Put most recent item before"]
-       :n ["<Plug>(miniyank-cycle)" "Cycle history"]
-       :N ["<Plug>(miniyank-cycleback)" "Cycle history backwards"]
-       :h [":nohlsearch<CR>" "No Highlight"]
-       :f ["<cmd>Telescope find_files<CR>" "Find File"]
-       :e ["<cmd>NvimTreeToggle<CR>" "Explorer"]
-       :F ["<cmd>NvimTreeFindFile<CR>" "Find file in explorer"]
-       :t ["<cmd>TableModeToggle<CR>" "Toggle Table Mode"]
-       ; :p {:name "+packer"
-       ;     :s ["<cmd>PackerSync<CR>" "Sync"]
-       ;     :S ["<cmd>PackerStatus<CR>" "Status"]
-       ;     :c ["<cmd>PackerCompile<CR>" "Compile"]
-       ;     :p ["<cmd>PackerProfile<CR>" "Profile"]}
-       :b {:name "+buffer"
-           :c ["<cmd>BufferClose!<CR>" "Close Buffer"]
-           :n ["<cmd>BufferNext<CR>" "Next Buffer"]
-           :N ["<cmd>BufferPrev<CR>" "Previous Buffer"]
-           :j ["<cmd>BufferPick<CR>" "Jump to Buffer"]
-           :f ["<cmd>Telescope buffers<CR>" "Find Buffer"]
-           :w ["<cmd>BufferWipeout<CR>" "Wipeout Buffer"]
-           :e ["<cmd>BufferCloseAllButCurrent<CR>" "Close all buffers except current"]
-           "[" ["<cmd>BufferCloseBuffersLeft<CR>" "Close all buffers to the left"]
-           "]" ["<cmd>BufferCloseBuffersRight<CR>" "Close all buffers to the right"]
-           :d ["<cmd>BufferOrderByDirectory<CR>" "Sort bufferline by directory"]
-           :L ["<cmd>BufferOrderByLanguage<CR>" "Sort bufferline by language"]}
-       :s {:name "+search"
-           :p ["<cmd>Telescope projects<CR>" "Find Project"]
-           :g ["<cmd>Telescope live_grep<CR>" "Grep"]
-           :b ["<cmd>Telescope current_buffer_fuzzy_find<CR>" "Buffer"]
-           :h ["<cmd>Telescope help_tags<cr>" "Help Tags"]
-           :m ["<cmd>Telescope man_pages<cr>" "Man Pages"]
-           :f ["<cmd>Telescope frecency<cr>" "Recent Files"]
-           :r ["<cmd>Telescope registers<cr>" "Registers"]
-           :c ["<cmd>Telescope commands<cr>" "Commands"]}}
-      {:prefix "<leader>"})))
+    (call "keymap.leader" :register {})))
 
 (fn M.add-git-bindings []
   (register
@@ -86,8 +42,6 @@
     {:prefix "<leader>"}))
 
 (fn M.add-lsp-bindings [bufnr]
-  (print "heret/")
-
   (register
     {:l {:name "+lsp"
          :a ["<cmd>lua vim.lsp.buf.code_action()<CR>" "Code Action"]
@@ -123,5 +77,33 @@
          :L "Line diagnostics"
          :G "Diagnostics for all buffers"}}
     {:mode "n" :buffer bufnr}))
+
+(fn M.add-go-bindings [bufnr]
+  (register
+    {:r ["<cmd>GoRun<CR>" "Run"]
+     :b ["<cmd>GoBuild<CR>" "Build"]
+     :g ["<cmd>GoGenerate<CR>" "Generate"]
+     :l ["<cmd>GoLint<CR>" "Lint"]
+     :f ["<cmd>Gofmt" "Format"]
+     :i ["<cmd>Goimport" "Imports"]
+     :m ["<cmd>GoMake<CR>" "Make"]
+     :t {:name "+test"
+         :t ["<cmd>GoTest<CR>" "All"]
+         :T ["<cmd>GoCoverage<CR>" "All with Coverage"]
+         :f ["<cmd>GoTestFunc<CR>" "Function"]
+         :F ["<cmd>GoTestFile<CR>" "File"]
+         :a {:name "Add"
+             :t ["<cmd>GoAddTest<CR>" "Add Test"]
+             :e ["<cmd>GoAddExpTest<CR>" "Add tests for exported functions"]
+             :a ["<cmd>GoAddAllTest<CR>" "Add tests for all functions"]}}
+     :T {:name "+tags"
+         :a ["<cmd>GoAddTag<CR>" "Add"]
+         :r ["<cmd>GoRmTag<CR>" "Remove"]
+         :c ["<cmd>GoClearTag<CR>" "Clear"]}
+     :F {:name "+fill"
+         :s ["<cmd>GoFillStruct<CR>" "Fill Struct"]
+         :S ["<cmd>GoFillSwitch<CR>" "Fill Switch"]
+         :i ["<cmd>GoIfErr<CR>" "Fill if err"]}}
+    {:prefix "<localleader>" :mode "n" :buffer bufnr}))
 
 M

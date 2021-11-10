@@ -1,4 +1,7 @@
-(import-macros {:opt-get se?} "zest.macros")
+(import-macros {:opt-get se?
+                :def-augroup gr-
+                :def-autocmd au-
+                :def-autocmd-fn fau-} "zest.macros")
 
 ;; Expose nvim to replace vim globally
 (global nvim (require "nvim"))
@@ -8,9 +11,8 @@
 (global dirs
   {:config (nvim.fn.stdpath "config")
    :cache (.. home "/.cache/nvim/")
-   ;:modules (-> "config" (nvim.fn.stdpath) (.. "/fnl/modules"))
    :modules (.. home "/Workshop/etc/nvim/fnl/modules")
-   :data (-> "data" (nvim.fn.stdpath) (.. "/site/"))})
+   :data (.. (nvim.fn.stdpath "data") "/site/")})
 
 
 ;; Expose lume functions globally
@@ -97,8 +99,8 @@
 ;; Parsing git remote show is too slow.
 (global master
   #(if
-     (-> "git branch --list main" (vim.fn.system) (length) (> 0)) "main"
-     (-> "git branch --list trunk" (vim.fn.system) (length) (> 0)) "trunk"
+     (> (length (vim.fn.system "git branch --list main")) 0) "main"
+     (> (length (vim.fn.system "git branch --list trunk")) 0) "trunk"
      "master"))
 
 ;; Load a packer plugin if not present
@@ -107,3 +109,7 @@
          plugin (. packer_plugins $1)]
      (when (not (and plugin plugin.loaded))
        (packer.loader $1))))
+
+(global autogr #(gr- $1 $2 $3))
+(global autocmd #(au- $1 $2 $3))
+(global autocmd-fn #(fau- $1 $2 $3))

@@ -6,7 +6,8 @@
 
 (fn M.autopairs []
   (let [{: setup : add_rule} (require "nvim-autopairs")
-        rule (require "nvim-autopairs.rule")]
+        rule (require "nvim-autopairs.rule")
+        {: event} (require "cmp")]
     (setup
       {:disable_filetype ["TelescopePromt" "guihua"]
        :check_ts true
@@ -17,9 +18,9 @@
         :lua ["string"]}})
     (add_rule (rule "'" "" ["fennel"]))
     (add_rule (rule "`" "" ["fennel"]))
-    (call "nvim-autopairs.completion.cmp" :setup
-      {:map_cr true
-       :map_complete true})))
+    (event:on
+      "confirm_done"
+      (call "nvim-autopairs.completion.cmp" :on_confirm_done { :map_char {:tex "" }}))))
 
 (fn M.matchup []
   (g- matchup_matchparen_offscreen {:method "popup"})

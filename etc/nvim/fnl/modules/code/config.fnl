@@ -1,17 +1,17 @@
-(import-macros {:let-g g-
-                :def-keymap ki-} "zest.macros")
+(import-macros {:def-keymap ki-} "zest.macros")
 
 (local M {})
 
-(fn M.treesitter [] (call "modules.code.treesitter" :treesitter))
-
-(fn M.treesitter-refactor [] (call "modules.code.treesitter" :refactor))
-
-(fn M.navigator [] (call "modules.code.lsp" :navigator))
-
-(fn M.null-ls [] (call "modules.code.lsp" :null-ls))
-
-(fn M.cmp [] (require "modules.code.complete"))
+(fn M.go []
+  (call "go" :setup
+    {:verbose false
+     :max_line_len 120
+     :filstruct "gopls"
+     :log_path (.. (nvim.fn.stdpath "data") "/logs/gonvim.log")
+     :lsp_cfg true
+     :lsp_codelens false
+     :lsp_on_attach #(call "modules.tools.which-key" :add-go-bindings $2)
+     }))
 
 (fn M.luasnip []
   (call "luasnip" "config.set_config" {:history true :updateevents "TextChangedI"})

@@ -16,6 +16,7 @@
         (= nil)))))
 
 (lspkind.init)
+
 (cmp.setup
   {:sources
    [{:name "nvim_lua"}

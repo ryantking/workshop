@@ -6,7 +6,8 @@
   :requires
   [{1 "nvim-lua/popup.nvim" :opt true}
    {1 "nvim-lua/plenary.nvim" :opt true}
-   {1 "nvim-telescope/telescope-fzf-native.nvim" :opt true}
+   {1 "nvim-telescope/telescope-fzf-native.nvim" :opt true :run "make"}
+   {1 "ahmedkhalf/project.nvim" :opt true}
    {1 "nvim-telescope/telescope-frecency.nvim" :opt true}
    {1 "ThePrimeagen/git-worktree.nvim" :opt true}]}
 
@@ -24,16 +25,14 @@
 
  "folke/which-key.nvim"
  {:config #(call "modules.tools.which-key" :config)
-  :event "UIEnter"
-  ;:keys ["<Space>" "," "g" "z" "c" "d"]
-  }
+  :event "UIEnter"}
 
  "henriquehbr/nvim-startup.lua"
  {:config #(call "nvim-startup" :setup)
   :event "VimEnter"}
 
  "akinsho/nvim-toggleterm.lua"
- {:config configs.nvim-toggleterm
+ {:config configs.toggleterm
   :keys "<C-t>"}
 
  "aserowy/tmux.nvim"
