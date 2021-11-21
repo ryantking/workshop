@@ -44,7 +44,6 @@
         cmd + alt - right : yabai -m window --focus east
 
         cmd + alt + shift - left : yabai -m window --swap west || (yabai -m window --display west; yabai -m display --focus west)
-        yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
         cmd + alt + shift - down : yabai -m window --swap north || (yabai -m window --display north; yabai -m display --focus north)
         cmd + alt + shift - up : yabai -m window --swap south || (yabai -m window --display south; yabai -m display --focus south)
         cmd + alt + shift - right : yabai -m window --swap east || (yabai -m window --display east; yabai -m display --focus east)

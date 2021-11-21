@@ -48,7 +48,16 @@
     };
 
     home = {
-      packages = with pkgs; [ fd mosh most procs pstree ripgrep ripgrep-all sd tealdeer ];
+      packages = with pkgs; [
+        gcc
+        fd
+        most
+        procs
+        (ripgrep.override { withPCRE2 = true; })
+        ripgrep-all
+        sd
+        tealdeer
+      ];
 
       sessionVariables = { PAGER = "most -s -w"; };
 

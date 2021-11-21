@@ -21,8 +21,16 @@ in {
       "homebrew/core"
       "homebrew/services"
       "teamookla/speedtest"
+      "khanhas/tap"
     ];
 
-    brews = [ "beeftornado/rmtree/brew-rmtree" "teamookla/speedtest/speedtest" "ykman" ];
+    brews = [
+      "beeftornado/rmtree/brew-rmtree"
+      "languagetool"
+      "spicetify-cli"
+      "teamookla/speedtest/speedtest"
+      "tailscale"
+      "ykman"
+    ];
   };
 }

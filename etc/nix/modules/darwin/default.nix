@@ -1,7 +1,7 @@
 { inputs, config, pkgs, ... }:
 
 {
-  imports = [ ./brew.nix ./apps.nix ./yabai.nix ./alacritty.nix ];
+  imports = [ ./brew.nix ./apps.nix ./yabai.nix ./alacritty.nix ./emacs.nix ];
 
   config = {
     system.stateVersion = 4;
@@ -15,12 +15,13 @@
     };
 
     nix = {
-      gc.user = "${config.user.name}";
       useDaemon = true;
       nixPath = [ "darwin=/etc/${config.environment.etc.darwin.target}" ];
       extraOptions = ''
         extra-platforms = x86_64-darwin
       '';
+
+      gc.user = "${config.user.name}";
     };
   };
 }

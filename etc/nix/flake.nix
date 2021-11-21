@@ -31,6 +31,8 @@
 
     neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
 
+    emacs-overlay.url = "github:nix-community/emacs-overlay";
+
     rnix-lsp.url = "github:nix-community/rnix-lsp";
 
     treefmt.url = "github:numtide/treefmt";
@@ -43,15 +45,25 @@
 
   outputs = inputs@{ self, nixpkgs, darwin, treefmt, ... }:
     let
-      modules =
-        [ ./modules/desktop ./modules/theme ./modules/shell ./modules/devel ./modules/editors ];
-
-      overlays = [ inputs.neovim-nightly-overlay.overlay ] ++ map import [
-        ./overlays/fennel.nix
-        ./overlays/tmux-fzf.nix
-        ./overlays/vim-plugins.nix
-        ./overlays/yabai.nix
+      modules = [
+        ./modules/desktop
+        ./modules/theme
+        ./modules/shell
+        ./modules/devel
+        ./modules/editors
       ];
+
+      overlays =
+        [ inputs.neovim-nightly-overlay.overlay inputs.emacs-overlay.overlay ]
+        ++ map import [
+          ./overlays/fennel.nix
+          ./overlays/tmux-fzf.nix
+          ./overlays/vim-plugins.nix
+          ./overlays/yabai.nix
+          ./overlays/skhd.nix
+          ./overlays/node
+          ./overlays/go-tools.nix
+        ];
 
       mkNixosConfig = { baseModule, extraModules ? modules }:
         nixpkgs.lib.nixosSystem {

@@ -52,6 +52,21 @@
         "type": "github"
       }
     },
+    "emacs-overlay": {
+      "locked": {
+        "lastModified": 1637227696,
+        "narHash": "sha256-LzYoEjWMU6dKiFxtnMnsNSZIZw2JlQTjDDFvSaWH+4w=",
+        "owner": "nix-community",
+        "repo": "emacs-overlay",
+        "rev": "16e97023d8797af6609eaf7d8cce269a71114aee",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "emacs-overlay",
+        "type": "github"
+      }
+    },
     "flake-compat": {
       "flake": false,
       "locked": {
@@ -291,6 +306,7 @@
       "inputs": {
         "darwin": "darwin",
         "darwin-stable": "darwin-stable",
+        "emacs-overlay": "emacs-overlay",
         "home-manager": "home-manager",
         "neovim-nightly-overlay": "neovim-nightly-overlay",
         "nixpkgs": "nixpkgs_2",
