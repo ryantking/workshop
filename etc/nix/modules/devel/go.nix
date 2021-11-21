@@ -2,7 +2,10 @@
 
 {
   hm = {
-    programs.go = { enable = true; };
+    programs.go = {
+      enable = true;
+      package = pkgs.go_1_17;
+    };
 
     home = {
       packages = with pkgs; [ gopls gofumpt golangci-lint ];

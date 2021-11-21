@@ -8,7 +8,7 @@
    "Y" "y$"
    "q:" "<NOP>"
    "]b" "<cmd>bp<CR>"
-   "[b" "<cmd>bn<CR> "
+   "[b" "<cmd>bn<CR>"
    "<C-s>" "<cmd>write<CR>"
    "<C-q>" "<cmd>wq<CR>"
    "<C-Q>" "<cmd>q!<CR>"

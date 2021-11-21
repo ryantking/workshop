@@ -87,32 +87,91 @@
              :s ["<cmd>PackerSync<CR>" "Sync"]
              :S ["<cmd>PackerStatus<CR>" "Status"]
              :c ["<cmd>PackerCompile<CR>" "Compile"]
-             :p ["<cmd>PackerProfile<CR>" "Profile"]}}
+             :p ["<cmd>PackerProfile<CR>" "Profile"]}}}
+    {:prefix "<leader>"}))
 
-     }
+(fn M.register-git []
+  (register
+    {:g {:name "+git"
+         :g ["<cmd>Neogit<CR>" "Neogit"]
+         :f ["<cmd>Telescope git_status<CR>" "Status"]
+         :b ["<cmd>Telescope git_branches<CR>" "Branches"]
+         :c ["<cmd>Telescope git_commits<CR>" "Commits"]
+         :C ["<cmd>Telescope git_bcommits<CR>" "Commits (for current file)"]
+         :w ["<cmd>Telescope git_worktree git_worktrees<CR>" "Worktree"]
+         :W ["<cmd>Telescope git_worktree create_git_worktree<CR>" "Create Worktree"]
+         :b ["<cmd>lua require'gitsigns'.blame_line()<CR>" "Blame"]
+         :r ["<cmd>lua require'gitsigns'.reset_buffer()<CR>" "Rest Buffer"]
+
+         :h {:name "+hunk"
+             :n ["<cmd>lua require'gitsigns'.next_hunk()<CR>" "Next"]
+             :N ["<cmd>lua require'gitsigns'.prev_hunk()<CR>" "Prev"]
+             :r ["<cmd>lua require'gitsigns'.reset_hunk()<CR>" "Reset"]
+             :s ["<cmd>lua require'gitsigns'.stage_hunk()<CR>" "Stage"]
+             :u ["<cmd>lua require'gitsigns'.undo_stage_hunk()<CR>" "Undo Stage"]
+             :p ["<cmd>lua require'gitsigns'.preview_hunk()<CR>" "Preview"]}
+
+         :d {:name "+diff"
+             :d ["<cmd>DiffviewOpen<CR>" "DiffView"]
+             :m [(.. "<cmd>DiffviewOpen " (master) "<CR>") "Against Master"]
+             :l ["<cmd>DiffviewOpen HEAD~1<CR>" "Against the last commit"]
+             :r ["<cmd>DiffviewRefresh<CR>" "Refresh"]
+             :c ["<cmd>DiffviewClose<CR>" "Close"]}}}
     {:prefix "<leader>"}))
 
 (fn M.register-lsp [bufnr]
   (register
-    {:l {:name "+lsp"
-         :a ["<cmd>lua vim.lsp.buf.code_action()<CR>" "Code Action"]
+    {:c {:name "+code"
+         :c ["<cmd>lua vim.lsp.buf.code_action()<CR>" "Action"]
          :f ["<cmd>lua vim.lsp.buf.formatting()<CR>" "Format"]
+         :r ["<cmd>lua vim.lsp.buf.rename()<CR>" "Rename"]}
+
+     :l {:name "+lsp"
+         :s ["<cmd>LspStart<CR>" "Start"]
+         :S ["<cmd>LspStop<CR>" "Stop"]
          :i ["<cmd>LspInfo<CR>" "Info"]
-         :r ["<cmd>lua vim.lsp.buf.rename()<CR>" "Rename"]
-         :d {:name "+diagnostics"
-             "]" ["<cmd>lua vim.lsp.diagnostic.goto_next({popop_opts = {border = 'single'}})<CR>" "Next"]
-             "[" ["<cmd>lua vim.lsp.diagnostic.goto_prev({popop_opts = {border = 'single'}})<CR>" "Prev"]
-             }
-         }
+         :r ["<cmd>LspRestart<CR>" "Restart"]}
+
      :s {:s ["<cmd>Telescope lsp_document_symbols<CR>" "Document Symbols"]
          :S ["<cmd>Telescope lsp_dynamic_workspace_symbols<CR>" "Workspace Symbols"]
          :d ["<cmd>Telescope lsp_document_diagnostics<CR>" "Document Diagnostics"]
          :D ["<cmd>Telescope lsp_workspace_diagnostics<CR>" "Workspace Diagnostics"]}
+
      :x {:x ["<cmd>TroubleToggle<CR>" "Trouble"]
          :d ["<cmd>TroubleToggle lsp_document_diagnostics<CR>" "Document"]
-         :w ["<cmd>TroubleToggle lsp_workspace_diagnostics<CR>" "Workspace"]}
-     }
-    {:prefix "<leader>" :buffer bufnr})
-  )
+         :w ["<cmd>TroubleToggle lsp_workspace_diagnostics<CR>" "Workspace"]}}
+    {:prefix "<leader>" :buffer bufnr}))
+
+(fn M.register-go [bufnr]
+  (register
+    {:r ["<cmd>GoRun<CR>" "Run"]
+     :b ["<cmd>GoBuild<CR>" "Build"]
+     :g ["<cmd>GoGenerate<CR>" "Generate"]
+     :l ["<cmd>GoLint<CR>" "Lint"]
+     :f ["<cmd>Gofmt" "Format"]
+     :i ["<cmd>Goimport" "Imports"]
+     :m ["<cmd>GoMake<CR>" "Make"]
+
+     :t {:name "+test"
+         :t ["<cmd>GoTest<CR>" "All"]
+         :T ["<cmd>GoCoverage<CR>" "All with Coverage"]
+         :f ["<cmd>GoTestFunc<CR>" "Function"]
+         :F ["<cmd>GoTestFile<CR>" "File"]
+
+         :a {:name "+add"
+             :t ["<cmd>GoAddTest<CR>" "Add Test"]
+             :e ["<cmd>GoAddExpTest<CR>" "Add tests for exported functions"]
+             :a ["<cmd>GoAddAllTest<CR>" "Add tests for all functions"]}}
+
+     :T {:name "+tags"
+         :a ["<cmd>GoAddTag<CR>" "Add"]
+         :r ["<cmd>GoRmTag<CR>" "Remove"]
+         :c ["<cmd>GoClearTag<CR>" "Clear"]}
+
+     :F {:name "+fill"
+         :s ["<cmd>GoFillStruct<CR>" "Fill Struct"]
+         :S ["<cmd>GoFillSwitch<CR>" "Fill Switch"]
+         :i ["<cmd>GoIfErr<CR>" "Fill if err"]}}
+    {:prefix "<localleader>" :mode "n" :buffer bufnr}))
 
 M

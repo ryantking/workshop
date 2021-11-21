@@ -66,5 +66,5 @@
  {:opt true}
 
  "bakpakin/fennel.vim"
- {:setup configs.fennel
+ {:setup #(call "modules.code.config" :fennel)
   :opt true}}

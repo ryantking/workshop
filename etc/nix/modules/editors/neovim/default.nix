@@ -34,7 +34,7 @@ in {
         let &packpath=&runtimepath
 
         lua << EOF
-        require'impatient
+        require'impatient'
         require'hotpot'
         require'zest'.setup()
         require'core'

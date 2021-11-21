@@ -1,4 +1,5 @@
-(import-macros {:def-autocmd-fn fau-} "zest.macros")
+(import-macros {:def-augroup gr-
+                :def-autocmd-fn fau-} "zest.macros")
 
 (local cmp (require "cmp"))
 (local luasnip (require "luasnip"))
@@ -17,19 +18,30 @@
 
 (lspkind.init)
 
+(fn setup []
+    (call "lspconfig" :gopls.setup
+      {:capabilities
+       (let [c1 (vim.lsp.protocol.make_client_capabilities)
+             c2 (call "cmp_nvim_lsp" :update_capabilities c1)]
+         c2)
+       }
+      )
+  (print cmp.PreselectMode.None)
+  (cmp.setup.buffer
+    {:sources
+     (->
+       ["luasnip" "path"]
+       (concat (if (is-ft "go" "lua") ["nvim_lsp"] [{:name "buffer" :keyword_length 5}]))
+       (concat (when (is-ft "lua") ["nvim_lua"]))
+       (map #(if (= (type $1) "string") {:name $1} $1)))}))
+
 (cmp.setup
-  {:sources
-   [{:name "nvim_lua"}
-    {:name "nvim_lsp"}
-    {:name "path"}
-    {:name "luasnip"}
-    {:name "buffer" :keyword_length 5}]
+  {:preselect cmp.PreselectMode.None
    :snippet {:expand #(luasnip.lsp_expand (. $1 :body))}
-   :formatting
-   {:format (lspkind.cmp_format {:with_text true :menu {}})}
-   :experimental
-   {:native_menu false
-    :ghost_text true}
+   :formatting {:format (lspkind.cmp_format {:with_text true :menu {}})}
+   ; :experimental
+   ; {:native_menu false
+   ;  :ghost_text true}
    :mapping
    {"<C-p>" (cmp.mapping.select_prev_item)
     "<C-n>" (cmp.mapping.select_next_item)
@@ -54,4 +66,8 @@
          ($1))
       ["i" "s"])}})
 
-(fau- "FileType" "TelescopePrompt" (cmp.setup.buffer {:enabled false}))
+(setup)
+
+(gr- "cmp"
+  (fau- "FileType" "*" (setup))
+  (fau- "FileType" "TelescopePrompt" (cmp.setup.buffer {:enabled false})))

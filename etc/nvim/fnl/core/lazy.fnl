@@ -14,7 +14,7 @@
   (loader "indent-blankline.nvim neoscroll.nvim nvim-scrollview")
   (when (is-git)
     (loader "gitsigns.nvim neogit git-worktree.nvim")
-    (call "modules.tools.which-key" :add-git-bindings))
+    (call "keymap.leader" :register-git))
   (match (se? ft)
     "fennel" (loader "fennel.vim")
     "nix" (loader "vim-nix")))

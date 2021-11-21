@@ -3,7 +3,7 @@
 
 (local M {})
 
-(local compile-path (.. dirs.data "lua/_compiled.lua"))
+(local compile-path (.. dirs.config "lua/packer_compiled.lua"))
 
 (var packer nil)
 
