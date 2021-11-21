@@ -3,11 +3,11 @@
 {;; treesitter base managed by nix due to parser installations
 
  "nvim-treesitter/nvim-treesitter-textobjects"
- {:config configs.treesitter
+ {:config #(call "modules.code.treesitter" :treesitter)
   :opt true}
 
  "nvim-treesitter/nvim-treesitter-refactor"
- {:config configs.treesitter-refactor
+ {:config #(call "modules.code.treesitter" :refactor)
   :after "nvim-treesitter-textobjects"}
 
  "JoosepAlviste/nvim-ts-context-commentstring"
@@ -17,11 +17,11 @@
  {:opt true}
 
  "jose-elias-alvarez/null-ls.nvim"
- {:config configs.null-ls
+ {:config #(call "modules.code.lsp" :null-ls)
   :opt true}
 
  "hrsh7th/nvim-cmp"
- {:config configs.cmp
+ {:config #(require "modules.code.complete")
   :after ["luasnip" "lspkind-nvim"]
   :requires
   [{1 "hrsh7th/cmp-buffer" :after "nvim-cmp"}
@@ -44,7 +44,7 @@
   :requires {1 "rafamadriz/friendly-snippets" :event "InsertEnter"}}
 
  "ray-x/navigator.lua"
- {:config configs.navigator
+ {:config #(call "modules.code.lsp" :navigator)
   :requires {1 "ray-x/guihua.lua" :run "(cd lua/fzy && make)"}
   :opt true}
 
@@ -55,6 +55,10 @@
  {:after "nvim-web-devicons"
   :opt true}
 
+ "ray-x/go.nvim"
+ {:config #(call "modules.code.config" :go)
+  :opt true}
+
  "folke/lua-dev.nvim"
  {:opt true}
 
@@ -62,5 +66,5 @@
  {:opt true}
 
  "bakpakin/fennel.vim"
- {:setup configs.fennel
+ {:setup #(call "modules.code.config" :fennel)
   :opt true}}

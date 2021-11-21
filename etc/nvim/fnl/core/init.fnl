@@ -32,7 +32,7 @@
 (fn setup-leaders []
   "Setup leader keys"
   (g- mapleader " ")
-  (g- localmapleader ","))
+  (g- maplocalleader ","))
 
 (require "core.globals")
 (create-dirs)

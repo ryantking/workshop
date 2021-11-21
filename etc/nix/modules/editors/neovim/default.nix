@@ -9,7 +9,7 @@ let
   treesitter = pkgs.vimPlugins.nvim-treesitter.withPlugins (plugins:
     with plugins; [
       tree-sitter-nix
-      tree-sitter-fennel
+      # tree-sitter-fennel
       tree-sitter-lua
       tree-sitter-bash
       tree-sitter-fish
@@ -48,13 +48,13 @@ in {
         zest-nvim
         (mkOptional packer-nvim)
         (mkOptional treesitter)
+        (mkOptional sqlite-lua)
       ];
 
       extraPackages = with pkgs; [
         gcc
         gnumake
-        sqlite
-        # sumneko-lua-language-server
+        sumneko-lua-language-server
         nodePackages.bash-language-server
         nixfmt
         selene

@@ -14,15 +14,18 @@
   (loader "indent-blankline.nvim neoscroll.nvim nvim-scrollview")
   (when (is-git)
     (loader "gitsigns.nvim neogit git-worktree.nvim")
-    (call "modules.tools.which-key" :add-git-bindings))
+    (call "keymap.leader" :register-git))
   (match (se? ft)
-    "lua" (loader "lua-dev.nvim")
     "fennel" (loader "fennel.vim")
     "nix" (loader "vim-nix")))
 
 (fn load-all-plugins []
   (load-plugins)
   (loader "nvim-lspconfig null-ls.nvim guihua.lua navigator.lua lsp_signature.nvim trouble.nvim")
+  (match (se? ft)
+    "lua" (loader "lua-dev.nvim")
+    "go" (loader "go.nvim")
+    "gomod" (loader "go.nvim"))
   (cmd "packadd nvim-treesitter")
   (loader "nvim-treesitter-textobjects nvim-treesitter-refactor nvim-ts-context-commentstring")
   (cmd "setlocal syntax=on"))
@@ -40,4 +43,4 @@
 
 (fau- "User" "LoadLazyPlugin" (lazy-load))
 
-(vim.defer_fn #(nvim.command "doautocmd User LoadLazyPlugin") 90)
+(vim.defer_fn #(nvim.command "doautocmd User LoadLazyPlugin") 50)

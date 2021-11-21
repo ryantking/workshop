@@ -3,15 +3,18 @@
 
 (local M {})
 
-(fn M.treesitter [] (call "modules.code.treesitter" :treesitter))
-
-(fn M.treesitter-refactor [] (call "modules.code.treesitter" :refactor))
-
-(fn M.navigator [] (call "modules.code.lsp" :navigator))
-
-(fn M.null-ls [] (call "modules.code.lsp" :null-ls))
-
-(fn M.cmp [] (require "modules.code.complete"))
+(fn M.go []
+  (call "go" :setup
+    {:verbose true
+     :log_path (.. (nvim.fn.stdpath "data") "/logs/gonvim.log")
+     ; :lsp_codelens false
+     :lsp_cfg false
+     ; :max_line_len 120
+     ; :filstruct "gopls"
+     ; :lsp_cfg true
+     ; :lsp_on_attach #(call "keymap.leader" :register-go $2)
+     }
+    ))
 
 (fn M.luasnip []
   (call "luasnip" "config.set_config" {:history true :updateevents "TextChangedI"})

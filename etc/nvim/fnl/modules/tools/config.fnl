@@ -5,6 +5,7 @@
 
 (fn M.telescope []
   (let [telescope (require "telescope")]
+    (packload "telescope-fzf-native.nvim")
     (telescope.setup
       {:extensions
        {:fzf {:case_mode "smart_case"
@@ -12,19 +13,22 @@
               :override_file_sorter true
               :override_generic_sorter true}}})
 
-    ; (call "project_nvim" :setup
-      ; {:detection_methods ["pattern"]
-       ; :patterns [".git" "lua"]})
-
-    (packload "telescope-fzf-native.nvim")
     (telescope.load_extension "fzf")
+
+    (packload "project.nvim")
+    (call "project_nvim" :setup
+      {:detection_methods ["pattern"]
+       :patterns [".git" "lua"]})
+    (telescope.load_extension "projects")
+
+    (cmd "packadd sqlite.lua")
     (packload "telescope-frecency.nvim")
     (telescope.load_extension "frecency")
-    ;(telescope.load_extension "projects")
+
     (when (contains packer_plugins :git_worktree)
       (telescope.load_extension "git_worktree"))))
 
-(fn M.gitsigns [] (call "gitsigns" :setup))
+(fn M.gitsigns [] (call "gitsigns" :setup {:keymaps {}}))
 
 (fn M.diffview [] (call "diffview" :setup {}))
 

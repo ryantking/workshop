@@ -25,3 +25,12 @@
   (fn []
     (vim.lsp.buf.signature_help)
     (cmd ":MatchupWhereAmI<CR>")))
+
+(global toggle
+  #(->
+     $1
+     (split " ")
+     (map #[$1 (nvim.get_option_info $1)])
+     (map (fn [[opt info]] [opt (match info.scope "buf" "bo" "win" "wo" _ "o")]))
+     (map (fn [[opt scope]] [opt scope (. vim scope opt)]))
+     (map (fn [[opt scope val]] (tset vim scope opt (not val))))))
