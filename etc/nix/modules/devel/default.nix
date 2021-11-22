@@ -13,6 +13,7 @@
       graphviz
       nodePackages.bash-language-server
       nodePackages.marked
+      nodePackages.vscode-json-languageserver
       sbcl
       selene
       shellcheck

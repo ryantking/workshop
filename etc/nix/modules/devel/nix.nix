@@ -3,7 +3,7 @@
 {
   hm = {
     home.packages = with pkgs; [ cachix manix nixfmt nixpkgs-review nix-diff nix-index ];
-  } // lib.optionalAttrs pkgs.stdenvNoCC.isLinux {
+  } // lib.optionalAttrs pkgs.stdenv.isLinux {
     systemd.user = {
       services.nix-index-update = {
         Unit = {

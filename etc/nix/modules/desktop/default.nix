@@ -6,10 +6,9 @@
   config = {
     environment.variables.TERMINAL = "alacritty";
 
-    hm.fonts = lib.optionalAttrs pkgs.stdenvNoCC.isLinux { fontconfig.enable = true; };
+    hm.fonts = lib.optionalAttrs pkgs.stdenv.isLinux { fontconfig.enable = true; };
 
     fonts = {
-
       fonts = with pkgs; [
         corefonts
         fira
@@ -19,19 +18,20 @@
         scientifica
         (nerdfonts.override { fonts = [ "FiraCode" "Monoid" ]; })
       ];
-    } // lib.optionalAttrs pkgs.stdenvNoCC.isDarwin { enableFontDir = true; }
-      // lib.optionalAttrs pkgs.stdenvNoCC.isLinux {
-        fontDir.enable = true;
-        enableGhostscriptFonts = true;
+    } // (if pkgs.stdenv.isDarwin then {
+      enableFontDir = true;
+    } else {
+      fontDir.enable = true;
+      enableGhostscriptFonts = true;
 
-        fontconfig = {
-          enable = true;
-          defaultFonts = with config.theme.fonts; {
-            monospace = [ mono.family ];
-            sansSerif = [ sans.family ];
-            serif = [ serif.family ];
-          };
+      fontconfig = {
+        enable = true;
+        defaultFonts = with config.theme.fonts; {
+          monospace = [ mono.family ];
+          sansSerif = [ sans.family ];
+          serif = [ serif.family ];
         };
       };
+    });
   };
 }

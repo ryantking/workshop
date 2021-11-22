@@ -13,7 +13,7 @@
       enableSSHSupport = true;
     };
 
-    ssh = lib.optionalAttrs pkgs.stdenvNoCC.isLinux { startAgent = false; };
+    ssh = lib.optionalAttrs pkgs.stdenv.isLinux { startAgent = false; };
   };
 
   hm = {
@@ -21,7 +21,7 @@
 
     home.packages = with pkgs; [ gpg-tui pinentry-curses ];
 
-    services.gpg-agent = lib.optionalAttrs pkgs.stdenvNoCC.isLinux {
+    services.gpg-agent = lib.optionalAttrs pkgs.stdenv.isLinux {
       enable = true;
       defaultCacheTtl = 300;
       pinentryFlavor = "curses";

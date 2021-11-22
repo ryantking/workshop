@@ -2,10 +2,15 @@
 
 {
   homebrew = {
-    taps =
-      [ "homebrew/cask" "homebrew/cask-fonts" "homebrew/cask-versions" "homebrew/cask-drivers" ];
+    taps = [
+      "homebrew/cask"
+      "homebrew/cask-fonts"
+      "homebrew/cask-versions"
+      "homebrew/cask-drivers"
+      "d12frosted/emacs-plus"
+    ];
 
-    brews = [ "mas" ];
+    brews = [ "mas" "libvterm" ];
 
     casks = [
       "adobe-creative-cloud"
@@ -35,6 +40,10 @@
       "yubico-yubikey-personalization-gui"
       "zsa-wally"
     ];
+
+    extraConfig = ''
+      brew "emacs-plus@28", args: ["with-elrumo2-icon", "with-native-comp", "with-xwidgets"]
+    '';
 
     masApps = {
       "1Password 7" = 1333542190;

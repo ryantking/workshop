@@ -1,11 +1,8 @@
 { pkgs, ... }:
 
-let
-  checkBrew = "command -v brew > /dev/null";
-  installBrew = ''
-    ${pkgs.bash}/bin/bash -c "$(${pkgs.curl}/bin/curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"'';
-in {
-  environment.extraInit = "${checkBrew} || ${installBrew}";
+{
+  system.activationScripts.postUserActivation.text = ''
+    command -v brew > /dev/null ${pkgs.bash}/bin/bash -c "$(${pkgs.curl}/bin/curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"'';
 
   homebrew = {
     enable = true;

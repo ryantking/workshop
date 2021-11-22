@@ -1,7 +1,7 @@
 { inputs, config, pkgs, ... }:
 
 {
-  imports = [ ./brew.nix ./apps.nix ./yabai.nix ./alacritty.nix ./emacs.nix ];
+  imports = [ ./brew.nix ./apps.nix ./yabai.nix ];
 
   config = {
     system.stateVersion = 4;

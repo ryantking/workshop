@@ -1,7 +1,12 @@
 { config, pkgs, ... }:
 
 {
-  imports = [ ./neovim ];
+  imports = [ ./neovim.nix ./emacs.nix ];
 
-  config = { environment.variables.EDITOR = "nvim"; };
+  config = {
+    environment.variables = {
+      EDITOR = "et";
+      VISUAL_EDITOR = "emacs";
+    };
+  };
 }

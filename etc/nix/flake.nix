@@ -43,22 +43,10 @@
     };
   };
 
-  outputs = inputs@{ self, nixpkgs, darwin, treefmt, ... }:
+  outputs = inputs@{ self, nixpkgs, darwin, home-manager, ... }:
     let
       modules =
         [ ./modules/desktop ./modules/theme ./modules/shell ./modules/devel ./modules/editors ];
-
-      overlays = [ inputs.neovim-nightly-overlay.overlay inputs.emacs-overlay.overlay ]
-        ++ map import [
-          ./overlays/fennel.nix
-          ./overlays/tmux-fzf.nix
-          ./overlays/vim-plugins.nix
-          ./overlays/yabai.nix
-          ./overlays/skhd.nix
-          ./overlays/node
-          ./overlays/go-tools.nix
-          ./overlays/python.nix
-        ];
 
       mkNixosConfig = { baseModule, extraModules ? modules }:
         nixpkgs.lib.nixosSystem {
@@ -69,8 +57,8 @@
           };
           modules = [
             baseModule
-            inputs.home-manager.nixosModules.home-manager
-            { nixpkgs.overlays = overlays; }
+            home-manager.nixosModules.home-manager
+            ./overlays
             ./modules/common
             ./modules/nixos
           ] ++ extraModules;
@@ -85,8 +73,8 @@
           };
           modules = [
             baseModule
-            { nixpkgs.overlays = overlays; }
-            inputs.home-manager.darwinModules.home-manager
+            home-manager.darwinModules.home-manager
+            ./overlays
             ./modules/common
             ./modules/darwin
           ] ++ extraModules;

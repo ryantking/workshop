@@ -92,38 +92,7 @@
     };
 
     home = {
-      packages = with pkgs;
-        let
-          gitCurrentBranch =
-            writeShellScriptBin "git_current_branch" "git rev-parse --abbrev-ref HEAD";
-
-          gitMainBranch = writeShellScriptBin "git_main_branch" ''
-            command git rev-parse --git-dir &>/dev/null || exit
-            for ref in refs/{heads,remotes/{origin,upstream}}/{main,trunk}; do
-              if command git show-ref -q --verify $ref; then
-                echo $(basename $ref)
-                exit
-              fi
-            done
-
-            echo master
-          '';
-
-          gitDefaultBranch = writeShellScriptBin "git_default_branch"
-            "git remote show $1 | grep \"HEAD branch\" | sed 's/.*: //'";
-        in [
-          git-crypt
-          git-up
-          git-my
-          git-open
-          git-trim
-          git-subrepo
-          git-standup
-
-          gitCurrentBranch
-          gitMainBranch
-          gitDefaultBranch
-        ];
+      packages = with pkgs; [ git-crypt git-up git-my git-open git-trim git-subrepo git-standup ];
 
       file.".config/gh/hosts.yml".source = ./hosts.yml;
 
