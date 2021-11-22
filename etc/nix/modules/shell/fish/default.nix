@@ -45,15 +45,6 @@
         };
       }
       {
-        name = "emacs";
-        src = pkgs.fetchFromGitHub {
-          owner = "oh-my-fish";
-          repo = "plugin-emacs";
-          rev = "af69fd49352137118f2e7b8603759b823c342041";
-          sha256 = "sha256-6qRDyVdDjulbjlP5S+k6Z9Yh9c5tODQY7EdcNDnSlcA=";
-        };
-      }
-      {
         name = "forgit";
         src = forgit.src;
       }

@@ -1,7 +1,7 @@
 { config, pkgs, lib, ... }:
 
 {
-  imports = [ ./alacritty.nix ];
+  imports = [ ./alacritty.nix ./kitty.nix ];
 
   config = {
     environment.variables.TERMINAL = "alacritty";

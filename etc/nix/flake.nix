@@ -57,6 +57,7 @@
           ./overlays/skhd.nix
           ./overlays/node
           ./overlays/go-tools.nix
+          ./overlays/python.nix
         ];
 
       mkNixosConfig = { baseModule, extraModules ? modules }:

@@ -54,7 +54,7 @@
         family = "Monoid Nerd Font";
         style = "Retina";
         size = 12;
-        pkg = pkgs.nerdfonts.override;
+        pkg = pkgs.nerdfonts.override { fonts = [ "Monoid" ]; };
       };
     };
   };

@@ -22,6 +22,7 @@
       "goland"
       "gpg-suite"
       "karabiner-elements"
+      "kitty"
       "logitech-options"
       "logseq"
       "obsidian"

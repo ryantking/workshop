@@ -88,12 +88,6 @@
         cmd + ctrl - 1  : yabai -m display --focus 1
         cmd + ctrl - 2  : yabai -m display --focus 2
 
-        cmd + ctrl - x  : yabai -m display --focus recent
-        cmd + ctrl - z  : yabai -m display --focus prev
-        cmd + ctrl - c  : yabai -m display --focus next
-        cmd + ctrl - 1  : yabai -m display --focus 1
-        cmd + ctrl - 2  : yabai -m display --focus 2
-
         cmd + ctrl + shift - x  : yabai -m window --display recent; yabai -m display --focus recent
         cmd + ctrl + shift - z  : yabai -m window --display prev; yabai -m display --focus prev
         cmd + ctrl + shift - c  : yabai -m window --display next; yabai -m display --focus next
@@ -106,6 +100,7 @@
     spacebar = {
       enable = true;
       package = pkgs.spacebar;
+
       config = {
         position = "top";
         height = 28;
