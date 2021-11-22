@@ -4,9 +4,7 @@
   hm.programs.alacritty = {
     enable = true;
     settings = {
-      env.TERM = "xterm-256color";
       mouse.hide_when_typing = true;
-      cursor.style = "Beam";
       live_config_reload = true;
       use_thin_strokes = true;
 

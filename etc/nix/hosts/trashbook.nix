@@ -29,6 +29,7 @@
         user = "root";
         identitiesOnly = true;
         identityFile = "~/.ssh/id_rsa_yubikey.pub";
+        forwardAgent = true;
       };
       "trashstation" = {
         user = "rking";

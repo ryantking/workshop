@@ -1,7 +1,19 @@
 { ... }:
 
 {
+  system.activationScripts.postUserActivation.text = ''
+    if [[ ! -d "$HOME/.terminfo" ]]; then
+      echo "Installing additional terminal descriptions..."
+      cd $(mktemp -d)
+      curl -sLO https://invisible-island.net/datafiles/current/terminfo.src.gz
+      gunzip terminfo.src.gz
+      tic -xe alacritty-direct,tmux-256color terminfo.src
+     fi
+  '';
+
   hm.programs.alacritty.settings = {
+    env.TERM = "alacritty-direct";
+
     window.decorations = "buttonless";
 
     key_bindings = [

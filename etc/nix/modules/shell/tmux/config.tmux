@@ -6,7 +6,7 @@
 set -g mouse on
 
 # Improve colors
-set-option -ga terminal-overrides ",xterm-256color:Tc"
+set-option -ga terminal-overrides ",alacritty:RGB"
 
 # Renumber windows
 set -g renumber-windows on

@@ -18,7 +18,7 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
 
     darwin = {
-      url = "github:lnl7/nix-darwin/master";
+      url = "github:ryantking/nix-darwin/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -45,16 +45,10 @@
 
   outputs = inputs@{ self, nixpkgs, darwin, treefmt, ... }:
     let
-      modules = [
-        ./modules/desktop
-        ./modules/theme
-        ./modules/shell
-        ./modules/devel
-        ./modules/editors
-      ];
+      modules =
+        [ ./modules/desktop ./modules/theme ./modules/shell ./modules/devel ./modules/editors ];
 
-      overlays =
-        [ inputs.neovim-nightly-overlay.overlay inputs.emacs-overlay.overlay ]
+      overlays = [ inputs.neovim-nightly-overlay.overlay inputs.emacs-overlay.overlay ]
         ++ map import [
           ./overlays/fennel.nix
           ./overlays/tmux-fzf.nix

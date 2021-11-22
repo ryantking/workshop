@@ -8,7 +8,16 @@
     };
 
     home = {
-      packages = with pkgs; [ gopls gofumpt golangci-lint ];
+      packages = with pkgs; [
+        gocode
+        gofumpt
+        golangci-lint
+        gomodifytags
+        gopls
+        gore
+        gotests
+        gotools
+      ];
 
       sessionVariables = {
         GOPROXY = "https://goproxy.io,direct";

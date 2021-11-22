@@ -16,21 +16,15 @@ in {
     };
 
     taps = [
-      "beeftornado/rmtree"
       "homebrew/bundle"
       "homebrew/core"
       "homebrew/services"
-      "teamookla/speedtest"
+      "beeftornado/rmtree"
       "khanhas/tap"
+      "teamookla/speedtest"
     ];
 
-    brews = [
-      "beeftornado/rmtree/brew-rmtree"
-      "languagetool"
-      "spicetify-cli"
-      "teamookla/speedtest/speedtest"
-      "tailscale"
-      "ykman"
-    ];
+    brews =
+      [ "brew-rmtree" "languagetool" "speedtest" "spicetify-cli" "tailscale" "thefuck" "ykman" ];
   };
 }
