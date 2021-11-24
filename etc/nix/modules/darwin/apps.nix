@@ -2,13 +2,19 @@
 
 {
   homebrew = {
-    taps =
-      [ "homebrew/cask" "homebrew/cask-fonts" "homebrew/cask-versions" "homebrew/cask-drivers" ];
+    taps = [
+      "homebrew/cask"
+      "homebrew/cask-fonts"
+      "homebrew/cask-versions"
+      "homebrew/cask-drivers"
+      "d12frosted/emacs-plus"
+    ];
 
-    brews = [ "mas" ];
+    brews = [ "mas" "libvterm" ];
 
     casks = [
       "adobe-creative-cloud"
+      "alacaritty"
       "alfred"
       "bartender"
       "bluejeans"
@@ -22,6 +28,7 @@
       "goland"
       "gpg-suite"
       "karabiner-elements"
+      "kitty"
       "logitech-options"
       "logseq"
       "obsidian"
@@ -40,5 +47,8 @@
       "Telegram" = 747648890;
       "Slack" = 803453959;
     };
+
+    extraConfig =
+      ''brew "emacs-plus", args: ["with-elrumo2-icon", "with-xwidgets", "without-imagemagick"]'';
   };
 }

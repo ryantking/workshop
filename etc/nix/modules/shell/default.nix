@@ -59,6 +59,7 @@
           ripgrep-all
           sd
           tealdeer
+          thefuck
         ];
 
         sessionVariables = { PAGER = "most -s -w"; };

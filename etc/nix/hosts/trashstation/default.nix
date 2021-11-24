@@ -61,10 +61,10 @@
         pkg = pkgs.roboto-slab;
       };
       mono = {
-        family = "Fira Code Nerd Font";
+        family = "Monoid Nerd Font";
         style = "Light";
         size = 12;
-        pkg = pkgs.nerdfonts.override;
+        pkg = pkgs.nerdfonts.override { fonts = [ "Monoid" ]; };
       };
       ui = sans;
     };

@@ -65,8 +65,6 @@ in mkMerge [
     };
   }
   (mkIf isDarwin {
-    homebrew.casks = [ "alacritty" ];
-
     system.activationScripts.postUserActivation.text = ''
       if [[ ! -d "$HOME/.terminfo" ]]; then
         echo "Installing additional terminal descriptions..."

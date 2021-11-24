@@ -1,9 +1,5 @@
 { config, pkgs, lib, ... }:
 
-let
-  inherit (lib) mkMerge mkIf;
-  inherit (pkgs.stdenv) isDarwin;
-in mkMerge [
   {
     hm.programs.kitty = with config.theme; {
       enable = true;
@@ -58,5 +54,3 @@ in mkMerge [
       };
     };
   }
-  (mkIf isDarwin { homebrew.casks = [ "kitty" ]; })
-]
