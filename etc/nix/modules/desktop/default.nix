@@ -3,35 +3,41 @@
 {
   imports = [ ./alacritty.nix ./kitty.nix ];
 
-  config = {
+  config = let
+    inherit (lib) mkMerge optionalAttrs;
+    inherit (pkgs.stdenv) isDarwin isLinux;
+  in {
     environment.variables.TERMINAL = "alacritty";
 
-    hm.fonts = lib.optionalAttrs pkgs.stdenv.isLinux { fontconfig.enable = true; };
+    hm.fonts = optionalAttrs isLinux { fontconfig.enable = true; };
 
-    fonts = {
-      fonts = with pkgs; [
-        corefonts
-        fira
-        redhat-official-fonts
-        roboto
-        roboto-slab
-        scientifica
-        (nerdfonts.override { fonts = [ "FiraCode" "Monoid" ]; })
-      ];
-    } // (if pkgs.stdenv.isDarwin then {
-      enableFontDir = true;
-    } else {
-      fontDir.enable = true;
-      enableGhostscriptFonts = true;
+    fonts = (mkMerge [
+      {
+        fonts = with pkgs; [
+          corefonts
+          emacs-all-the-icons-fonts
+          fira
+          redhat-official-fonts
+          roboto
+          roboto-slab
+          scientifica
+          (nerdfonts.override { fonts = [ "FiraCode" "Monoid" ]; })
+        ];
+      }
+      (optionalAttrs isDarwin { enableFontDir = true; })
+      (optionalAttrs isLinux {
+        fontDir.enable = true;
+        enableGhostscriptFonts = true;
 
-      fontconfig = {
-        enable = true;
-        defaultFonts = with config.theme.fonts; {
-          monospace = [ mono.family ];
-          sansSerif = [ sans.family ];
-          serif = [ serif.family ];
+        fontconfig = {
+          enable = true;
+          defaultFonts = with config.theme.fonts; {
+            monospace = [ mono.family ];
+            sansSerif = [ sans.family ];
+            serif = [ serif.family ];
+          };
         };
-      };
-    });
+      })
+    ]);
   };
 }

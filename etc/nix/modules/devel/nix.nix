@@ -1,10 +1,12 @@
 { pkgs, lib, ... }:
 
-{
-  hm = {
-    home.packages = with pkgs; [ cachix manix nixfmt nixpkgs-review nix-diff nix-index ];
-  } // lib.optionalAttrs pkgs.stdenv.isLinux {
-    systemd.user = {
+let
+  inherit (lib) mkMerge mkIf;
+  inherit (pkgs.stdenv) isLinux;
+in mkMerge [
+  { hm.home.packages = with pkgs; [ cachix manix nixfmt nixpkgs-review nix-diff nix-index ]; }
+  (mkIf isLinux {
+    hm.systemd.user = {
       services.nix-index-update = {
         Unit = {
           Description = "tupdate the nix-index databes";
@@ -32,5 +34,5 @@
         Install.WantedBy = [ "timers.target" ];
       };
     };
-  };
-}
+  })
+]

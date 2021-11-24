@@ -78,9 +78,9 @@
 (when (daemonp)
   (add-hook 'emacs-startup-hook #'greedy-daemon-setup))
 
-;; (setq vterm-always-compile-module t)
+(setq vterm-always-compile-module t)
 
-;; (setq vterm-kill-buffer-on-exit t)
+(setq vterm-kill-buffer-on-exit t)
 
 (map!
   "C-<left>" #'evil-window-left
@@ -192,3 +192,6 @@
 ;; theme treemacs
 (setq treemacs-width 25)
 (setq doom-themes-treemacs-theme "doom-colors")
+
+;; nix
+(customize-set-variable 'nix-nixfmt-in "nixfmt -w 120")

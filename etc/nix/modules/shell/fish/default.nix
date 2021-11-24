@@ -29,24 +29,9 @@
       interactiveShellInit = builtins.readFile ./config.fish;
     };
 
-    home = {
-      activation.updateFisher = ''
-        $DRY_RUN_CMD cat > $HOME/.config/fish/fish_plugins << EOF
-        jorgebucaran/fisher
-        jhillyerd/plugin-git
-        PatrickF1/fzf.fish
-        pure-fish/pure
-        wfxr/forgit
-
-        oh-my-fish/plugin-brew
-        oh-my-fish/plugin-foreign-env
-        oh-my-fish/plugin-grc
-        oh-my-fish/plugin-osx
-        oh-my-fish/plugin-rustup
-        oh-my-fish/plugin-thefuck
-        EOF
-        $DRY_RUN_CMD fish -c "fisher update | rg --color=never 'Installing|Updating|Removing|Updated'"
-      '';
+    home.file.".config/fish/install_plugins.fish" = {
+      source = ./install_plugins.fish;
+      onChange = "$DRY_RUN_CMD fish $HOME/.config/fish/install_plugins.fish";
     };
   };
 }

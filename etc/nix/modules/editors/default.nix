@@ -1,7 +1,7 @@
 { config, pkgs, ... }:
 
 {
-  imports = [ ./neovim.nix ./emacs.nix ];
+  imports = [ ./neovim.nix ./emacs ];
 
   config = {
     environment.variables = {
