@@ -1,10 +1,38 @@
 { config, pkgs, lib, ... }:
 
 let
-  emacsDir = "$HOME/.config/emacs";
-  doomLocalDir = "$HOME/.local/share/doom";
+  inherit (builtins) toString;
+  inherit (lib) mkOption types;
+
+  cfg = config.emacs;
 in {
-  hm = {
+  options.emacs = {
+    theme = mkOption {
+      description = "Emacs theme to apply";
+      type = types.str;
+    };
+
+    configDir = mkOption {
+      description = "Directory to store Emacs config";
+      default = "~/.config/emacs";
+      type = types.str;
+    };
+
+    doom = {
+      configDir = mkOption {
+        description = "Directory to store Doom config";
+        default = "~/.config/doom";
+        type = types.str;
+      };
+      dataDir = mkOption {
+        description = "Directory to store Doom data";
+        default = "~/.local/share/doom";
+        type = types.str;
+      };
+    };
+  };
+
+  config.hm = {
     programs.emacs = {
       enable = pkgs.stdenv.isLinux;
       package = pkgs.emacsGcc;
@@ -13,28 +41,65 @@ in {
     home = {
       packages = with pkgs;
         let
-          darwinAr = writeShellScriptBin "ar" "/usr/bin/ar $@";
-          emacsTest = writeShellScriptBin "emacstest"
-            "DOOMDIR=$HOME/Workshop/etc/nix/modules/editors/emacs/doom emacs $@";
-        in [ emacsTest ];
+          configLoc = "${cfg.doom.configDir}/config.org";
+          testConfigLoc =
+            "${config.workshopDir}/etc/nix/modules/editors/emacs/config.org";
+        in [
+          zstd
+          (aspellWithDicts (dicts: with dicts; [ en en-computers en-science ]))
 
-      sessionPath = [ "${emacsDir}/bin" ];
-      sessionVariables.DOOMLOCALDIR = doomLocalDir;
+          (writeShellScriptBin "emacs-test" ''
+            # Replace org file with editable one
+            mv ${configLoc} ${configLoc}.bak
+            ln -s ${testConfigLoc} ${configLoc}
+            doom -y sync
 
-      file.".config/doom" = {
-        source = ./doom;
-        onChange = "$DRY_RUN_CMD ${emacsDir}/bin/doom -y sync -u";
+            # Run emacs
+            emacs $@
+
+            # Restore original org config
+            rm ${configLoc}
+            mv ${configLoc}.bak ${configLoc}
+            doom -y sync'')
+        ];
+
+      sessionPath = [ "$HOME/.config/emacs/bin" ];
+      sessionVariables = {
+        EMACSDIR = cfg.configDir;
+        DOOMDIR = cfg.doom.configDir;
+        DOOMLOCALDIR = cfg.doom.dataDir;
       };
 
-      activation.ensureDoom = ''
-        [[ $(uname) = Darwin ]] && $DRY_RUN_CMD launchctl setenv DOOMLOCALDIR ${doomLocalDir}
+      file = {
+        ".config/doom/config.org" = {
+          source = let
+            inherit (builtins) toString;
+            inherit (config.identity) name email;
+            inherit (config.theme.fonts) mono sans serif;
+          in pkgs.substituteAll {
+            src = ./config.org;
+            gitName = name;
+            gitEmail = email;
+            theme = cfg.theme;
+            monoFamily = mono.family;
+            monoWeight = mono.style;
+            monoSize = toString mono.size;
+            monoBigSize = toString (mono.size * 2);
+            monoUnicodeFamily = mono.nerdfont.family;
+            sansFamily = sans.family;
+            sansWeight = sans.style;
+            sansSize = toString sans.size;
+            serifFamily = serif.family;
+            serifWeight = serif.style;
+            serifSize = toString serif.size;
+          };
 
-        if [[ ! -d ${emacsDir} ]]; then
-          $DRY_RUN_CMD git clone --depth 1 https://github.com/hlissner/doom-emacs ${emacsDir}
-          $DRY_RUN_CMD ${emacsDir}/bin/doom -y install
-        fi
-      '';
+          onChange = "${cfg.configDir}/bin/doom -y sync";
+        };
+
+        ".config/doom/emacs-e.svg".source = ./emacs-e.svg;
+        ".config/doom/splash-phrases".source = ./splash-phases;
+      };
     };
   };
 }
-

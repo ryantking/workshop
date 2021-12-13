@@ -24,7 +24,8 @@ in mkMerge [
           decorations = if pkgs.stdenv.isDarwin then "buttonless" else "full";
         };
 
-        font = with config.theme.fonts.mono; {
+        font = let inherit (config.theme.fonts.nerdfont) family style size;
+        in {
           size = size;
 
           normal = {

@@ -9,6 +9,17 @@
     programs.zsh.enable = true;
     services.nix-daemon.enable = true;
 
+    launchd.user.agents."emacsd" = let cfg = config.emacs;
+    in {
+      command = "/usr/local/bin/emacs --fg-daemon";
+      environment = {
+        EMACSDIR = cfg.configDir;
+        DOOMDIR = cfg.doom.configDir;
+        DOOMLOCALDIR = cfg.doom.dataDir;
+      };
+      serviceConfig.RunAtLoad = true;
+    };
+
     environment = {
       pathsToLink = [ "/Applications" ];
       etc = { darwin.source = "${inputs.darwin}"; };

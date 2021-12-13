@@ -1,8 +1,18 @@
-{ inputs, pkgs, ... }:
+{ inputs, pkgs, lib, ... }:
 
-let inherit (pkgs.stdenv) isDarwin;
+let
+  inherit (lib) mkOption types;
+  inherit (pkgs.stdenv) isDarwin;
 in {
   imports = [ ./nixpkgs.nix ./options.nix ./home-manager.nix ];
+
+  options = {
+    workshopDir = mkOption {
+      description = "Directory containing the workshop";
+      default = "$HOME/Workshop";
+      type = types.str;
+    };
+  };
 
   config.environment = {
     systemPackages = with pkgs;

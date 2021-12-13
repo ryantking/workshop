@@ -7,3 +7,12 @@
 [submodule "src/kubernetes-sigs/kubebuilder-declarative-pattern"]
 	path = src/kubernetes-sigs/kubebuilder-declarative-pattern
 	url = git@github.com:ryantking/kubebuilder-declarative-pattern.git
+[submodule "src/istio/istio.io"]
+	path = src/istio/istio.io
+	url = git@github.com:ryantking/istio.io.git
+[submodule "src/istio/tools"]
+	path = src/istio/tools
+	url = git@github.com:ryantking/tools.git
+[submodule "src/istio/istio"]
+	path = src/istio/istio
+	url = git@github.com:ryantking/istio.git

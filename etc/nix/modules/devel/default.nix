@@ -8,13 +8,13 @@
       cmake
       fennel
       fnlfmt
-      gcc
+      # gcc
       gnumake
       graphviz
       nodePackages.bash-language-server
       nodePackages.marked
       nodePackages.vscode-json-languageserver
-      sbcl
+      # sbcl
       selene
       shellcheck
       shellharden

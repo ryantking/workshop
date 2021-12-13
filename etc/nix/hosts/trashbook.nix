@@ -11,6 +11,7 @@
     enable = true;
     extraConfig = "PasswordAuthentication no";
     hashKnownHosts = true;
+    controlMaster = "auto";
     matchBlocks = {
       "*.redhat.com".extraOptions = {
         "GSSAPIAuthentication" = "yes";
@@ -41,6 +42,9 @@
             "/Users/rking/.gnupg/S.gpg-agent.extra";
           "RemoteForward /run/user/1000/gnupg/S.gpg-agent.ssh" =
             "/Users/rking/.gnupg/S.gpg-agent.ssh";
+          "RemoteForward /run/user/1000/emacs/server" =
+            "/Users/rking/.config/emacs/servers/server";
+          "ControlPersist" = "30m";
         };
       };
     };
@@ -49,12 +53,18 @@
   theme = {
     colorscheme = "nord";
 
-    fonts = rec {
+    fonts = with pkgs; rec {
       mono = {
-        family = "Monoid Nerd Font";
-        style = "Retina";
+        family = "Victor Mono";
+        style = "Regular";
         size = 12;
-        pkg = pkgs.nerdfonts.override { fonts = [ "Monoid" ]; };
+        pkg = victor-mono;
+      };
+      nerdfont = {
+        family = "VictorMono Nerd Font";
+        style = "Regular";
+        size = 12;
+        pkg = (nerdfonts.override { fonts = [ "VictorMono" ]; });
       };
     };
   };

@@ -11,33 +11,34 @@
 
     hm.fonts = optionalAttrs isLinux { fontconfig.enable = true; };
 
-    fonts = (mkMerge [
-      {
-        fonts = with pkgs; [
-          corefonts
-          emacs-all-the-icons-fonts
-          fira
-          redhat-official-fonts
-          roboto
-          roboto-slab
-          scientifica
-          (nerdfonts.override { fonts = [ "FiraCode" "Monoid" ]; })
-        ];
-      }
-      (optionalAttrs isDarwin { enableFontDir = true; })
-      (optionalAttrs isLinux {
-        fontDir.enable = true;
-        enableGhostscriptFonts = true;
+    fonts = with pkgs;
+      (mkMerge [
+        {
+          fonts = [
+            corefonts
+            emacs-all-the-icons-fonts
+            redhat-official-fonts
+            scientifica
+            victor-mono
+            (nerdfonts.override { fonts = [ "VictorMono" ]; })
+          ];
+        }
+        (optionalAttrs isDarwin { enableFontDir = true; })
+        (optionalAttrs isLinux {
+          fontDir.enable = true;
+          enableGhostscriptFonts = true;
 
-        fontconfig = {
-          enable = true;
-          defaultFonts = with config.theme.fonts; {
-            monospace = [ mono.family ];
-            sansSerif = [ sans.family ];
-            serif = [ serif.family ];
+          fonts = [ roboto roboto-slab ];
+
+          fontconfig = {
+            enable = true;
+            defaultFonts = with config.theme.fonts; {
+              monospace = [ mono.family ];
+              sansSerif = [ sans.family ];
+              serif = [ serif.family ];
+            };
           };
-        };
-      })
-    ]);
+        })
+      ]);
   };
 }
