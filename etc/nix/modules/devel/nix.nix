@@ -9,7 +9,7 @@ in mkMerge [
     hm.systemd.user = {
       services.nix-index-update = {
         Unit = {
-          Description = "tupdate the nix-index databes";
+          Description = "Update the nix-index databese";
           After = [ "network.online.target" ];
         };
 

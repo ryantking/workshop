@@ -5,6 +5,19 @@
     inputs.neovim-nightly-overlay.overlay
     inputs.emacs-overlay.overlay
     (final: prev: rec {
+      # emacsPgtkGcc = let
+      #   emacsDir = "$HOME/.config/emacs"; 
+      # in (prev.emacsPgtkGcc.overrideAttrs (o: {
+      #   postInstall = o.postInstall or "" + ''
+      #     if [[ -d ${emacsDir} ]]; then
+      #       ${emacsDir}/bin/doom -y upgrade
+      #     else
+      #       git clone --depth 1 https://github.com/hlissner/doom-emacs ${emacsDir}
+      #       ${emacsDir}/bin/doom -y install
+      #     fi
+      #   '';
+      # }));
+
       fennel = prev.fennel.overrideAttrs (_: {
         src = prev.fetchFromGitHub {
           owner = "bakpakin";
@@ -18,7 +31,7 @@
       in prev.python39.override {
         packageOverrides = final: prev: {
           beautifulsoup4 = prev.beautifulsoup4.overrideAttrs
-            (old: { propagatedBuildInputs = lib.remove prev.lxml old.propagatedBuildInputs; });
+          (old: { propagatedBuildInputs = lib.remove prev.lxml old.propagatedBuildInputs; });
         };
       };
 
@@ -51,9 +64,9 @@
         src = builtins.fetchTarball {
           url =
             "https://github.com/koekeishiya/yabai/releases/download/v${version}/yabai-v${version}.tar.gz";
-          sha256 = "sha256:1z95njalhvyfs2xx6d91p9b013pc4ad846drhw0k5gipvl03pp92";
-        };
-      });
-    })
-  ];
-}
+            sha256 = "sha256:1z95njalhvyfs2xx6d91p9b013pc4ad846drhw0k5gipvl03pp92";
+          };
+        });
+      })
+    ];
+  }

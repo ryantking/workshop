@@ -6,7 +6,7 @@ in {
 
   config.environment = {
     systemPackages = with pkgs;
-      [ file git neovim pciutils rclone unzip wget ]
+      [ file git dash neovim pciutils rclone unzip wget ]
       ++ (if isDarwin then [ coreutils-prefixed ] else [ coreutils binutils ]);
 
     etc = {
