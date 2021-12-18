@@ -4,23 +4,25 @@
   imports = [ ./nix.nix ./go.nix ./rust.nix ];
 
   config = {
-    hm.home.packages = with pkgs; [
+    hm.home.packages = with pkgs // pkgs.nodePackages; [
+      bash-language-server
       cmake
+      dockerfile-language-server-nodejs
       fennel
       fnlfmt
       # gcc
       gnumake
       graphviz
-      nodePackages.bash-language-server
-      nodePackages.marked
-      nodePackages.vscode-json-languageserver
-      # sbcl
+      kube3d
+      marked
+      sbcl
       selene
       shellcheck
       shellharden
       shfmt
       stylua
       treefmt
+      vscode-json-languageserver
     ];
   };
 }

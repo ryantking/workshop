@@ -29,6 +29,8 @@
       "ferdi-beta"
       "goland"
       "gpg-suite"
+      "grammarly"
+      "grammarly-desktop"
       "karabiner-elements"
       "kitty"
       "logitech-options"
@@ -49,8 +51,6 @@
       "Slack" = 803453959;
     };
 
-    # extraConfig =
-    #   ''brew "emacs-mac", args: ["with-emacs-big-sur-icon", "with-mac-metal", "with-natural-title-bar", "with-starter"]'';
     extraConfig = ''
       brew "emacs-plus@28", args: ["with-elrumo1-icon", "with-imagemagick", "with-mailutils", "with-native-comp", "with-xwidgets"]'';
   };

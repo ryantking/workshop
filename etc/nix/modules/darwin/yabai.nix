@@ -112,8 +112,8 @@
         padding_right = 20;
         spacing_left = 25;
         spacing_right = 25;
-        text_font = ''"Monoid Nerd Font Mono:Retina:14.0"'';
-        icon_font = ''"Monoid Nerd Font Mono:Retina:14.0"'';
+        text_font = ''"VictorMono Nerd Font:Regular:14.0"'';
+        icon_font = ''"VictorMono Nerd Font:Regular:14.0"'';
         background_color = "0xff2E3440";
         foreground_color = "0xffD8DEE9";
         space_icon_color = "0xff8fBcBB";

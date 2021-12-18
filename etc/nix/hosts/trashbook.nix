@@ -31,6 +31,7 @@
         identitiesOnly = true;
         identityFile = "~/.ssh/id_rsa_yubikey.pub";
         forwardAgent = true;
+        extraOptions = { "ControlPersist" = "30m"; };
       };
       "trashstation" = {
         user = "rking";
@@ -42,8 +43,6 @@
             "/Users/rking/.gnupg/S.gpg-agent.extra";
           "RemoteForward /run/user/1000/gnupg/S.gpg-agent.ssh" =
             "/Users/rking/.gnupg/S.gpg-agent.ssh";
-          "RemoteForward /run/user/1000/emacs/server" =
-            "/Users/rking/.config/emacs/servers/server";
           "ControlPersist" = "30m";
         };
       };
@@ -54,17 +53,34 @@
     colorscheme = "nord";
 
     fonts = with pkgs; rec {
+      sans = {
+        family = "Overpass";
+        style = "Regular";
+        size = 12;
+        pkg = overpass;
+      };
+      serif = {
+        family = "IBM Plex Mono";
+        style = "Light";
+        size = 12;
+        pkg = ibm-plex;
+      };
+      ui = sans;
       mono = {
         family = "Victor Mono";
         style = "Regular";
         size = 12;
         pkg = victor-mono;
+        nerdfont = {
+          family = "VictorMono Nerd Font";
+          pkg = (nerdfonts.override { fonts = [ "VictorMono" ]; });
+        };
       };
-      nerdfont = {
-        family = "VictorMono Nerd Font";
+      unicode = {
+        family = "JuliaMono";
         style = "Regular";
         size = 12;
-        pkg = (nerdfonts.override { fonts = [ "VictorMono" ]; });
+        pkg = julia-mono;
       };
     };
   };

@@ -75,7 +75,7 @@ in {
           source = let
             inherit (builtins) toString;
             inherit (config.identity) name email;
-            inherit (config.theme.fonts) mono sans serif;
+            inherit (config.theme.fonts) mono unicode sans serif;
           in pkgs.substituteAll {
             src = ./config.org;
             gitName = name;
@@ -85,7 +85,9 @@ in {
             monoWeight = mono.style;
             monoSize = toString mono.size;
             monoBigSize = toString (mono.size * 2);
-            monoUnicodeFamily = mono.nerdfont.family;
+            unicodeFamily = unicode.family;
+            unicodeWeight = unicode.style;
+            unicodeSize = toString unicode.size;
             sansFamily = sans.family;
             sansWeight = sans.style;
             sansSize = toString sans.size;
@@ -98,7 +100,7 @@ in {
         };
 
         ".config/doom/emacs-e.svg".source = ./emacs-e.svg;
-        ".config/doom/splash-phrases".source = ./splash-phases;
+        ".config/doom/splash-phrases".source = ./splash-phrases;
       };
     };
   };

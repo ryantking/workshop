@@ -41,22 +41,20 @@ in mkIf (cfg.colorscheme == "nord") {
     septary = c-blue0;
   };
 
-  hm = {
-    home.file.".config/emacs/generated/+theme.el".text = "(setq doom-theme 'doom-nord)";
+  emacs.theme = "doom-nord";
 
-    programs = {
-      bat.config.theme = "Nord";
-      git.delta.options.syntax-theme = "Nord";
+  hm.programs = {
+    bat.config.theme = "Nord";
+    git.delta.options.syntax-theme = "Nord";
 
-      neovim = {
-        plugins = [ pkgs.vimPlugins.nord-nvim ];
-        extraConfig = ''
-          let g:nord_borders = v:true
-          color nord
-          hi IndentBlanklineContextChar guifg=${c-purple}
-          hi VertSplit guifg=${c-blue1}
-        '';
-      };
+    neovim = {
+      plugins = [ pkgs.vimPlugins.nord-nvim ];
+      extraConfig = ''
+        let g:nord_borders = v:true
+        color nord
+        hi IndentBlanklineContextChar guifg=${c-purple}
+        hi VertSplit guifg=${c-blue1}
+      '';
     };
   };
 }

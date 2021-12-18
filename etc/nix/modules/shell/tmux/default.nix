@@ -10,15 +10,7 @@
     shortcut = "a";
     terminal = "tmux-256color";
 
-    plugins = with pkgs.tmuxPlugins; [
-      sensible
-      resurrect
-      continuum
-      yank
-      open
-      jump
-      tmux-fzf
-    ];
+    plugins = with pkgs.tmuxPlugins; [ sensible resurrect continuum yank open jump tmux-fzf ];
 
     extraConfig = builtins.readFile ./config.tmux + ''
       bind-key "'" run-shell -b "${pkgs.tmuxPlugins.tmux-fzf}/share/tmux-plugins/tmux-fzf/scripts/window.sh switch"

@@ -1,26 +1,117 @@
-#+title: Doom Configuration
+#+title: Doom Emacs Configuration
 #+author: Ryan King
 #+property: header-args:emacs-lisp :tangle yes :comments link
 #+property: header-args:elisp :exports code
 #+property: header-args :tangle no :results silent :eval no-export
 #+startup: fold
 * References
+This config stands on the shoulders of giants.
+
 ** Posts
 - [[https://www.mtsolitary.com/20210309194647-my-org-mode-setup/][Mt. Solitarity org/roam setup]]
 - [[https://yiming.dev/blog/2018/03/02/my-org-refile-workflow/][Org Refile Workflow]]
 - [[https://coredumped.dev/2021/05/26/taking-org-roam-everywhere-with-logseq/][Org Roam + LogSeq]]
 - [[https://rgoswami.me/posts/org-note-workflow/][Orgmode Note Workflow]]
 - [[https://config.daviwil.com/workflow][Orgmode Workflow]]
+- [[https://blog.calebjay.com/posts/my-emacs-environment/#on-productivity-in-emacs][Productivity in Emacs]]
+
 ** Example Configurations
 - [[https://github.com/tecosaur/emacs-config][Tecnosaur's fancy config]]
 - [[https://github.com/daviwil/emacs-from-scratch/blob/master/Emacs.org][Emacs from Scratch Config]]
 - [[https://github.com/ztlevi/doom-config][ztlevi's blazing fast doom config]]
 - [[https://github.com/shaunsingh/nix-darwin-dotfiles][shaunsingh's literate config]]
 - [[https://github.com/clintonboys/emacs.d/blob/master/init.org][Mt. Solidarity Org config]]
-* Doom File Setup
-Setup the Doom config files.
-** ~init.el~
-The ~init.el~ file contains the doom module definitions. Modules add in packages and configuration.
+
+* Core Config
+Make the configuration file load faster with lexical bindings.
+
+#+begin_src emacs-lisp :comments no
+;;; config.el -*- lexical-binding: t; -*-
+#+end_src
+
+** Personal Information
+Set the user information. Nix will template in the git author info at rebuild time.
+
+#+begin_src emacs-lisp
+(setq user-full-name "@gitName@"
+      user-mail-address "@gitEmail@")
+#+end_src
+
+Move cached auth information out of ~$EMACSDIR~ so it is not accidentally deleted.
+
+#+begin_src emacs-lisp
+(setq auth-sources '("~/.local/share/emacs.gpg")
+      auth-source-cache-expiry nil)
+#+end_src
+
+** Better Defaults
+#+begin_src emacs-lisp
+(setq-default
+ delete-by-moving-to-trash t                      ; Delete files to trash
+ window-combination-resize t                      ; take new window space from all other windows (not just current)
+ x-stretch-cursor t)                              ; Stretch cursor to the glyph width
+
+(setq undo-limit 80000000                         ; Raise undo-limit to 80Mb
+      evil-want-fine-undo t                       ; By default while in insert all changes are one big blob. Be more granular
+      auto-save-default t                         ; Nobody likes to loose work, I certainly don't
+      truncate-string-ellipsis "…"                ; Unicode ellispis are nicer than "...", and also save /precious/ space
+      password-cache-expiry nil                   ; I can trust my computers ... can't I?
+      scroll-margin 2)                            ; It's nice to maintain a little margin
+
+(global-subword-mode 1)                           ; Iterate through CamelCase words
+#+end_src
+
+*** Frame Sizing
+Make new frames slightly smaller.
+
+#+begin_src emacs-lisp
+(add-to-list 'default-frame-alist '(height . 24))
+(add-to-list 'default-frame-alist '(width . 80))
+#+end_src
+
+*** Auto-customizations
+By default changes via the customization UI get added to ~init.el~, move those
+to a separate file so they are not overwritten.
+
+#+begin_src emacs-lisp
+(setq-default custom-file (expand-file-name ".custom.el" doom-private-dir))
+
+(when (file-exists-p custom-file)
+  (load custom-file))
+#+end_src
+
+*** Windows
+Split windows the correct way.
+
+#+begin_src emacs-lisp
+(setq evil-vsplit-window-right t
+      evil-split-window-below t)
+#+end_src
+
+Quick window navigation with arrow keys.
+
+#+begin_src emacs-lisp
+(map!
+ ;; Navigation
+ "C-<left>" #'evil-window-left
+ "C-<right>" #'evil-window-right
+ "C-<up>" #'evil-window-up
+ "C-<down>" #'evil-window-down
+
+ ;; Swap windows
+ "C-S-<left>" #'+evil/window-move-left
+ "C-S-<right>" #'+evil/window-move-right
+ "C-S-<up>" #'+evil/window-move-up
+ "C-S-<down>" #'+evil/window-move-down)
+#+end_src
+
+** Doom Configuration
+*** Modules
+:PROPERTIES:
+:header-args:emacs-lisp: :tangle no
+:END:
+Doom stores packages, configuration, and keybindings in modules enabled in the
+~init.el~ file.
 
 #+begin_src emacs-lisp :tangle "init.el" :noweb no-export :comments no
 ;;; init.el -*- lexical-binding: t; -*-
@@ -55,21 +146,200 @@ The ~init.el~ file contains the doom module definitions. Modules add in packages
        :config
        <<doom-config>>)
 #+end_src
-** ~packages.el~
-This file configures packages such as adding additional ones or changing versions.
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
-;;; -*- no-byte-compile: t; -*-
+**** Structure
+#+name: doom-config
+#+begin_src emacs-lisp :tangle no
+literate
+(default +bindings +smartparens)
 #+end_src
 
-** ~config.el~
-This file contains all user configuration.
-
-#+begin_src emacs-lisp :comments no
-;;; config.el -*- lexical-binding: t; -*-
+**** User Interface
+#+name: doom-completion
+#+begin_src emacs-lisp
+(company +childframe)
+(vertico +icons)
 #+end_src
 
-** ~cli.el~
+#+name: doom-ui
+#+begin_src emacs-lisp :tangle no
+;; deft
+doom
+doom-dashboard
+doom-quit
+(:if IS-LINUX (emoji +unicode +github))
+;; fill-column
+hl-todo
+(ligatures +extras)
+modeline
+nav-flash
+ophints
+(popup +all +defaults)
+(treemacs +lsp)
+vc-gutter
+(window-select +numbers)
+workspaces
+zen
+#+end_src
+
+#+name: doom-editor
+#+begin_src emacs-lisp :tangle no
+(evil +everywhere)
+file-templates
+fold
+(format +onsave)
+rotate-text
+snippets
+;; word-wrap
+#+end_src
+
+#+name: doom-emacs
+#+begin_src emacs-lisp :tangle no
+(dired +ranger +icons)
+electric
+(ibuffer +icons)
+(undo +tree)
+vc
+#+end_src
+
+#+name: doom-term
+#+begin_src emacs-lisp :tangle no
+eshell
+vterm
+#+end_src
+
+#+name: doom-checkers
+#+begin_src emacs-lisp :tangle no
+syntax
+(:if (executable-find "aspell") spell)
+grammar
+#+end_src
+
+#+name: doom-tools
+#+begin_src emacs-lisp :tangle no
+ansible
+(debugger +lsp)
+direnv
+(docker +lsp)
+(eval +overlay)
+gist
+(lookup +devdocs +docsets)
+(lsp +peek)
+(magit +forge)
+make
+pdf
+rgb
+taskrunner
+tmux
+upload
+#+end_src
+
+#+name: doom-os
+#+begin_src emacs-lisp :tangle no
+(:if IS-MAC macos)
+(tty +osc)
+#+end_src
+
+**** Language Support
+#+name: doom-lang
+#+begin_src emacs-lisp :tangle no
+data
+emacs-lisp
+(go +lsp)
+(json +lsp)
+(lua +fennel)
+markdown
+nix
+(org +hugo +journal +pretty +roam2 +dragndrop +noter +pandoc +gnuplot +present)
+(rust +lsp)
+(sh +fish +lsp)
+(yaml +lsp)
+#+end_src
+
+*** Interface Settings
+Keep the UI simple and minimalist.
+
+#+begin_src emacs-lisp
+(setq fringe-mode 0
+      tool-bar-mode 0)
+#+end_src
+
+**** Fonts
+Set the fonts to the values configured in Nix.
+
+#+begin_src emacs-lisp
+(setq doom-font (font-spec :family "@monoFamily@" :weight '@monoWeight@ :size @monoSize@)
+      doom-big-font (font-spec :family "@monoFamily@" :weight '@monoWeight@ :size @monoBigSize@)
+      doom-unicode-font (font-spec :family "@unicodeFont@" :weight '@unicodeWeight@ :size @unicodeSize@)
+      doom-variable-pitch-font (font-spec :family "@sansFamily@" :weight '@sansWeight@ :size @sansSize@)
+      doom-serif-font (font-spec :family "@serifFamily@" :weight '@serifWeight@ :size @serifSize@))
+#+end_src
+
+Detect missing font faces.
+
+#+name: detect-missing-fonts
+#+begin_src emacs-lisp :tangle no
+(defvar required-fonts '("@monoFamily@.*" "@sansFamily@" "@unicodeFamily@" "@serifFamily@" "Merriweather" "Alegreya"))
+
+(defvar available-fonts
+  (delete-dups (or (font-family-list)
+                   (split-string (shell-command-to-string "fc-list : family") "[,\n]"))))
+
+(defvar missing-fonts
+  (delq nil (mapcar
+             (lambda (font) (unless (delq nil (mapcar (lambda (f) (string-match-p (format "^%s$" font) f)) available-fonts)) font))
+             required-fonts)))
+
+(if missing-fonts
+    (pp-to-string
+     `(unless noninteractive
+        (add-hook! 'doom-init-ui-hook
+          (run-at-time
+           nil nil
+           (lambda ()
+             (message "%s missing the following fonts: %s"
+                      (propertize "Warning!" 'face '(bold warning))
+                      (mapconcat (lambda (font) (propertize font 'face 'font-lock-variable-name-face)) ',missing-fonts ", "))
+             (sleep-for 0.5))))))
+  ";; No missing fonts detected")
+#+end_src
+
+#+begin_src emacs-lisp :noweb no-export
+<<detect-missing-fonts()>>
+#+end_src
+
+**** Theme
+The Nix configuration also sets the theme.
+
+#+begin_src emacs-lisp
+(setq doom-theme '@theme@)
+(setq doom-nord-padded-modeline t)
+#+end_src
+
+Minor modeline improvements.
+
+#+begin_src emacs-lisp
+(after! doom-modeline
+  (setq doom-modeline-major-mode-icon t
+        doom-modeline-buffer-file-name-style 'truncate-with-project
+        doom-modeline-modal-icon t
+        inhibit-compacting-font-caches t))
+#+end_src
+
+**** Misc
+Relative line numbers are essential.
+
+#+begin_src emacs-lisp
+(setq display-line-numbers-type 'relative)
+#+end_src
+
+Better buffer names.
+
+#+begin_src emacs-lisp
+(setq doom-fallback-buffer-name "► Doom"
+      +doom-dashboard-name "► Doom")
+#+end_src
+*** CLI Configuration
 The ~doom~ CLI loads this file every time that it runs. Don't require confirmation for org tangle.
 
 #+begin_src emacs-lisp :tangle "cli.el" :comments no
@@ -81,115 +351,70 @@ The ~doom~ CLI loads this file every time that it runs. Don't require confirmati
 
 (advice-add 'org-babel-execute-src-block :around #'doom-shut-up-a)
 #+end_src
-* Core Configuration
-** Personal Information
-Set the user information. Nix will template in the git author info at rebuild time.
+
+*** Asynchronous Configuration Tangling
+Use Tecosaur's async config tangling setup.
 
 #+begin_src emacs-lisp
-(setq user-full-name "@gitName@"
-      user-mail-address "@gitEmail@")
+(defvar +literate-tangle--proc nil)
+(defvar +literate-tangle--proc-start-time nil)
+
+(defadvice! +literate-tangle-async-h ()
+  "A very simplified version of `+literate-tangle-h', but async."
+  :override #'+literate-tangle-h
+  (unless (getenv "__NOTANGLE")
+    (let ((default-directory doom-private-dir))
+      (when +literate-tangle--proc
+        (message "Killing outdated tangle process...")
+        (set-process-sentinel +literate-tangle--proc #'ignore)
+        (kill-process +literate-tangle--proc)
+        (sit-for 0.3)) ; ensure the message is seen for a bit
+      (setq +literate-tangle--proc-start-time (float-time)
+            +literate-tangle--proc
+            (start-process "tangle-config"
+                           (get-buffer-create " *tangle config*")
+                           "emacs" "--batch" "--eval"
+                           (format "(progn \
+(require 'ox) \
+(require 'ob-tangle) \
+(setq org-confirm-babel-evaluate nil \
+      org-inhibit-startup t \
+      org-mode-hook nil \
+      write-file-functions nil \
+      before-save-hook nil \
+      after-save-hook nil \
+      vc-handled-backends nil \
+      org-startup-folded nil \
+      org-startup-indented nil) \
+(org-babel-tangle-file \"%s\" \"%s\"))"
+                                   +literate-config-file
+                                   (expand-file-name (concat doom-module-config-file ".el")))))
+      (set-process-sentinel +literate-tangle--proc #'+literate-tangle--sentinel)
+      (run-at-time nil nil (lambda () (message "Tangling config.org"))) ; ensure shown after a save message
+      "Tangling config.org...")))
+
+(defun +literate-tangle--sentinel (process signal)
+  (cond
+   ((and (eq 'exit (process-status process))
+         (= 0 (process-exit-status process)))
+    (message "Tangled config.org sucessfully (took %.1fs)"
+             (- (float-time) +literate-tangle--proc-start-time))
+    (setq +literate-tangle--proc nil))
+   ((memq (process-status process) (list 'exit 'signal))
+    (+popup-buffer (get-buffer " *tangle config*"))
+    (message "Failed to tangle config.org (after %.1fs)"
+             (- (float-time) +literate-tangle--proc-start-time))
+    (setq +literate-tangle--proc nil))))
+
+(defun +literate-tangle-check-finished ()
+  (when (and (process-live-p +literate-tangle--proc)
+             (yes-or-no-p "Config is currently retangling, would you please wait a few seconds?"))
+    (switch-to-buffer " *tangle config*")
+    (signal 'quit nil)))
+(add-hook! 'kill-emacs-hook #'+literate-tangle-check-finished)
 #+end_src
 
-Move cached auth information out of ~$EMACSDIR~.
-
-#+begin_src emacs-lisp
-(setq auth-sources '("~/.local/share/doom/authinfo.gpg")
-      auth-source-cache-expiry nil)
-#+end_src
-** Better Defaults
-Some simple settings to make things a bit better.
-
-#+begin_src emacs-lisp
-(setq-default
- delete-by-moving-to-trash t                      ; Delete files to trash
- window-combination-resize t                      ; take new window space from all other windows (not just current)
- x-stretch-cursor t)                              ; Stretch cursor to the glyph width
-
-(setq undo-limit 80000000                         ; Raise undo-limit to 80Mb
-      evil-want-fine-undo t                       ; By default while in insert all changes are one big blob. Be more granular
-      auto-save-default t                         ; Nobody likes to loose work, I certainly don't
-      truncate-string-ellipsis "…"                ; Unicode ellispis are nicer than "...", and also save /precious/ space
-      password-cache-expiry nil                   ; I can trust my computers ... can't I?
-      scroll-margin 2                             ; It's nice to maintain a little margin
-      evil-vsplit-window-right t                  ; Vertical split to the right
-      evil-split-window-below t)                  ; Split below
-
-(global-subword-mode 1)                           ; Iterate through CamelCase words
-#+end_src
-
-Use small frame for new Emacs instances.
-
-#+begin_src emacs-lisp
-(add-to-list 'default-frame-alist '(height . 24))
-(add-to-list 'default-frame-alist '(width . 80))
-#+end_src
-
-Put all customization in a separate file.
-
-#+begin_src emacs-lisp
-(setq-default custom-file (expand-file-name ".custom.el" doom-private-dir))
-(when (file-exists-p custom-file)
-  (load custom-file))
-#+end_src
-
-** UI Settings
-Keep the UI simple and minimalist.
-
-#+begin_src emacs-lisp
-(setq fringe-mode 0
-      tool-bar-mode 0)
-#+end_src
-*** Fonts
-Set the fonts to the values configured in Nix.
-
-#+begin_src emacs-lisp
-(setq doom-font (font-spec :family "@monoFamily@" :weight '@monoWeight@ :size @monoSize@)
-      doom-big-font (font-spec :family "@monoFamily@" :weight '@monoWeight@ :size @monoBigSize@)
-      doom-unicode-font (font-spec :family "@monoUnicodeFamily@" :weight '@monoWeight@ :size @monoSize@)
-      doom-variable-pitch-font (font-spec :family "@sansFamily@" :weight '@sansWeight@ :size @sansSize@)
-      doom-serif-font (font-spec :family "@serifFamily@" :weight '@serifWeight@ :size @serifSize@))
-#+end_src
-
-Setup mixed pitch for certain modes. Use a hook so that it runs after UI initialization.
-
-#+begin_src emacs-lisp
-(defvar mixed-pitch-modes '(org-mode LaTeX-mode markdown-mode gfm-mode Info-mode)
-  "Modes to enable `mixed-pitch-mode' in, but only after UI initialisation.")
-
-(defun init-mixed-pitch-h ()
-  "Hook `mixed-pitch-mode' into each mode in `mixed-pitch-modes'.
-Also immediately enables `mixed-pitch-modes' if currently in one of the modes."
-  (when (memq major-mode mixed-pitch-modes)
-    (mixed-pitch-mode 1))
-  (dolist (hook mixed-pitch-modes)
-    (add-hook (intern (concat (symbol-name hook) "-hook")) #'mixed-pitch-mode)))
-
-(add-hook 'doom-init-ui-hook #'init-mixed-pitch-h)
-#+end_src
-
-#+begin_src emacs-lisp
-(after! mixed-pitch
-  (defface variable-pitch-serif
-    '((t (:family "serif")))
-    "A variable-pitch face with serifs."
-    :group 'basic-faces)
-  (setq mixed-pitch-set-height t)
-  (setq variable-pitch-serif-font (font-spec :family "Alegreya" :size 27))
-  (set-face-attribute 'variable-pitch-serif nil :font variable-pitch-serif-font)
-  (defun mixed-pitch-serif-mode (&optional arg)
-    "Change the default face of the current buffer to a serifed variable pitch, while keeping some faces fixed pitch."
-    (interactive)
-    (let ((mixed-pitch-face 'variable-pitch-serif))
-      (mixed-pitch-mode (or arg 'toggle)))))
-#+end_src
-*** Themes
-The Nix configuration also sets the theme.
-
-#+begin_src emacs-lisp
-(setq doom-theme '@theme@)
-(setq doom-nord-padded-modeline t)
-#+end_src
-*** Dashboard
+*** Dashboard Actions
 Customize the dashboard key bindings.
 
 #+begin_src emacs-lisp
@@ -202,6 +427,24 @@ Customize the dashboard key bindings.
       :ne "b" #'+vertico/switch-workspace-buffer
       :ne "B" #'consult-buffer
       :ne "q" #'save-buffers-kill-terminal)
+#+end_src
+** Other Things
+*** Window Title
+Set the window title to the buffer name and project folder.
+
+#+begin_src emacs-lisp
+(setq frame-title-format
+      '(""
+        (:eval
+         (if (s-contains-p org-roam-directory (or buffer-file-name ""))
+             (replace-regexp-in-string
+              ".*/[0-9]*-?" "☰ "
+              (subst-char-in-string ?_ ?  buffer-file-name))
+           "%b"))
+        (:eval
+         (let ((project-name (projectile-project-name)))
+           (unless (string= "-" project-name)
+             (format (if (buffer-modified-p)  " ◉ %s" "  ●  %s") project-name))))))
 #+end_src
 *** Splash Screen
 Use a simple splash screen.
@@ -304,7 +547,7 @@ Add an interesting phrase to the splash screen.
 
 #+begin_src emacs-lisp
 (defvar splash-phrase-source-folder
-  (expand-file-name "misc/splash-phrases" doom-private-dir)
+  (expand-file-name "splash-phrases" doom-private-dir)
   "A folder of text files with a fun phrase on each line.")
 
 (defvar splash-phrase-sources
@@ -425,98 +668,7 @@ Add ASCII banner for console Emacs.
 (unless (display-graphic-p) ; for some reason this messes up the graphical splash screen atm
   (setq +doom-dashboard-ascii-banner-fn #'doom-dashboard-draw-ascii-emacs-banner-fn))
 #+end_src
-*** Misc
-Relative line numbers are essential.
 
-#+begin_src emacs-lisp
-(setq display-line-numbers-type 'relative)
-#+end_src
-
-Better buffer names.
-
-#+begin_src emacs-lisp
-(setq doom-fallback-buffer-name "► Doom"
-      +doom-dashboard-name "► Doom")
-#+end_src
-
-** Keybindings
-Use arrow keys instead of ~hjlk~ to support layered Colemak.
-
-#+begin_src emacs-lisp
-(map!
- "C-<left>" #'evil-window-left
- "C-<right>" #'evil-window-right
- "C-<up>" #'evil-window-up
- "C-<down>" #'evil-window-down
-
- "C-S-<left>" #'+evil/window-move-left
- "C-S-<right>" #'+evil/window-move-right
- "C-S-<up>" #'+evil/window-move-up
- "C-S-<down>" #'+evil/window-move-down)
-#+end_src
-** Asynchronous Configuration Tangling
-Use Tecosaur's async config tangling setup.
-
-#+begin_src emacs-lisp
-(defvar +literate-tangle--proc nil)
-(defvar +literate-tangle--proc-start-time nil)
-
-(defadvice! +literate-tangle-async-h ()
-  "A very simplified version of `+literate-tangle-h', but async."
-  :override #'+literate-tangle-h
-  (unless (getenv "__NOTANGLE")
-    (let ((default-directory doom-private-dir))
-      (when +literate-tangle--proc
-        (message "Killing outdated tangle process...")
-        (set-process-sentinel +literate-tangle--proc #'ignore)
-        (kill-process +literate-tangle--proc)
-        (sit-for 0.3)) ; ensure the message is seen for a bit
-      (setq +literate-tangle--proc-start-time (float-time)
-            +literate-tangle--proc
-            (start-process "tangle-config"
-                           (get-buffer-create " *tangle config*")
-                           "emacs" "--batch" "--eval"
-                           (format "(progn \
-(require 'ox) \
-(require 'ob-tangle) \
-(setq org-confirm-babel-evaluate nil \
-      org-inhibit-startup t \
-      org-mode-hook nil \
-      write-file-functions nil \
-      before-save-hook nil \
-      after-save-hook nil \
-      vc-handled-backends nil \
-      org-startup-folded nil \
-      org-startup-indented nil) \
-(org-babel-tangle-file \"%s\" \"%s\"))"
-                                   +literate-config-file
-                                   (expand-file-name (concat doom-module-config-file ".el")))))
-      (set-process-sentinel +literate-tangle--proc #'+literate-tangle--sentinel)
-      (run-at-time nil nil (lambda () (message "Tangling config.org"))) ; ensure shown after a save message
-      "Tangling config.org...")))
-
-(defun +literate-tangle--sentinel (process signal)
-  (cond
-   ((and (eq 'exit (process-status process))
-         (= 0 (process-exit-status process)))
-    (message "Tangled config.org sucessfully (took %.1fs)"
-             (- (float-time) +literate-tangle--proc-start-time))
-    (setq +literate-tangle--proc nil))
-   ((memq (process-status process) (list 'exit 'signal))
-    (+popup-buffer (get-buffer " *tangle config*"))
-    (message "Failed to tangle config.org (after %.1fs)"
-             (- (float-time) +literate-tangle--proc-start-time))
-    (setq +literate-tangle--proc nil))))
-
-(defun +literate-tangle-check-finished ()
-  (when (and (process-live-p +literate-tangle--proc)
-             (yes-or-no-p "Config is currently retangling, would you please wait a few seconds?"))
-    (switch-to-buffer " *tangle config*")
-    (signal 'quit nil)))
-(add-hook! 'kill-emacs-hook #'+literate-tangle-check-finished)
-#+end_src
-
-** Misc
 *** Native Compilation
 Run emacs28's new native-compiler with ~-O3~, if available.
 
@@ -524,23 +676,7 @@ Run emacs28's new native-compiler with ~-O3~, if available.
 (when 'native-comp-compiler-options
   (setq native-comp-compiler-options '("-O3")))
 #+end_src
-*** Window Title
-Set the window title to the buffer name and project folder.
 
-#+begin_src emacs-lisp
-(setq frame-title-format
-      '(""
-        (:eval
-         (if (s-contains-p org-roam-directory (or buffer-file-name ""))
-             (replace-regexp-in-string
-              ".*/[0-9]*-?" "☰ "
-              (subst-char-in-string ?_ ?  buffer-file-name))
-           "%b"))
-        (:eval
-         (let ((project-name (projectile-project-name)))
-           (unless (string= "-" project-name)
-             (format (if (buffer-modified-p)  " ◉ %s" "  ●  %s") project-name))))))
-#+end_src
 *** Daemon
 Use Tecosaur's greedy daemon startup.
 
@@ -562,95 +698,588 @@ Use Tecosaur's greedy daemon startup.
   (add-hook 'emacs-startup-hook #'greedily-do-daemon-setup)
   (add-hook 'emacs-startup-hook #'init-mixed-pitch-h))
 #+end_src
-* Module Configuration
-Configuration for Doom modules.
-** Completion
-#+name: doom-completion
-#+begin_src emacs-lisp :tangle no
-(company +childframe)
-(vertico +icons)
+
+* Packages
+** Loading Instructions
+:PROPERTIES:
+:header-args:emacs-lisp: :tangle no
+:END:
+The =packages.el= file should not be byte compiled.
+
+#+begin_src emacs-lisp :tangle packages.el :comments no
+;;; -*- no-byte-compile: t; -*-
 #+end_src
+
+** Convenience
+*** Avy
+Change keybindings to Colemak home row.
+#+begin_src emacs-lisp
+(after! avy
+  (setq avy-keys '(?n ?e ?i ?s ?r ?i ?a)))
+#+end_src
+
+*** Rotate Windows
+The =rotate= package just adds the ability to rotate window layouts.
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! rotate :pin "4e9ac3ff800880bd9b705794ef0f7c99d72900a6")
+#+end_src
+
+*** Which-key
+Speed up pop-up
+
+#+begin_src emacs-lisp
+(setq which-key-idle-delay 0.5)
+#+end_src
+
+Remove noise from =evil-= bindings.
+
+#+begin_src emacs-lisp
+(setq which-key-allow-multiple-replacements t)
+
+(after! which-key
+  (pushnew!
+   which-key-replacement-alist
+   '(("" . "\\`+?evil[-:]?\\(?:a-\\)?\\(.*\\)") . (nil . "◂\\1"))
+   '(("\\`g s" . "\\`evilem--?motion-\\(.*\\)") . (nil . "◃\\1"))
+   ))
+#+end_src
+
+** Tools
+*** Very Large Files
+The /very large files/ mode loads large files in chunks, allowing one to open
+ridiculously large files.
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! vlf :recipe (:host github :repo "m00natic/vlfi" :files ("*.el"))
+  :pin "cc02f2533782d6b9b628cec7e2dcf25b2d05a27c" :disable t)
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! vlf-setup
+  :defer-incrementally vlf-tune vlf-base vlf-write vlf-search vlf-occur vlf-follow vlf-ediff vlf)
+#+end_src
+
+**** Smerge
+Use transient for repeated operations.
+
+#+begin_src emacs-lisp
+(defun smerge-repeatedly ()
+  "Perform smerge actions again and again"
+  (interactive)
+  (smerge-mode 1)
+  (smerge-transient))
+
+(after! transient
+  (transient-define-prefix smerge-transient ()
+    [["Move"
+      ("n" "next" (lambda () (interactive) (ignore-errors (smerge-next)) (smerge-repeatedly)))
+      ("p" "previous" (lambda () (interactive) (ignore-errors (smerge-prev)) (smerge-repeatedly)))]
+     ["Keep"
+      ("b" "base" (lambda () (interactive) (ignore-errors (smerge-keep-base)) (smerge-repeatedly)))
+      ("u" "upper" (lambda () (interactive) (ignore-errors (smerge-keep-upper)) (smerge-repeatedly)))
+      ("l" "lower" (lambda () (interactive) (ignore-errors (smerge-keep-lower)) (smerge-repeatedly)))
+      ("a" "all" (lambda () (interactive) (ignore-errors (smerge-keep-all)) (smerge-repeatedly)))
+      ("RET" "current" (lambda () (interactive) (ignore-errors (smerge-keep-current)) (smerge-repeatedly)))]
+     ["Diff"
+      ("<" "upper/base" (lambda () (interactive) (ignore-errors (smerge-diff-base-upper)) (smerge-repeatedly)))
+      ("=" "upper/lower" (lambda () (interactive) (ignore-errors (smerge-diff-upper-lower)) (smerge-repeatedly)))
+      (">" "base/lower" (lambda () (interactive) (ignore-errors (smerge-diff-base-lower)) (smerge-repeatedly)))
+      ("R" "refine" (lambda () (interactive) (ignore-errors (smerge-refine)) (smerge-repeatedly)))
+      ("E" "ediff" (lambda () (interactive) (ignore-errors (smerge-ediff)) (smerge-repeatedly)))]
+     ["Other"
+      ("c" "combine" (lambda () (interactive) (ignore-errors (smerge-combine-with-next)) (smerge-repeatedly)))
+      ("r" "resolve" (lambda () (interactive) (ignore-errors (smerge-resolve)) (smerge-repeatedly)))
+      ("k" "kill current" (lambda () (interactive) (ignore-errors (smerge-kill-current)) (smerge-repeatedly)))
+      ("q" "quit" (lambda () (interactive) (smerge-auto-leave)))]]))
+#+end_src
+
 *** Company
-Slow down company a bit.
+Speed up company.
 
 #+begin_src emacs-lisp
 (after! company
-   (setq company-idle-delay 0.1
-      company-minimum-prefix-length 1
-      company-selection-wrap-around t
-      company-require-match 'never
-      company-dabbrev-downcase nil
-      company-dabbrev-ignore-case t
-      company-dabbrev-other-buffers nil
-      company-tooltip-limit 5
-      company-tooltip-minimum-width 50))
+  (setq company-idle-delay 0.5
+        company-minimum-prefix-length 2)
+  (setq company-show-numbers t)
+  (add-hook 'evil-normal-state-entry-hook #'company-abort)) ;; make aborting less annoying.
+
+
+(setq-default history-length 1000)
+(setq-default prescient-history-length 1000)
+#+end_src
+
+**** Plain Text
+Only use ~ISpell~ in text, markdown, and GFM>
+
+#+begin_src emacs-lisp
 (set-company-backend!
   '(text-mode
     markdown-mode
     gfm-mode)
   '(:seperate
-    company-yasnippet
     company-ispell
-    company-files))
+    company-files
+    company-yasnippet))
+#+END_src
 
-;;nested snippets
+*** Projectile
+Don't cache source directories.
+
+#+begin_src emacs-lisp
+(setq projectile-ignored-projects '("~/" "/tmp" "~/.emacs.d/.local/straight/repos/"))
+
+(defun projectile-ignored-project-function (filepath)
+  "Return t if FILEPATH is within any of `projectile-ignored-projects'"
+  (or (mapcar (lambda (p) (s-starts-with-p p filepath)) projectile-ignored-projects)))
+#+end_src
+
+*** Ispell
+Set the dictionary and personal dictionaries.
+
+#+begin_src emacs-lisp
+(setq ispell-dictionary "en_US"
+      ispell-personal-dictionary (expand-file-name ".ispell_personal" doom-private-dir))
+#+end_src
+
+*** TRAMP
+**** Prompt Recognition
+When connecting to remote machines, Tramp can have a hard time understanding
+prompts.
+
+#+begin_src emacs-lisp
+(after! tramp
+  (setenv "SHELL" "/bin/bash")
+  (setq tramp-shell-prompt-pattern "\\(?:^\\|
+\\)[^]#$%>\n]*#?[]#$%>] *\\(\\[[0-9;]*[a-zA-Z] *\\)*")) ;; default + 
+#+end_src
+
+**** Nix Shell Locations
+Since I use Nix on most machines, tell Tramp how to find the shell executables.
+
+#+begin_src emacs-lisp
+(after! tramp
+  (appendq! tramp-remote-path
+            '("/run/current-system/profile/bin"
+              "/run/current-system/profile/sbin")))
+#+end_src
+
+*** Auto Activating Snippets
+Don't require =TAB= to activate a snippet.
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! aas :recipe (:host github :repo "ymarco/auto-activating-snippets")
+  :pin "1699bec4d244a1f62af29fe4eb8b79b6d2fccf7d")
+#+end_src
+
+*** ETrace
+Make _Emacs Lisp Profiler_ into a more useful output.
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! etrace :recipe (:host github :repo "aspiers/etrace"))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! etrace
+  :after elp)
+#+end_src
+
+*** YASnippet
+Enable nested snippets.
+
+#+begin_src emacs-lisp
 (setq yas-triggers-in-field t)
 #+end_src
-** UI
-#+name: doom-ui
-#+begin_src emacs-lisp :tangle no
-deft
-doom
-doom-dashboard
-doom-quit
-(:if IS-LINUX (emoji +unicode +github))
-;; fill-column
-hl-todo
-ligatures
-modeline
-nav-flash
-ophints
-(popup +all +defaults)
-(treemacs +lsp)
-vc-gutter
-window-select
-workspaces
-zen
+
+*** String Inflection
+For easy cycling of symbol cases.
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! string-inflection :pin "fd7926ac17293e9124b31f706a4e8f38f6a9b855")
 #+end_src
+
+#+begin_src emacs-lisp
+(use-package! string-inflection
+  :commands (string-inflection-all-cycle
+             string-inflection-toggle
+             string-inflection-camelcase
+             string-inflection-lower-camelcase
+             string-inflection-kebab-case
+             string-inflection-underscore
+             string-inflection-capital-underscore
+             string-inflection-upcase)
+  :init
+  (map! :leader :prefix ("c~" . "naming convention")
+        :desc "cycle" "~" #'string-inflection-all-cycle
+        :desc "toggle" "t" #'string-inflection-toggle
+        :desc "CamelCase" "c" #'string-inflection-camelcase
+        :desc "downCase" "d" #'string-inflection-lower-camelcase
+        :desc "kebab-case" "k" #'string-inflection-kebab-case
+        :desc "under_score" "_" #'string-inflection-underscore
+        :desc "Upper_Score" "u" #'string-inflection-capital-underscore
+        :desc "UP_CASE" "U" #'string-inflection-upcase)
+  (after! evil
+    (evil-define-operator evil-operator-string-inflection (beg end _type)
+      "Define a new evil operator that cycles symbol casing."
+      :move-point nil
+      (interactive "<R>")
+      (string-inflection-all-cycle)
+      (setq evil-repeat-info '([?g ?~])))
+    (define-key evil-normal-state-map (kbd "g~") 'evil-operator-string-inflection)))
+#+end_src
+
+*** Smart Parenthesis
+For =noweb= links.
+
+#+begin_src emacs-lisp
+(sp-local-pair
+ '(org-mode)
+ "<<" ">>"
+ :actions '(insert))
+#+end_src
+
+** Visual
+*** Info Colors
+Make manual pages look nicer with colors.
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! info-colors :pin "47ee73cc19b1049eef32c9f3e264ea7ef2aaf8a5")
+#+end_src
+
+Hook it into =Info=.
+
+#+begin_src emacs-lisp
+(use-package! info-colors
+  :commands (info-colors-fontify-node))
+
+(add-hook 'Info-selection-hook 'info-colors-fontify-node)
+#+end_src
+
+*** Emojify
+Don't use emojls instead of default characters.
+
+#+begin_src emacs-lisp
+(defvar emojify-disabled-emojis
+  '(;; Org
+    "◼" "☑" "☸" "⚙" "⏩" "⏪" "⬆" "⬇" "❓"
+    ;; Terminal powerline
+    "✔"
+    ;; Box drawing
+    "▶" "◀")
+  "Characters that should never be affected by `emojify-mode'.")
+
+(defadvice! emojify-delete-from-data ()
+  "Ensure `emojify-disabled-emojis' don't appear in `emojify-emojis'."
+  :after #'emojify-set-emoji-data
+  (dolist (emoji emojify-disabled-emojis)
+    (remhash emoji emojify-emojis)))
+#+end_src
+
+**** TODO Hook up minor mode once I setup email
+
+*** Modeline
+Make the PDF modeline better.
+
+#+begin_src emacs-lisp
+(after! doom-modeline
+  (doom-modeline-def-segment buffer-name
+    "Display the current buffer's name, without any other information."
+    (concat
+     (doom-modeline-spc)
+     (doom-modeline--buffer-name)))
+
+  (doom-modeline-def-segment pdf-icon
+    "PDF icon from all-the-icons."
+    (concat
+     (doom-modeline-spc)
+     (doom-modeline-icon 'octicon "file-pdf" nil nil
+                         :face (if (doom-modeline--active)
+                                   'all-the-icons-red
+                                 'mode-line-inactive)
+                         :v-adjust 0.02)))
+
+  (defun doom-modeline-update-pdf-pages ()
+    "Update PDF pages."
+    (setq doom-modeline--pdf-pages
+          (let ((current-page-str (number-to-string (eval `(pdf-view-current-page))))
+                (total-page-str (number-to-string (pdf-cache-number-of-pages))))
+            (concat
+             (propertize
+              (concat (make-string (- (length total-page-str) (length current-page-str)) ? )
+                      " P" current-page-str)
+              'face 'mode-line)
+             (propertize (concat "/" total-page-str) 'face 'doom-modeline-buffer-minor-mode)))))
+
+  (doom-modeline-def-segment pdf-pages
+    "Display PDF pages."
+    (if (doom-modeline--active) doom-modeline--pdf-pages
+      (propertize doom-modeline--pdf-pages 'face 'mode-line-inactive)))
+
+  (doom-modeline-def-modeline 'pdf
+    '(bar window-number pdf-pages pdf-icon buffer-name)
+    '(misc-info matches major-mode process vcs)))
+#+end_src
+
+*** Mixed Pitch
+Setup mixed pitch for certain modes. Use a hook so that it runs after UI initialization.
+
+#+begin_src emacs-lisp
+(defvar mixed-pitch-modes '(org-mode LaTeX-mode markdown-mode gfm-mode Info-mode)
+  "Modes to enable `mixed-pitch-mode' in, but only after UI initialisation.")
+
+(defun init-mixed-pitch-h ()
+  "Hook `mixed-pitch-mode' into each mode in `mixed-pitch-modes'.
+Also immediately enables `mixed-pitch-modes' if currently in one of the modes."
+  (when (memq major-mode mixed-pitch-modes)
+    (mixed-pitch-mode 1))
+  (dolist (hook mixed-pitch-modes)
+    (add-hook (intern (concat (symbol-name hook) "-hook")) #'mixed-pitch-mode)))
+
+(add-hook 'doom-init-ui-hook #'init-mixed-pitch-h)
+#+end_src
+
+Use mixed pith with serif.
+
+#+begin_src emacs-lisp
+(after! mixed-pitch
+  (defface variable-pitch-serif
+    '((t (:family "serif")))
+    "A variable-pitch face with serifs."
+    :group 'basic-faces)
+  (setq mixed-pitch-set-height t)
+  (setq variable-pitch-serif-font (font-spec :family "Alegreya" :size 27))
+  (set-face-attribute 'variable-pitch-serif nil :font variable-pitch-serif-font)
+  (defun mixed-pitch-serif-mode (&optional arg)
+    "Change the default face of the current buffer to a serifed variable pitch, while keeping some faces fixed pitch."
+    (interactive)
+    (let ((mixed-pitch-face 'variable-pitch-serif))
+      (mixed-pitch-mode (or arg 'toggle)))))
+#+end_src
+
+*** Marginalia
+Make marginalia look way nicer.
+
+#+begin_src emacs-lisp
+(after! marginalia
+  (setq marginalia-censor-variables nil)
+
+  (defadvice! +marginalia--anotate-local-file-colorful (cand)
+    "Just a more colourful version of `marginalia--anotate-local-file'."
+    :override #'marginalia--annotate-local-file
+    (when-let (attrs (file-attributes (substitute-in-file-name
+                                       (marginalia--full-candidate cand))
+                                      'integer))
+      (marginalia--fields
+       ((marginalia--file-owner attrs)
+        :width 12 :face 'marginalia-file-owner)
+       ((marginalia--file-modes attrs))
+       ((+marginalia-file-size-colorful (file-attribute-size attrs))
+        :width 7)
+       ((+marginalia--time-colorful (file-attribute-modification-time attrs))
+        :width 12))))
+
+  (defun +marginalia--time-colorful (time)
+    (let* ((seconds (float-time (time-subtract (current-time) time)))
+           (color (doom-blend
+                   (face-attribute 'marginalia-date :foreground nil t)
+                   (face-attribute 'marginalia-documentation :foreground nil t)
+                   (/ 1.0 (log (+ 3 (/ (+ 1 seconds) 345600.0)))))))
+      ;; 1 - log(3 + 1/(days + 1)) % grey
+      (propertize (marginalia--time time) 'face (list :foreground color))))
+
+  (defun +marginalia-file-size-colorful (size)
+    (let* ((size-index (/ (log10 (+ 1 size)) 7.0))
+           (color (if (< size-index 10000000) ; 10m
+                      (doom-blend 'orange 'green size-index)
+                    (doom-blend 'red 'orange (- size-index 1)))))
+      (propertize (file-size-human-readable size) 'face (list :foreground color)))))
+#+end_src
+
+*** Prettier Page Breaks
+Make page breaks look nice and sexy.
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! page-break-lines :recipe (:host github :repo "purcell/page-break-lines"))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! page-break-lines
+  :commands page-break-lines-mode
+  :init
+  (autoload 'turn-on-page-break-lines-mode "page-break-lines")
+  :config
+  (setq page-break-lines-max-width fill-column)
+  (map! :prefix "g"
+        :desc "Prev page break" :nv "[" #'backward-page
+        :desc "Next page break" :nv "]" #'forward-page))
+#+end_src
+
+*** Writeroom
+Some nice aesthetic tweaks.
+
+#+begin_src emacs-lisp
+(defvar +zen-serif-p t
+  "Whether to use a serifed font with `mixed-pitch-mode'.")
+(after! writeroom-mode
+  (defvar-local +zen--original-org-indent-mode-p nil)
+  (defvar-local +zen--original-mixed-pitch-mode-p nil)
+  (defvar-local +zen--original-org-pretty-table-mode-p nil)
+  (defun +zen-enable-mixed-pitch-mode-h ()
+    "Enable `mixed-pitch-mode' when in `+zen-mixed-pitch-modes'."
+    (when (apply #'derived-mode-p +zen-mixed-pitch-modes)
+      (if writeroom-mode
+          (progn
+            (setq +zen--original-mixed-pitch-mode-p mixed-pitch-mode)
+            (funcall (if +zen-serif-p #'mixed-pitch-serif-mode #'mixed-pitch-mode) 1))
+        (funcall #'mixed-pitch-mode (if +zen--original-mixed-pitch-mode-p 1 -1)))))
+  (pushnew! writeroom--local-variables
+            'display-line-numbers
+            'visual-fill-column-width
+            'org-adapt-indentation
+            'org-superstar-headline-bullets-list
+            'org-superstar-remove-leading-stars)
+  (add-hook 'writeroom-mode-enable-hook
+            (defun +zen-prose-org-h ()
+              "Reformat the current Org buffer appearance for prose."
+              (when (eq major-mode 'org-mode)
+                (setq display-line-numbers nil
+                      visual-fill-column-width 60
+                      org-adapt-indentation nil)
+                (when (featurep 'org-superstar)
+                  (setq-local org-superstar-headline-bullets-list '("🙘" "🙙" "🙚" "🙛")
+                              ;; org-superstar-headline-bullets-list '("🙐" "🙑" "🙒" "🙓" "🙔" "🙕" "🙖" "🙗")
+                              org-superstar-remove-leading-stars t)
+                  (org-superstar-restart))
+                (setq
+                 +zen--original-org-indent-mode-p org-indent-mode
+                 +zen--original-org-pretty-table-mode-p (bound-and-true-p org-pretty-table-mode))
+                (org-indent-mode -1)
+                (org-pretty-table-mode 1))))
+  (add-hook 'writeroom-mode-disable-hook
+            (defun +zen-nonprose-org-h ()
+              "Reverse the effect of `+zen-prose-org'."
+              (when (eq major-mode 'org-mode)
+                (when (featurep 'org-superstar)
+                  (org-superstar-restart))
+                (when +zen--original-org-indent-mode-p (org-indent-mode 1))
+                ;; (unless +zen--original-org-pretty-table-mode-p (org-pretty-table-mode -1))
+                ))))
+#+end_src
+
+*** Treemacs
+Ignore superfluous files.
+
+#+begin_src emacs-lisp
+(after! treemacs
+  (defvar treemacs-file-ignore-extensions '()
+    "File extension which `treemacs-ignore-filter' will ensure are ignored")
+  (defvar treemacs-file-ignore-globs '()
+    "Globs which will are transformed to `treemacs-file-ignore-regexps' which `treemacs-ignore-filter' will ensure are ignored")
+  (defvar treemacs-file-ignore-regexps '()
+    "RegExps to be tested to ignore files, generated from `treeemacs-file-ignore-globs'")
+  (defun treemacs-file-ignore-generate-regexps ()
+    "Generate `treemacs-file-ignore-regexps' from `treemacs-file-ignore-globs'"
+    (setq treemacs-file-ignore-regexps (mapcar 'dired-glob-regexp treemacs-file-ignore-globs)))
+  (if (equal treemacs-file-ignore-globs '()) nil (treemacs-file-ignore-generate-regexps))
+  (defun treemacs-ignore-filter (file full-path)
+    "Ignore files specified by `treemacs-file-ignore-extensions', and `treemacs-file-ignore-regexps'"
+    (or (member (file-name-extension file) treemacs-file-ignore-extensions)
+        (let ((ignore-file nil))
+          (dolist (regexp treemacs-file-ignore-regexps ignore-file)
+            (setq ignore-file (or ignore-file (if (string-match-p regexp full-path) t nil)))))))
+  (add-to-list 'treemacs-ignored-file-predicates #'treemacs-ignore-filter))
+#+end_src
+
+Identify the files to ignore.
+
+#+begin_src emacs-lisp
+(setq treemacs-file-ignore-extensions
+      '(;; LaTeX
+        "aux"
+        "ptc"
+        "fdb_latexmk"
+        "fls"
+        "synctex.gz"
+        "toc"
+        ;; LaTeX - glossary
+        "glg"
+        "glo"
+        "gls"
+        "glsdefs"
+        "ist"
+        "acn"
+        "acr"
+        "alg"
+        ;; LaTeX - pgfplots
+        "mw"
+        ;; LaTeX - pdfx
+        "pdfa.xmpi"
+        ))
+
+(setq treemacs-file-ignore-globs
+      '(;; LaTeX
+        "*/_minted-*"
+        ;; AucTeX
+        "*/.auctex-auto"
+        "*/_region_.log"
+        "*/_region_.tex"))
+#+end_src
+
+* Applications
+** Email
+** Slack
+* Language Configuration
+** General
+*** File Templates
+Overwrite the default snippets when need be.
+
+#+begin_src emacs-lisp
+(set-file-template! "\\.tex$" :trigger "__" :mode 'latex-mode)
+(set-file-template! "\\.org$" :trigger "__" :mode 'org-mode)
+(set-file-template! "/LICEN[CS]E$" :trigger '+file-templates/insert-license)
+#+end_src
+
+** Plaintext
+Display ~ANSI~ color codes.
+
+#+begin_src emacs-lisp
+(after! text-mode
+  (add-hook! 'text-mode-hook
+             ;; Apply ANSI color codes
+             (with-silent-modifications
+               (ansi-color-apply-on-region (point-min) (point-max) t))))
+#+end_src
+
+** Org
 *** Packages
-#+begin_src emacs-lisp :tangle "packages.el" :comments yes
+**** Org
+#+begin_src emacs-lisp :tangle packages.el
+(unpin! org-mode) ; there be bugs
+(package! org-contrib
+  :recipe (:host nil :repo "https://git.sr.ht/~bzg/org-contrib"
+           :files ("lisp/*.el"))
+  :pin "b8012e759bd5bf5da802b0b41734a8fec218323c")
+#+end_src
+
+**** Visuals
+Make Org tables better looking.
+
+
+* To File
+** GUI
+#+begin_src emacs-lisp :tangle packages.el :comments yes
 (unpin! doom-themes doom-modeline)
 (package! solaire-mode :disable t)
 (package! ox-chameleon :recipe (:host github :repo "tecosaur/ox-chameleon"))
 #+end_src
-*** Modeline
-#+begin_src emacs-lisp
-(after! doom-modeline
-  (setq doom-modeline-major-mode-icon t
-        doom-modeline-buffer-file-name-style 'truncate-with-project
-        doom-modeline-modal-icon t
-        inhibit-compacting-font-caches t))
+
+** LSP
+#+begin_src emacs-lisp :tangle packages.el :comments yes
+;; (unpin! lsp-mode)
+;; (unpin! lsp-ui)
 #+end_src
-** Editor
-#+name: doom-editor
-#+begin_src emacs-lisp :tangle no
-(evil +everywhere)
-file-templates
-fold
-(format +onsave)
-snippets
-word-wrap
-#+end_src
-** Emacs
-#+name: doom-emacs
-#+begin_src emacs-lisp :tangle no
-(dired +ranger +icons)
-electric
-(ibuffer +icons)
-(undo +tree)
-vc
-#+end_src
-*** IBuffer
+
+** IBuffer
 #+begin_src emacs-lisp
 (setq-hook! 'ibuffer-hook ibuffer-formats
             '((mark modified read-only locked " "
@@ -664,13 +1293,8 @@ vc
                     (name 16 -1)
                     " " filename)))
 #+end_src
-** Term
-#+name: doom-term
-#+begin_src emacs-lisp :tangle no
-eshell
-vterm
-#+end_src
 
+** Term
 Set the shell explicitly to the fish shell.
 
 #+begin_src emacs-lisp
@@ -697,58 +1321,21 @@ Kill the ~vterm~ buffer when the process exits.
 #+begin_src emacs-lisp
 (setq vterm-kill-buffer-on-exit t)
 #+end_src
-** Checkers
-#+name: doom-checkers
-#+begin_src emacs-lisp :tangle no
-syntax
-(spell +aspell)
-grammar
-#+end_src
-** Tools
-#+name: doom-tools
-#+begin_src emacs-lisp :tangle no
-(debugger +lsp)
-direnv
-(docker +lsp)
-(eval +overlay)
-gist
-(lookup +devdocs +docsets)
-(lsp +peek)
-(magit +forge)
-make
-pdf
-rgb
-taskrunner
-tmux
-upload
-#+end_src
-*** Packages
-#+begin_src emacs-lisp :tangle "packages.el" :comments yes
-(unpin! lsp-mode lsp-Ui)
-#+end_src
-** OS
-#+name: doom-os
-#+begin_src emacs-lisp :tangle no
-(:if IS-MAC macos)
-(tty +osc)
-#+end_src
-** Lang
-#+name: doom-lang
-#+begin_src emacs-lisp :tangle no
-data
-emacs-lisp
-(go +lsp)
-(json +lsp)
-(lua +fennel)
-markdown
-nix
-(org +hugo +journal +pretty +roam2)
-(rust +lsp)
-(sh +fish +lsp)
-(yaml +lsp)
-#+end_src
+
 ** Org
-Utility functions to get files in Dropbox.
+*** Packages
+#+begin_src emacs-lisp :tangle packages.el :comments link
+;; (package! org-appear)
+;; (package! doct :recipe (:host github :repo "progfolio/doct"))
+;; (package! org-padding :recipe (:host github :repo "TonCherAmi/org-padding"))
+;; (package! org-ol-tree :recipe (:host github :repo "Townk/org-ol-tree"))
+;; (package! org-pretty-table :recipe (:host github :repo "Fuco1/org-pretty-table"))
+;; (package! org-roam-ui :recipe (:host github :repo "org-roam/org-roam-ui" :files ("*.el" "out")))
+;; (package! websocket)
+#+end_src
+
+*** Helper Functions
+Org files live in Dropbox, these functions build paths to Dropbox files.
 
 #+begin_src emacs-lisp
 (defun dropbox-file (path)
@@ -758,10 +1345,16 @@ Utility functions to get files in Dropbox.
   (mapcar #'dropbox-file paths))
 #+end_src
 
+*** Org Mode
 Setup basic org-mode configuration.
 
 #+begin_src emacs-lisp
-(setq org-directory (dropbox-file "org"))
+(setq org-directory (dropbox-file "org")
+      org-use-property-inheritance t
+      org-log-done 'time
+      org-list-allow-alphabetical t
+      org-export-in-background t
+      org-catch-invisible-edits 'smart)
 
 (sp-local-pair
  '(org-mode)
@@ -790,13 +1383,117 @@ Setup basic org-mode configuration.
      ("w" "Work" entry (file+headline ,(dropbox-file "org/inbox_work.org") "To refile") "* TODO %?\n %i\n %a"))))
 #+end_src
 
-*** Packages
-#+begin_src emacs-lisp :tangle "packages.el" :comments yes
-(package! org-ref)
-(package! org-roam-ui)
+*** Visual Enhancements
+Add some padding around org blocks.
+
+#+begin_src emacs-lisp
+(use-package! org-padding
+  :hook (org-mode-hook . org-padding-mode)
+  :defer t)
+
+(setq org-padding-block-begin-line-padding '(1.15 . 0.15)
+      org-padding-block-end-line-padding '(1.15 . 0.15))
 #+end_src
 
+Enable auto-fill mode.
+
+#+begin_src emacs-lisp
+(add-hook 'text-mode-hook #'auto-fill-mode)
+#+end_src
+
+Navigate org-files with a tree view.
+
+#+begin_src emacs-lisp
+(use-package! org-ol-tree
+  :commands org-ol-tree)
+
+(map! :map org-mode-map
+      :after org
+      :localleader
+      :desc "Outline" "O" #'org-ol-tree)
+#+end_src
+
+Nicer tables.
+
+#+begin_src emacs-lisp
+(use-package! org-pretty-table
+  :commands (org-pretty-table-mode global-org-pretty-table-mode))
+#+end_src
+
+Make bullets change with depth.
+
+#+begin_src emacs-lisp
+(setq org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+") ("1." . "a.")))
+#+end_src
+
+Hide emphasis markers.
+
+#+begin_src emacs-lisp
+(use-package! org-appear
+  :hook (org-mode . org-appear-mode)
+  :config
+  (setq org-appear-autoemphasis t
+        org-appear-autosubmarkers t
+        org-appear-autolinks nil)
+  ;; for proper first-time setup, `org-appear--set-elements'
+  ;; needs to run after other hooks have acted.
+  (run-at-time nil nil #'org-appear--set-elements))
+#+end_src
+
+*** Roam
+Setup roam to use the Dropbox folder.
+
+#+begin_src emacs-lisp
+(after! org-roam
+  (setq org-roam-directory (dropbox-file "org/roam")))
+(after! deft
+  (setq deft-directory (dropbox-file "org")))
+#+end_src
+
+Setup the UI.
+
+#+begin_src emacs-lisp
+(use-package! websocket
+  :after org-roam)
+
+(use-package! org-roam-ui
+  :after org-roam
+  :commands org-roam-ui-open
+  :hook (org-roam . org-roam-ui-mode)
+  :config
+      (setq org-roam-ui-sync-theme t
+            org-roam-ui-follow t
+            org-roam-ui-update-on-save t
+            org-roam-ui-open-on-start t))
+
+(after! org-roam
+   (setq +org-roam-open-buffer-on-find-file nil))
+#+end_src
+
+*** Babel
+Setup the babel default headers.
+
+#+begin_src emacs-lisp
+(setq org-babel-default-header-args
+      '((:session . "none")
+        (:results . "replace")
+        (:exports . "code")
+        (:cache . "no")
+        (:noweb . "no")
+        (:hlines . "no")
+        (:tangle . "no")
+        (:comments . "link")))
+#+end_src
+
+Fix LSPs
+
 *** Agenda
+Set the agenda files.
+
+#+begin_src emacs-lisp
+(setq org-agenda-files (dropbox-files "org/personal.org" "org/projects.org" "org/work.org"))
+#+end_src
+
 #+begin_src emacs-lisp
 (after! org-agenda
   (setq
@@ -838,17 +1535,6 @@ Setup basic org-mode configuration.
   (setq hl-todo-keyword-faces '(("NEXT" warning bold))))
 #+end_src
 
-*** Roam
-Setup ~org-roam~ and ~deft~ to use the roam folder in Dropbox.
-
-#+begin_src emacs-lisp
-(after! org-roam
-  (setq org-roam-directory (dropbox-file "roam")))
-
-(after! deft
-  (setq deft-directory (dropbox-file "roam")))
-#+end_src
-
 *** Journal
 #+begin_src emacs-lisp
 (after! org-journal
@@ -858,19 +1544,10 @@ Setup ~org-roam~ and ~deft~ to use the roam folder in Dropbox.
    org-journal-dir (dropbox-file "roam")
    org-journal-date-format "%Y-%m-%d"))
 #+end_src
-** Config
-#+name: doom-config
-#+begin_src emacs-lisp :tangle no
-literate
-(default +bindings +smartparens)
-#+end_src
-
-
-* Other
 
 
 
-* To File
+** Original Config
 
 #+begin_src emacs-lisp
 
@@ -925,10 +1602,7 @@ literate
 
 ;; Evil Mode
 (setq evil-snipe-scope 'visible
-      evil-want-fine-undo t
-      evil-vsplit-window-right t
-      evil-split-window-below t)
-
+      evil-want-fine-undo t)
 
 ;; Vertico
 (after! marginalia

@@ -6,6 +6,7 @@
   config = let
     inherit (lib) mkMerge optionalAttrs;
     inherit (pkgs.stdenv) isDarwin isLinux;
+    inherit (config.theme) fonts;
   in {
     environment.variables.TERMINAL = "alacritty";
 
@@ -15,20 +16,24 @@
       (mkMerge [
         {
           fonts = [
+            alegreya
+            alegreya-sans
             corefonts
             emacs-all-the-icons-fonts
+            merriweather
             redhat-official-fonts
-            scientifica
-            victor-mono
-            (nerdfonts.override { fonts = [ "VictorMono" ]; })
+
+            fonts.sans.pkg
+            fonts.serif.pkg
+            fonts.mono.pkg
+            fonts.mono.nerdfont.pkg
+            fonts.unicode.pkg
           ];
         }
         (optionalAttrs isDarwin { enableFontDir = true; })
         (optionalAttrs isLinux {
           fontDir.enable = true;
           enableGhostscriptFonts = true;
-
-          fonts = [ roboto roboto-slab ];
 
           fontconfig = {
             enable = true;

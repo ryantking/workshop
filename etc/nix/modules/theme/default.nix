@@ -2,7 +2,7 @@
 
 let
   inherit (builtins) listToAttrs;
-  inherit (lib) mkOption nameValuePair types;
+  inherit (lib) mkMerge mkOption nameValuePair types;
 
   cfg = config.module.theme;
 
@@ -33,6 +33,23 @@ let
           pkg = mkOption {
             description = "Package containing font";
             type = types.package;
+          };
+          nerdfont = mkOption {
+            description = "Options for the Nerd Font variant";
+
+            type = types.submodule {
+              options = {
+                family = mkOption {
+                  description = "Nerd Font family name";
+                  type = types.str;
+                };
+
+                pkg = mkOption {
+                  description = "Package containing nerd font variant";
+                  type = types.package;
+                };
+              };
+            };
           };
         };
       };
@@ -82,9 +99,9 @@ in {
         options = {
           sans = mkFontOption "Sans-serif font";
           serif = mkFontOption "Serif font";
-          mono = mkFontOption "Monospace font";
-          nerdfont = mkFontOption "Font with icons";
           ui = mkFontOption "Font to use for UI elements";
+          mono = mkFontOption "Monospace font";
+          unicode = mkFontOption "Fallback unicode font";
         };
       };
     };

@@ -6,9 +6,9 @@
 set -g mouse on
 
 # Improve colors
-set-option -ga terminal-overrides ",alacritty:Tc"
-# set -as terminal-overrides ',*:Smulx=\E[4::%p1%dm'  # undercurl support
-# set -as terminal-overrides ',*:Setulc=\E[58::2::%p1%{65536}%/%d::%p1%{256}%/%{255}%&%d::%p1%{255}%&%d%;m'
+set-option -ga terminal-overrides ",alacritty:RGB"
+set -as terminal-overrides ',*:Smulx=\E[4::%p1%dm'  # undercurl support
+set -as terminal-overrides ',*:Setulc=\E[58::2::%p1%{65536}%/%d::%p1%{256}%/%{255}%&%d::%p1%{255}%&%d%;m'
 
 # Renumber windows
 set -g renumber-windows on
