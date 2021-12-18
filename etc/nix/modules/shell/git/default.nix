@@ -1,13 +1,31 @@
-{ pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
-{
-  hm = {
+let
+  inherit (lib) mkOption types;
+
+  cfg = config.identity;
+in {
+  options.identity = {
+    name = mkOption {
+      description = "Git author name";
+      default = "Ryan King";
+      type = types.str;
+    };
+
+    email = mkOption {
+      description = "Git author email";
+      default = "ryantking@protonmail.com";
+      type = types.str;
+    };
+  };
+
+  config.hm = {
     programs = {
       git = {
         enable = true;
         package = pkgs.gitAndTools.gitFull;
-        userName = "Ryan King";
-        userEmail = "ryantking@protonmail.com";
+        userName = cfg.name;
+        userEmail = cfg.email;
 
         signing = {
           key = "0xD718BA353C298BB2";

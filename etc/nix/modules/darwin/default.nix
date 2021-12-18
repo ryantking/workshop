@@ -1,7 +1,8 @@
 { inputs, config, pkgs, ... }:
 
-{
-  imports = [ ./brew.nix ./apps.nix ./yabai.nix ];
+let inherit (pkgs) writeShellScriptBin;
+in {
+  imports = [ ./brew.nix ./apps.nix ./emacs.nix ./yabai.nix ];
 
   config = {
     system.stateVersion = 4;

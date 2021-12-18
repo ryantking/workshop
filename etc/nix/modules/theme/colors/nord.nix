@@ -41,6 +41,8 @@ in mkIf (cfg.colorscheme == "nord") {
     septary = c-blue0;
   };
 
+  emacs.theme = "doom-nord";
+
   hm.programs = {
     bat.config.theme = "Nord";
     git.delta.options.syntax-theme = "Nord";

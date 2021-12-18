@@ -8,13 +8,15 @@
       "homebrew/cask-versions"
       "homebrew/cask-drivers"
       "d12frosted/emacs-plus"
+      "railwaycat/emacsmacport"
     ];
 
     brews = [ "mas" "libvterm" ];
 
     casks = [
+      "1password-beta"
       "adobe-creative-cloud"
-      "alacaritty"
+      "alacritty"
       "alfred"
       "bartender"
       "bluejeans"
@@ -27,6 +29,8 @@
       "ferdi-beta"
       "goland"
       "gpg-suite"
+      "grammarly"
+      "grammarly-desktop"
       "karabiner-elements"
       "kitty"
       "logitech-options"
@@ -41,14 +45,13 @@
     ];
 
     masApps = {
-      "1Password 7" = 1333542190;
       "Fantastical" = 975937182;
       "Tailscale" = 1475387142;
       "Telegram" = 747648890;
       "Slack" = 803453959;
     };
 
-    extraConfig =
-      ''brew "emacs-plus", args: ["with-elrumo2-icon", "with-xwidgets", "without-imagemagick"]'';
+    extraConfig = ''
+      brew "emacs-plus@28", args: ["with-elrumo1-icon", "with-imagemagick", "with-mailutils", "with-native-comp", "with-xwidgets"]'';
   };
 }

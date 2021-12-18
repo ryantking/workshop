@@ -10,4 +10,4 @@ fisher install oh-my-fish/plugin-osx
 fisher install oh-my-fish/plugin-rustup
 fisher install oh-my-fish/plugin-thefuck
 
-if [ (uname) = "darwin" ]; fisher install oh-my-fish/plugin-brew; end
+if [ (uname) = "Darwin" ]; fisher install oh-my-fish/plugin-brew; end
