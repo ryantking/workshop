@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 
 # TODO: Switch over to zplug for lazy loading shit
 # TODO: Refactor omz and plugins to new files.
@@ -51,9 +51,25 @@
       };
       
       localVariables = {
-      FZF_BASE = "${pkgs.fzf}/share/fzf";
-PURE_PROMPT_SYMBOL = "➜";
-PURE_PROMPT_VICMD_SYMBOL = "";
+        FZF_BASE = "${pkgs.fzf}/share/fzf";
+        PURE_PROMPT_SYMBOL = "➜";
+        PURE_PROMPT_VICMD_SYMBOL = "";
+      };
+
+      zplug = {
+      	enable = true;
+
+        plugins = [
+          { name = "chrissicool/zsh-256color"; }
+          { name = "mafredri/zsh-async"; }
+          { name = "sindresorhus/pure" ; tags = [ "use:pure.zsh" "as:theme" ]; }
+          { name = "jeffreytse/zsh-vi-mode"; }
+          { name = "zsh-users/zsh-history-substring-search"; }
+          { name = "zdharma-continuum/fast-syntax-highlighting"; }
+          { name = "Aloxaf/fzf-tab"; }
+          { name = "Tarrasch/zsh-bd"; }
+          { name = "chisui/zsh-nix-shell"; }
+        ];
       };
 
       oh-my-zsh = {
@@ -88,79 +104,20 @@ PURE_PROMPT_VICMD_SYMBOL = "";
         ];
       };
 
-      plugins = with pkgs; [
-        {
-          name = "zsh-async";
-          src = fetchFromGitHub {
-            owner = "mafredri";
-            repo = "zsh-async";
-            rev = "3ba6e2d1ea874bfb6badb8522ab86c1ae272923d";
-            sha256 = "sha256-3hhZXL8/Ml7UlkkHBPpS5NfUGB5BqgO95UvtpptXf8E=";
-          };
-	  file = "async.plugin.zsh";
-        }
-        {
-          name = "pure";
-          src = "${pure-prompt}/share/zsh/site-functions";
-	  file = "prompt_pure_setup";
-        }
-        # {
-          # name = "zsh-autosuggestions";
-          # src = "${zsh-autosuggestions}/share/zsh-autosuggestions";
-          # file = "zsh-autosuggestions.zsh";
-        # }
-        {
-          name = "zsh-history-substring-search";
-          src = "${zsh-history-substring-search}/share/zsh-history-substring-search";
-          file = "zsh-history-substring-search.zsh";
-        }
-        {
-          name = "zsh-fast-syntax-highlighting";
-          src = "${zsh-fast-syntax-highlighting}/share/zsh/site-functions";
-          file = "fast-syntax-highlighting.plugin.zsh";
-        }
-        {
-          name = "zsh-vi-mode";
-          src = zsh-vi-mode;
-          file = "share/zsh-vi-mode/zsh-vi-mode.plugin.zsh";
-        }
-        {
-          name = "zsh-256color";
-          src = fetchFromGitHub {
-            owner = "chrissicool";
-            repo = "zsh-256color";
-            rev = "9d8fa1015dfa895f2258c2efc668bc7012f06da6";
-            sha256 = "14pfg49mzl32ia9i9msw9412301kbdjqrm7gzcryk4wh6j66kps1";
-          };
-        }
-        {
-          name = "zsh-fzf-tab";
-          src = "${zsh-fzf-tab}/share/fzf-tab";
-          file = "fzf-tab.plugin.zsh";
-        }
-        {
-          name = "zsh-bd";
-          src = "${zsh-bd}/share/zsh-bd";
-          file = "bd.zsh";
-        }
-        {
-          name = "zsh-nix-shell";
-          src = "${zsh-nix-shell}/share/zsh-nix-shell";
-          file = "nix-shell.plugin.zsh";
-        }
-      ];
-
       initExtraFirst = with pkgs; ''
-
 setopt HIST_IGNORE_ALL_DUPS
 setopt no_extendedglob
 
 # Fix plugins that need bindings as vi-mode nukes them.
+function zvm_before_init() {
+  zvm_bindkey viins '^[[A' history-beginning-search-backward
+  zvm_bindkey viins '^[[B' history-beginning-search-forward
+  zvm_bindkey vicmd '^[[A' history-beginning-search-backward
+  zvm_bindkey vicmd '^[[B' history-beginning-search-forward
+}
 function zvm_after_init() {
-source ${oh-my-zsh}/share/oh-my-zsh/plugins/fzf/fzf.plugin.zsh
-source ${oh-my-zsh}/share/oh-my-zsh/plugins/fancy-ctrl-z/fancy-ctrl-z.plugin.zsh
-source ${zsh-fzf-tab}/share/fzf-tab/fzf-tab.plugin.zsh
-source ${zsh-history-substring-search}/share/zsh-history-substring-search/zsh-history-substring-search.zsh
+  source ${oh-my-zsh}/share/oh-my-zsh/plugins/fzf/fzf.plugin.zsh
+  source ${oh-my-zsh}/share/oh-my-zsh/plugins/fancy-ctrl-z/fancy-ctrl-z.plugin.zsh
 }
       '';
     };
