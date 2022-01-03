@@ -1,72 +1,50 @@
 {
   description = "Ryan's NixOS configurations";
 
-  nixConfig = {
-    extra-experimental-features = "nix-command flakes";
-    extra-substituters =
-      "https://nrdxp.cachix.org https://ryantking.cachix.org https://nix-community.cachix.org";
-    extra-trusted-public-keys =
-      "nrdxp.cachix.org-1:Fc5PSqY2Jm1TrWfm88l6cvGWwz3s93c6IOifQWnhNW4= ryantking.cachix.org-1:FQS/rxVvhhWSUds7Fcmf4RNdp95gVRHaDxorFuVIgXE= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=";
-  };
-
   inputs = {
-    nixos.url = "github:nixos/nixpkgs/release-21.11";
-    latest.url = "github:nixos/nixpkgs/nixos-unstable";
+    # Package Sets
+    nixpkgs-stable.url = "github:nixos/nixpkgs/release-21.11";
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs-latest.url = "github:nixos/nixpkgs/master";
+    nixpkgs-darwin.url = "github:nixos/nixpkgs/nixpkgs-21.11-darwin";
+    nixpkgs.follows = "nixpkgs-stable";
 
+    # System Management
     darwin = {
       url = "github:ryantking/nix-darwin";
-      inputs.nixpkgs.follows = "latest";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
-
     home = {
       url = "github:nix-community/home-manager/release-21.11";
-      inputs.nixpkgs.follows = "nixos";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
-    nixos-hardware.url = "github:nixos/nixos-hardware";
-
+    # Flake Utilities
     digga = {
-      url = "github:divnix/digga";
+      url = "github:montchr/digga?ref=feature/darwin-hosts-support";
       inputs = {
-        nixpkgs.follows = "nixos";
-        nixlib.follows = "nixos";
+        nixpkgs.follows = "nixpkgs-stable";
+        nixlib.follows = "nixpkgs-stable";
         home-manager.follows = "home";
       };
     };
+    utils.url = "github:gytis-ivaskevicius/flake-utils-plus";
+    colors.url = "github:misterio77/nix-colors";
 
-    bud = {
-      url = "github:divnix/bud";
-      inputs = {
-        nixpkgs.follows = "nixos";
-        devshell.follows = "digga/devshell";
-      };
-    };
-
+    # Source Management
     nur.url = "github:nix-community/NUR";
+    nvfetcher.url = "github:berberman/nvfetcher";
 
-    deploy = {
-      url = "github:input-output-hk/deploy-rs";
-      inputs.nixpkgs.follows = "nixos";
-    };
-
+    # Secrets Management
     agenix = {
       url = "github:ryantm/agenix";
-      inputs.nixpkgs.follows = "latest";
+      inputs.nixpkgs.follows = "nixpkgs-stable";
     };
+    agenix-cli.url = "github:cole-h/agenix-cli";
 
-    nvfetcher = {
-      url = "github:berberman/nvfetcher";
-      inputs.nixpkgs.follows = "latest";
-    };
-
-    naersk = {
-      url = "github:nmattia/naersk";
-      inputs.nixpkgs.follows = "nixos";
-    };
-
-    nix-colors.url = "github:misterio77/nix-colors";
-    neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
-    emacs-overlay.url = "github:nix-community/emacs-overlay";
+    # Development Tools
+    neovim-nightly.url = "github:nix-community/neovim-nightly-overlay";
+    emacs.url = "github:nix-community/emacs-overlay";
     doom-emacs-source = {
       url = "github:hlissner/doom-emacs/develop";
       flake = false;
@@ -80,27 +58,42 @@
   };
 
   outputs = inputs:
-    with inputs;
-    with builtins;
-    digga.lib.mkFlake {
-      inherit self inputs;
 
-      supportedSystems = [ "x86_64-linux" "x86_64-darwin" ];
+    with inputs;
+
+    let
+      profiles = digga.lib.rakeLeaves ./profiles;
+      suites = import ./suites { inherit profiles; };
+
+      mkHosts = hosts: (builtins.foldl' (a: b: a // b) { } hosts);
+    in utils.lib.mkFlake {
+      inherit self inputs;
 
       channelsConfig = { allowUnfree = true; };
 
       channels = import ./channels { inherit self inputs; };
 
-      lib = import ./lib { lib = digga.lib // nixos.lib; };
+      lib = import ./lib { lib = digga.lib // nixpkgs-unstable.lib; };
 
-      sharedOverlays = import ./overlays/share { inherit self inputs; };
+      sharedOverlays = [
+        (final: prev: {
+          __dontExport = true;
+          inherit inputs;
+          lib = prev.lib.extend (lfinal: lprev: { our = self.lib; });
+        })
 
-      nixos = ./nixos;
+        agenix.overlay
+        nur.overlay
+        nvfetcher.overlay
+      ];
 
-      home = ./home;
+      # home = ./home;
 
-      devshell = ./shell;
-
-      homeConfigurations = digga.lib.mkHomeConfigurations self.nixosConfigurations;
+      hosts =
+        (mkHosts (import ./darwin { inherit self inputs profiles suites; }));
+      #
+      # hmModules = (digga.lib.importExportableModules ./home/modules);
+      #
+      # homeConfigurations = digga.lib.mkHomeConfigurations (self.darwinConfigurations);
     };
 }

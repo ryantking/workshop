@@ -4,8 +4,8 @@
   nix = {
     package = pkgs.nixUnstable;
     generateRegistryFromInputs = lib.mkDefault true;
-    autoOptimiseStore = true;
-    optimise.automatic = true;
+    # autoOptimiseStore = true;
+    # optimise.automatic = true;
     useSandbox = true;
     readOnlyStore = false;
     allowedUsers = [ "@wheel" ];
@@ -19,7 +19,7 @@
 
     gc = {
       automatic = true;
-      dates = "weekly";
+      # dates = "weekly";
       options = "--delete-older-than 3d";
     };
 
