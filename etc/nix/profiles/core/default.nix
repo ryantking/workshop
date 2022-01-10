@@ -1,13 +1,16 @@
 { config, lib, pkgs, ... }:
 
+let
+  inherit (pkgs.stdenv) isDarwin;
+in
 {
-  imports = [ ../cachix ./nix.nix ./shell.nix ];
+  imports = [ ./cachix.nix ./nix.nix ./shell.nix ];
 
-  time.timeZone = "America/New_York";
+  time.timeZone = config.my.timezone;
 
   environment = {
     variables = {
-      # WORKSHOP_DIR = config.workshop.path;
+      WORKSHOP_DIR = config.workshop.path;
       EDITOR = "nvim";
       KERNEL_NAME = if pkgs.stdenv.isDarwin then "darwin" else "linux";
       LANG = "en_US.UTF-8";
@@ -22,9 +25,8 @@
       (python3.withPackages (ps: with ps; [ pip setuptools ]))
       (ripgrep.override { withPCRE2 = true; })
 
-      binutils
       cachix
-      coreutils
+      (if isDarwin then coreutils-prefixed else coreutils)
       curl
       dash
       dnsutils
@@ -46,10 +48,10 @@
       openssl
       rsync
       skim
+      tealdeer
       tmux
       wget
       whois
-      zsh
     ];
   };
 }

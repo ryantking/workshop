@@ -7,4 +7,5 @@ let
   configs = default.nixosConfigurations;
   default = (import ../.).defaultNix;
   hostname = lib.fileContents /etc/hostname;
-in host
+in
+host

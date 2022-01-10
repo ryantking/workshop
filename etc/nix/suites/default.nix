@@ -1,7 +1,26 @@
-{ profiles, ... }:
+{ profiles, homeProfiles, ... }:
 
-with profiles;
+rec {
+  base = [
+    profiles.core
+    homeProfiles.zsh
+    homeProfiles.bat
+    homeProfiles.git
+    homeProfiles.zsh
+  ];
 
-{
-  base = [ core ];
+  gui = [
+    profiles.fonts
+    homeProfiles.alacritty
+  ];
+
+  darwin = base ++ gui ++ [
+    profiles.darwin
+    homeProfiles.darwin.apps
+    homeProfiles.darwin.yabai
+  ];
+
+  devel = base ++ [ homeProfiles.emacs homeProfiles.direnv homeProfiles.tmux homeProfiles.languages.go ];
+
+  personal = [ profiles.security.yubikey profiles.secrets homeProfiles.gnupg homeProfiles.tealdeer ];
 }

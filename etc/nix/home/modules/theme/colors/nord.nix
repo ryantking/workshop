@@ -2,12 +2,10 @@
 
 with inputs;
 
-lib.mkIf (config.theme.colorscheme == "nord") {
-  colorscheme = nix-colors.colorSchemes.nord;
-
+lib.mkIf (config.colorscheme.slug == "nord") {
   # emacs.theme = "doom-nord";
 
-  programs = {
+  my.hm.programs = {
     bat.config.theme = "Nord";
     git.delta.options.syntax-theme = "Nord";
 
@@ -24,13 +22,15 @@ lib.mkIf (config.theme.colorscheme == "nord") {
 
     neovim = {
       plugins = [ pkgs.vimPlugins.nord-nvim ];
-      extraConfig = let inherit (config.colorscheme) colors;
-      in ''
-        let g:nord_borders = v:true
-        color nord
-        hi IndentBlanklineContextChar guifg=${colors.base0E}
-        hi VertSplit guifg=${colors.base8}
-      '';
+      extraConfig =
+        let inherit (config.colorscheme) colors;
+        in
+        ''
+          let g:nord_borders = v:true
+          color nord
+          hi IndentBlanklineContextChar guifg=${colors.base0E}
+          hi VertSplit guifg=${colors.base8}
+        '';
     };
   };
 }

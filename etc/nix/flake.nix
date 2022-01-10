@@ -55,18 +55,60 @@
       url = "github:sainnhe/tmux-fzf";
       flake = false;
     };
+
+    # Yabai
+    yabai = {
+      url = "github:koekeishiya/yabai/master";
+      flake = false;
+    };
+    spacebar.url = "github:cxa/spacebar";
   };
 
-  outputs = inputs:
-
+  outputs = { self, nixpkgs-unstable, home, digga, utils, colors, agenix, nur, nvfetcher, emacs, neovim-nightly, ... } @ inputs:
     with inputs;
-
     let
-      profiles = digga.lib.rakeLeaves ./profiles;
-      suites = import ./suites { inherit profiles; };
+      inherit (builtins) attrValues;
+      inherit (digga.lib) rakeLeaves flattenTree;
+
+      hosts = rakeLeaves ./hosts;
+      profiles = rakeLeaves ./profiles;
+      homeProfiles = rakeLeaves ./home/profiles;
+      suites = import ./suites { inherit profiles homeProfiles; };
+
+      mkNixosHost = name:
+        { system ? "x86_64-linux"
+        , channelName ? "nixpkgs-stable"
+        , extraSuites ? [ ]
+        }: {
+          ${name} = {
+            inherit system channelName;
+            specialArgs = { inherit profiles suites; };
+            modules = suites.base ++ extraSuites ++ [
+              hosts.${name}
+              home.nixosModules.home-manager
+              agenix.nixosModules.age
+            ];
+          };
+        };
+
+      mkDarwinHost = name:
+        { system ? "x86_64-darwin"
+        , channelName ? "nixpkgs-darwin"
+        , extraSuites ? [ ]
+        }: {
+          ${name} = {
+            inherit system channelName;
+            output = "darwinConfigurations";
+            builder = darwin.lib.darwinSystem;
+            specialArgs = { inherit profiles suites; };
+            modules = suites.base ++ extraSuites
+              ++ [ hosts.${name} home.darwinModules.home-manager ];
+          };
+        };
 
       mkHosts = hosts: (builtins.foldl' (a: b: a // b) { } hosts);
-    in utils.lib.mkFlake {
+    in
+    utils.lib.mkFlake {
       inherit self inputs;
 
       channelsConfig = { allowUnfree = true; };
@@ -85,15 +127,27 @@
         agenix.overlay
         nur.overlay
         nvfetcher.overlay
+        emacs.overlay
+        neovim-nightly.overlay
       ];
 
-      # home = ./home;
+      hostDefaults = {
+        extraArgs = { inherit utils inputs; };
+        specialArgs = { inherit suites profiles homeProfiles; };
+        modules = [ ./users/rking colors.homeManagerModule ]
+          ++ (attrValues (flattenTree (rakeLeaves ./modules)))
+          ++ (attrValues (flattenTree (rakeLeaves ./home/modules)));
+      };
 
-      hosts =
-        (mkHosts (import ./darwin { inherit self inputs profiles suites; }));
-      #
-      # hmModules = (digga.lib.importExportableModules ./home/modules);
-      #
-      # homeConfigurations = digga.lib.mkHomeConfigurations (self.darwinConfigurations);
+      hosts = with suites;
+        mkHosts [
+          (mkDarwinHost "trashbook" {
+            extraSuites = (suites.darwin ++ devel ++ personal);
+          })
+          (mkNixosHost "trashstation" { extraSuites = [ ]; })
+        ];
+
+      homeConfigurations = digga.lib.mkHomeConfiguration
+        (self.nixosConfigurations // self.darwinConfigurations);
     };
 }

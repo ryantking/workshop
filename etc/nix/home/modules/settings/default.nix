@@ -1,15 +1,17 @@
-{ config, pkgs, lib, home-manager, options, ... }:
+{ config, options, pkgs, lib, home-manager, ... }:
 
 with lib.types;
 
 let
-  inherit (lib) mkOption mapAttrs isList concatMapStringSep;
+  inherit (lib) mkOption mapAttrs isList concatMapStringsSep;
   inherit (pkgs.lib.our) mkOpt mkOpt' mkBoolOpt;
-  inherit (config.settings.user) home;
+  inherit (config.my.user) home;
 
   sshDir = "${home}/.ssh";
-in {
-  options.settings = {
+in
+{
+  options.my = {
+    username = mkOpt str "rking";
     name = mkOpt str "Ryan King";
     timezone = mkOpt str "America/New_York";
     githubUsername = mkOpt str "ryantking";
@@ -39,9 +41,9 @@ in {
 
     env = mkOption {
       description = "Environment variables.";
-      type = attrsOf (oneOf [ str path (listOf (either str patch)) ]);
+      type = attrsOf (oneOf [ str path (listOf (either str path)) ]);
       apply = mapAttrs
-        (n: v: if isList v then concatMapStringSep ":" (x: toString x) v else (toString v));
+        (n: v: if isList v then concatMapStringsSep ":" (x: toString x) v else (toString v));
     };
   };
 }

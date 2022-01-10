@@ -7,7 +7,8 @@ let
   inherit (config) theme;
   inherit (lib) mkMerge optionalAttrs;
   inherit (pkgs.stdenv) isDarwin;
-in mkMerge [
+in
+mkMerge [
   {
     programs.kitty = {
       enable = true;
