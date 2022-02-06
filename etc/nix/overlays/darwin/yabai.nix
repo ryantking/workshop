@@ -1,48 +1,24 @@
+{ inputs }:
+
 final: prev: {
-  yabai = prev.yabai.overrideAttrs (o: rec {
-    version = "4.0.0-pre";
+  yabai = let
+    version = "4.0.0-dev";
+    buildSymlinks = prev.runCommand "build-symlinks" { } ''
+                    mkdir -p $out/bin
+                    ln -s /usr/bin/xcrun /usr/bin/xcodebuild /usr/bin/tiffutil /usr/bin/qlmanage $out/bin
+                  '';
+  in prev.yabai.overrideAttrs (old: {
+    inherit version;
+    src = inputs.yabai;
 
-    src = final.fetchFromGitHub {
-      owner = "koekeishiya";
-      repo = "yabai";
-      # rev = "v${version}";
-      rev = "f403e609e32b4100494c5afb089d0010e7e4ef91";
-      sha256 = "sha256-Lzim9h9aZopS7BjLzGghZQpgHx183psTLHCM9ndJCXo=";
-    };
-
-    # XCODE_APP = final.darwin.xcode;
-
-    buildInputs = with final.darwin.apple_sdk.frameworks; [
+    buildInputs = with prev.darwin.apple_sdk.frameworks; [
       Carbon
       Cocoa
-      CoreServices
       ScriptingBridge
+      prev.xxd
       SkyLight
     ];
 
-    stdenv = final.clangStdenv;
-
-    nativeBuildInputs = with final; [
-      # clang_13
-      xcbuild
-      darwin.xcode
-      xxd
-    ];
-
-    # dontBuild = true;
-    buildPhase = "";
-
-    preInstall = ''
-      make clean
-    '';
-
-    installPhase = "make install";
-
-    postInstall = ''
-      mkdir -p $out/bin
-      mkdir -p $out/share/man/man1/
-      cp ./bin/yabai $out/bin/yabai
-      cp ./doc/yabai.1 $out/share/man/man1/yabai.1
-    '';
+    nativeBuildInputs = [ buildSymlinks ];
   });
 }

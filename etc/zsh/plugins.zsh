@@ -33,7 +33,8 @@ zinit lucid depth'1' wait'0a' light-mode for \
         bindkey   -M vicmd "^[[B"     history-substring-search-down;
         bindkey   "$terminfo[kcud1]"  history-substring-search-down;
     ' zsh-users/zsh-history-substring-search \
-    pick'.kubectl_aliases' ahmetb/kubectl-aliases
+    pick'.kubectl_aliases' ahmetb/kubectl-aliases \
+    Flinner/zsh-emacs
 
 # FZF Plugins
 zinit lucid depth'1' wait'0a' light-mode for \
@@ -65,7 +66,6 @@ zinit lucid wait light-mode for \
     OMZP::direnv \
     OMZP::dirhistory \
     OMZP::extract \
-    OMZP::emacs \
     OMZP::fancy-ctrl-z \
     OMZP::fzf \
     OMZP::gh \

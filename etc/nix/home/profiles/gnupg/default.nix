@@ -16,8 +16,6 @@ mkMerge [
     };
 
     environment.systemPackages = with pkgs; [
-      gnupg
-      gpgme
       pinentry_mac
       (writeShellScriptBin "gpg-agent-restart" ''
         pkill gpg-agent ; pkill ssh-agent ; pkill pinentry ; eval $(gpg-agent --daemon --enable-ssh-support)
@@ -99,5 +97,6 @@ mkMerge [
   }
   (optionalAttrs (hasAttr "homebrew" options) {
     homebrew.casks = [ "gpg-suite" ];
+    my.env.PATH = [ "/usr/local/MacGPG2/bin" "$PATH" ];
   })
 ]

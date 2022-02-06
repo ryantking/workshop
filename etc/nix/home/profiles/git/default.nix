@@ -18,6 +18,7 @@
           init.defaultBranch = "master";
           pull.rebase = false;
           tag.sort = "version:refname";
+          github.user = config.my.githubUsername;
         };
 
         aliases = {
@@ -62,6 +63,7 @@
           ".netrwhist"
           "tags"
           "[._]*.un~"
+          ".envrc"
         ];
 
         delta = {

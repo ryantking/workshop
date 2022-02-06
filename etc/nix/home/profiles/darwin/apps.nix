@@ -23,6 +23,7 @@
       "quicklook-json"
       "quicklookase"
       "signal"
+      "sonos"
       "spotify"
       "webpquicklook"
       "zsa-wally"

@@ -20,7 +20,7 @@ rec {
     homeProfiles.darwin.yabai
   ];
 
-  devel = base ++ [ homeProfiles.emacs homeProfiles.direnv homeProfiles.tmux homeProfiles.languages.go ];
+  devel = base ++ [ homeProfiles.emacs homeProfiles.direnv homeProfiles.tmux profiles.languages.nodejs homeProfiles.languages.go ];
 
   personal = [ profiles.security.yubikey profiles.secrets homeProfiles.gnupg homeProfiles.tealdeer ];
 }

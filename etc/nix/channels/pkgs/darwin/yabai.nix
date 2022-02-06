@@ -2,10 +2,10 @@
 
 stdenv.mkDerivation {
   pname = "yabai";
-  version = "4.0.0-pre";
+  version = "4.0.0-rk";
 
   src = fetchzip {
-    url = "https://github.com/koekeishiya/yabai/files/7726893/yabai-v4.0.0.tar.gz";
+    url = "https://github.com/ryantking/yabai/releases/download/v4.4.0-pre/yabai-ryantking-v4.0.0.tar.g";
     hash = "sha256-Gm0WH6saD29bOoMyTDbYVi7e2IP9eBAvib0hWDkJXVQ=";
   };
 

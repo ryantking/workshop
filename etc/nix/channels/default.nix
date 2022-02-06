@@ -11,7 +11,8 @@ with inputs;
   nixpkgs-latest = { };
   nixpkgs-darwin = {
     overlaysBuilder = (channels: [
-      (import ./pkgs/darwin { inherit self inputs; })
+      # (import ./pkgs/darwin { inherit self inputs; })
+      (import ../overlays/darwin/yabai.nix { inherit inputs; })
       (final: prev: { inherit (channels.nixpkgs-unstable) direnv nix nix_2_5 nix-direnv; })
       spacebar.overlay
     ]);

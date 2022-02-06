@@ -7,8 +7,10 @@ with pkgs;[
   fd
   getopt
   gnugrep
+  gdb
   grc
   jq
+  kind
   lnav
   most
   neovim

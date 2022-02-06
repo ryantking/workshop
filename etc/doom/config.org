@@ -33,14 +33,14 @@ Make the configuration file load faster with lexical bindings.
 Set the user information. Nix will template in the git author info at rebuild time.
 
 #+begin_src emacs-lisp
-(setq user-full-name "@gitName@"
-      user-mail-address "@gitEmail@")
+(setq user-full-name (getenv "GITHUB_USER")
+      user-mail-address (getenv "GITHUB_EMAIL"))
 #+end_src
 
 Move cached auth information out of ~$EMACSDIR~ so it is not accidentally deleted.
 
 #+begin_src emacs-lisp
-(setq auth-sources '("~/.local/share/emacs.gpg")
+(setq auth-sources '("~/.authinfo.gpg")
       auth-source-cache-expiry nil)
 #+end_src
 
@@ -224,7 +224,7 @@ direnv
 (eval +overlay)
 gist
 (lookup +devdocs +docsets)
-(lsp +peek)
+(   lsp +peek)
 (magit +forge)
 make
 pdf
@@ -246,6 +246,7 @@ upload
 data
 emacs-lisp
 (go +lsp)
+(java +meghanada)
 (json +lsp)
 (lua +fennel)
 markdown
@@ -260,7 +261,8 @@ nix
 Keep the UI simple and minimalist.
 
 #+begin_src emacs-lisp
-(setq fringe-mode 0
+(setq menu-bar-mode t
+      fringe-mode 0
       tool-bar-mode 0)
 #+end_src
 
@@ -268,11 +270,11 @@ Keep the UI simple and minimalist.
 Set the fonts to the values configured in Nix.
 
 #+begin_src emacs-lisp
-(setq doom-font (font-spec :family "Victor Mono" :weight 'Regular :size 12)
-      doom-big-font (font-spec :family "Victor Mono" :weight 'Regular :size 24)
-      doom-unicode-font (font-spec :family "Julia Mono" :weight 'Regular :size 12)
-      doom-variable-pitch-font (font-spec :family "Overpass" :weight 'Regular :size 12)
-      doom-serif-font (font-spec :family "IBM Plex Mono" :weight 'Light :size 12))
+(setq doom-font (font-spec :family "Victor Mono" :size 12)
+      doom-big-font (font-spec :family "Victor Mono" :size 24)
+      doom-variable-pitch-font (font-spec :family "Overpass" :size 12)
+      doom-unicode-font (font-spec :family "JuliaMono")
+      doom-serif-font (font-spec :family "IBM Plex Mono" :weight 'light))
 #+end_src
 
 Detect missing font faces.
@@ -312,8 +314,11 @@ Detect missing font faces.
 The Nix configuration also sets the theme.
 
 #+begin_src emacs-lisp
-(setq doom-theme 'doom-nord)
+(setq doom-theme (intern (getenv "EMACS_THEME")))
 (setq doom-nord-padded-modeline t)
+(remove-hook 'window-setup-hook #'doom-init-theme-h)
+(add-hook 'after-init-hook #'doom-init-theme-h 'append)
+(delq! t custom-theme-load-path)
 #+end_src
 
 Minor modeline improvements.
@@ -339,6 +344,7 @@ Better buffer names.
 (setq doom-fallback-buffer-name "► Doom"
       +doom-dashboard-name "► Doom")
 #+end_src
+
 *** CLI Configuration
 The ~doom~ CLI loads this file every time that it runs. Don't require confirmation for org tangle.
 
@@ -446,6 +452,7 @@ Set the window title to the buffer name and project folder.
            (unless (string= "-" project-name)
              (format (if (buffer-modified-p)  " ◉ %s" "  ●  %s") project-name))))))
 #+end_src
+
 *** Splash Screen
 Use a simple splash screen.
 
@@ -478,10 +485,9 @@ Use a simple splash screen.
   (make-directory (expand-file-name "theme-splashes" doom-cache-dir) t))
 
 (defun fancy-splash-filename (theme-name height)
-  (expand-file-name (concat (file-name-as-directory "theme-splashes")
-                            theme-name
-                            "-" (number-to-string height) ".svg")
-                    doom-cache-dir))
+  (expand-file-name
+   (concat (file-name-as-directory "theme-splashes")
+           theme-name "-" (number-to-string height) ".svg") doom-cache-dir))
 
 (defun fancy-splash-clear-cache ()
   "Delete all cached fancy splash images"
@@ -500,22 +506,21 @@ Use a simple splash screen.
       (goto-char (point-min))
       (while (re-search-forward (car substitution) nil t)
         (replace-match (doom-color (cdr substitution)) nil nil)))
-    (write-region nil nil
-                  (fancy-splash-filename (symbol-name doom-theme) height) nil nil)))
+    (write-region nil nil (fancy-splash-filename (symbol-name doom-theme) height) nil nil)))
 
 (defun fancy-splash-generate-images ()
   "Perform `fancy-splash-generate-image' in bulk"
   (dolist (size fancy-splash-sizes)
     (unless (plist-get size :file)
-      (fancy-splash-generate-image (or (plist-get size :template)
-                                       fancy-splash-image-template)
-                                   (plist-get size :height)))))
+      (fancy-splash-generate-image
+       (or (plist-get size :template)
+           fancy-splash-image-template)
+       (plist-get size :height)))))
 
 (defun ensure-theme-splash-images-exist (&optional height)
-  (unless (file-exists-p (fancy-splash-filename
-                          (symbol-name doom-theme)
-                          (or height
-                              (plist-get (car fancy-splash-sizes) :height))))
+  (unless (file-exists-p
+           (fancy-splash-filename (symbol-name doom-theme)
+                                  (or height (plist-get (car fancy-splash-sizes) :height))))
     (fancy-splash-generate-images)))
 
 (defun get-appropriate-splash ()
@@ -525,6 +530,7 @@ Use a simple splash screen.
 
 (setq fancy-splash-last-size nil)
 (setq fancy-splash-last-theme nil)
+
 (defun set-appropriate-splash (&rest _)
   (let ((appropriate-image (get-appropriate-splash)))
     (unless (and (equal appropriate-image fancy-splash-last-size)
@@ -741,11 +747,19 @@ Remove noise from =evil-= bindings.
   (pushnew!
    which-key-replacement-alist
    '(("" . "\\`+?evil[-:]?\\(?:a-\\)?\\(.*\\)") . (nil . "◂\\1"))
-   '(("\\`g s" . "\\`evilem--?motion-\\(.*\\)") . (nil . "◃\\1"))
-   ))
+   '(("\\`g s" . "\\`evilem--?motion-\\(.*\\)") . (nil . "◃\\1"))))
 #+end_src
 
 ** Tools
+*** Abbrev
+Use a single abbrev mode.
+#+begin_src emacs-lisp
+(add-hook 'doom-first-buffer-hook
+          (defun +abbrev-file-name ()
+            (setq-default abbrev-mode t)
+            (setq abbrev-file-name (expand-file-name "abbrev.el" doom-private-dir))))
+#+end_src
+
 *** Very Large Files
 The /very large files/ mode loads large files in chunks, allowing one to open
 ridiculously large files.
@@ -799,11 +813,17 @@ Speed up company.
 
 #+begin_src emacs-lisp
 (after! company
-  (setq company-idle-delay 0.5
-        company-minimum-prefix-length 2)
-  (setq company-show-numbers t)
-  (add-hook 'evil-normal-state-entry-hook #'company-abort)) ;; make aborting less annoying.
-
+  (setq company-idle-delay 0.1
+        company-minimum-prefix-length 2
+        company-select-wrap-around t
+        company-require-match 'never
+        company-dabbrev-downcase nil
+        company-dabbrev-ignore-case t
+        company-dabbrev-other-buffers nil
+        company-tooltip-limit 5
+        company-tooltip-minimum-width 40)
+  ;; (add-hook 'evil-normal-state-entry-hook #'company-abort)
+  ) ;; make aborting less annoying.
 
 (setq-default history-length 1000)
 (setq-default prescient-history-length 1000)
@@ -827,7 +847,7 @@ Only use ~ISpell~ in text, markdown, and GFM>
 Don't cache source directories.
 
 #+begin_src emacs-lisp
-(setq projectile-ignored-projects '("~/" "/tmp" "~/.emacs.d/.local/straight/repos/"))
+(setq projectile-ignored-projects '("~/" "/tmp" "~/.local/share/doom/straight/repos/"))
 
 (defun projectile-ignored-project-function (filepath)
   "Return t if FILEPATH is within any of `projectile-ignored-projects'"
@@ -849,7 +869,7 @@ prompts.
 
 #+begin_src emacs-lisp
 (after! tramp
-  (setenv "SHELL" "/bin/bash")
+  (setenv "SHELL" "/run/current-system/sw/bin/dash")
   (setq tramp-shell-prompt-pattern "\\(?:^\\|
 \\)[^]#$%>\n]*#?[]#$%>] *\\(\\[[0-9;]*[a-zA-Z] *\\)*")) ;; default + 
 #+end_src
@@ -938,6 +958,28 @@ For =noweb= links.
  :actions '(insert))
 #+end_src
 
+*** LSP
+Use latest lsp plugins.
+
+#+begin_src emacs-lisp :tangle packages.el
+(unpin! lsp-ui)
+(unpin! lsp-mode)
+#+end_src
+
+Better LSP UI.
+
+#+begin_src emacs-lisp
+(use-package! lsp-ui
+  :hook (lsp-mode . lsp-ui-mode)
+  :config
+  (setq lsp-ui-sideline-enable nil
+        lsp-lens-enable t
+        lsp-ui-doc-enable t
+        lsp-headerline-breadcrumb-enable nil
+        lsp-ui-peek-enable t
+        lsp-ui-peek-fontify 'on-demand
+        lsp-enable-symbol-highlighting nil))
+#+end_src
 ** Visual
 *** Info Colors
 Make manual pages look nicer with colors.
@@ -1041,13 +1083,16 @@ Also immediately enables `mixed-pitch-modes' if currently in one of the modes."
 Use mixed pith with serif.
 
 #+begin_src emacs-lisp
+(autoload #'mixed-pitch-serif-mode "mixed-pitch"
+  "Change the default face of the current buffer to a serifed variable pitch, while keeping some faces fixed pitch." t)
+
 (after! mixed-pitch
   (defface variable-pitch-serif
     '((t (:family "serif")))
     "A variable-pitch face with serifs."
     :group 'basic-faces)
   (setq mixed-pitch-set-height t)
-  (setq variable-pitch-serif-font (font-spec :family "Alegreya" :size 27))
+  (setq variable-pitch-serif-font (font-spec :family "Alegreya" :size 16))
   (set-face-attribute 'variable-pitch-serif nil :font variable-pitch-serif-font)
   (defun mixed-pitch-serif-mode (&optional arg)
     "Change the default face of the current buffer to a serifed variable pitch, while keeping some faces fixed pitch."
@@ -1228,7 +1273,7 @@ Identify the files to ignore.
 * Applications
 ** Email
 ** Slack
-* Language Configuration
+- Language Configuration
 ** General
 *** File Templates
 Overwrite the default snippets when need be.
@@ -1237,17 +1282,6 @@ Overwrite the default snippets when need be.
 (set-file-template! "\\.tex$" :trigger "__" :mode 'latex-mode)
 (set-file-template! "\\.org$" :trigger "__" :mode 'org-mode)
 (set-file-template! "/LICEN[CS]E$" :trigger '+file-templates/insert-license)
-#+end_src
-
-** Plaintext
-Display ~ANSI~ color codes.
-
-#+begin_src emacs-lisp
-(after! text-mode
-  (add-hook! 'text-mode-hook
-             ;; Apply ANSI color codes
-             (with-silent-modifications
-               (ansi-color-apply-on-region (point-min) (point-max) t))))
 #+end_src
 
 ** Org
@@ -1264,19 +1298,521 @@ Display ~ANSI~ color codes.
 **** Visuals
 Make Org tables better looking.
 
+#+begin_src emacs-lisp :tangle packages.el
+(package! org-pretty-table
+  :recipe (:host github :repo "Fuco1/org-pretty-table") :pin "87772a9469d91770f87bfa788580fca69b9e697a")
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! org-pretty-table
+  :commands (org-pretty-table-mode global-org-pretty-table-mode))
+#+end_src
+
+Use org-appear to show emphasis markers when we enter the text they surround.
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! org-appear :recipe (:host github :repo "awth13/org-appear")
+  :pin "148aa124901ae598f69320e3dcada6325cdc2cf0")
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! org-appear
+  :hook (org-mode . org-appear-mode)
+  :config
+  (setq org-appear-autoemphasis t
+        org-appear-autosubmarkers t
+        org-appear-autolinks nil)
+  ;; for proper first-time setup, `org-appear--set-elements'
+  ;; needs to be run after other hooks have acted.
+  (run-at-time nil nil #'org-appear--set-elements))
+#+end_src
+
+Outline view for headlines.
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! org-ol-tree :recipe (:host github :repo "Townk/org-ol-tree")
+  :pin "207c748aa5fea8626be619e8c55bdb1c16118c25")
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! org-ol-tree
+  :commands org-ol-tree)
+
+(map! :map org-mode-map
+      :after org
+      :localleader
+      :desc "Outline" "O" #'org-ol-tree)
+#+end_src
+
+**** Extra Functionality
+Do HTTP requests in org mode.
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! ob-http :pin "b1428ea2a63bcb510e7382a1bf5fe82b19c104a7")
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! ob-http
+  :commands org-babel-execute:http)
+#+end_src
+
+Transclude the contents from other org documents.
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! org-transclusion :recipe (:host github :repo "nobiot/org-transclusion")
+  :pin "8cbbade1e3237200c2140741f39ff60176e703e7")
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! org-transclusion
+  :commands org-transclusion-mode
+  :init
+  (map! :after org :map org-mode-map
+        "<f12>" #'org-transclusion-mode))
+#+end_src
+
+*** Behavior
+**** Helper Functions
+Org files live in Dropbox, these functions build paths to Dropbox files.
+
+#+begin_src emacs-lisp
+(defun dropbox-file (path)
+  (concat (getenv "HOME") "/Dropbox/" path))
+
+(defun dropbox-files (&rest paths)
+  (mapcar #'dropbox-file paths))
+#+end_src
+
+**** Defaults
+#+begin_src emacs-lisp
+(setq org-directory (dropbox-file "org")
+      org-use-property-inheritance t
+      org-log-done 'time
+      org-list-allow-alphabetical t
+      org-export-in-background t
+      org-catch-invisible-edits 'smart
+      org-export-with-sub-superscripts '{})
+#+end_src
+
+Org babel configuration.
+
+#+begin_src emacs-lisp
+(setq org-babel-default-header-args
+      '((:session . "none")
+        (:results . "replace")
+        (:exports . "code")
+        (:cache . "no")
+        (:noweb . "no")
+        (:hlines . "no")
+        (:tangle . "no")
+        (:comments . "link")))
+#+end_src
+
+Add missing arrow key bindings.
+
+#+begin_src emacs-lisp
+(map! :map evil-org-mode-map
+      :after evil-org
+      :n "g <up>" #'org-backward-heading-same-level
+      :n "g <down>" #'org-forward-heading-same-level
+      :n "g <left>" #'org-up-element
+      :n "g <right>" #'org-down-element)
+#+end_src
+
+**** Extra Functionality
+Make bullets change with depth.
+
+#+begin_src emacs-lisp
+(setq org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+") ("1." . "a.")))
+#+end_src
+
+Enable spell check.
+
+#+begin_src emacs-lisp
+(add-hook 'org-mode-hook 'turn-on-flyspell)
+#+end_src
+
+Enable LSP.
+
+#+begin_src emacs-lisp
+(cl-defmacro lsp-org-babel-enable (lang)
+  "Support LANG in org source code block."
+  (setq centaur-lsp 'lsp-mode)
+  (cl-check-type lang stringp)
+  (let* ((edit-pre (intern (format "org-babel-edit-prep:%s" lang)))
+         (intern-pre (intern (format "lsp--%s" (symbol-name edit-pre)))))
+    `(progn
+       (defun ,intern-pre (info)
+         (let ((file-name (->> info caddr (alist-get :file))))
+           (unless file-name
+             (setq file-name (make-temp-file "babel-lsp-")))
+           (setq buffer-file-name file-name)
+           (lsp-deferred)))
+       (put ',intern-pre 'function-documentation
+            (format "Enable lsp-mode in the buffer of org source block (%s)."
+                    (upcase ,lang)))
+       (if (fboundp ',edit-pre)
+           (advice-add ',edit-pre :after ',intern-pre)
+         (progn
+           (defun ,edit-pre (info)
+             (,intern-pre info))
+           (put ',edit-pre 'function-documentation
+                (format "Prepare local buffer environment for org source block (%s)."
+                        (upcase ,lang))))))))
+(defvar org-babel-lang-list
+  '("go" "python" "ipython" "bash" "sh"))
+(dolist (lang org-babel-lang-list)
+  (eval `(lsp-org-babel-enable ,lang)))
+#+end_src
+
+**** Agenda
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! org-super-agenda :pin "a5557ea4f51571ee9def3cd9a1ab1c38f1a27af7")
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! org-super-agenda
+  :commands org-super-agenda-mode)
+
+(after! org-agenda
+  (org-super-agenda-mode))
+
+(setq org-directory "~/Dropbox/org"
+      org-agenda-skip-scheduled-if-done t
+      org-agenda-skip-deadline-if-done t
+      org-agenda-include-deadlines t
+      org-agenda-block-separator nil
+      org-agenda-tags-column 100 ;; from testing this seems to be a good value
+      org-agenda-compact-blocks t)
+
+(setq org-agenda-custom-commands
+      '(("o" "Overview"
+         ((agenda ""
+                  ((org-agenda-span 'day)
+                   (org-agenda-files (dropbox-files "org/personal.org"))
+                   (org-deadline-warning-days 7)
+                   (org-agenda-overriding-header "Agenda\n")))
+          (todo "TODO"
+                ((org-agenda-overriding-header "To Refile\n")
+                 (org-agenda-prefix-format "  ")
+                 (org-agenda-files (dropbox-files "org/inbox.org"))))))))
+#+end_src
+
+**** Capture
+#+begin_src emacs-lisp :tangle packages.el
+(package! doct
+  :recipe (:host github :repo "progfolio/doct")
+  :pin "67fc46c8a68989b932bce879fbaa62c6a2456a1f")
+#+end_src
+
+#+begin_src emacs-lisp
+;; (use-package! doct
+;;   :commands doct)
+
+;; (after! org-capture
+;;   (defun +doct-icon-declaration-to-icon (declaration)
+;;     "Convert :icon declaration to icon"
+;;     (let ((name (pop declaration))
+;;           (set  (intern (concat "all-the-icons-" (plist-get declaration :set))))
+;;           (face (intern (concat "all-the-icons-" (plist-get declaration :color))))
+;;           (v-adjust (or (plist-get declaration :v-adjust) 0.01)))
+;;       (apply set `(,name :face ,face :v-adjust ,v-adjust))))
+
+;;   (defun +doct-iconify-capture-templates (groups)
+;;     "Add declaration's :icon to each template group in GROUPS."
+;;     (let ((templates (doct-flatten-lists-in groups)))
+;;       (setq doct-templates
+;;             (mapcar (lambda (template)
+;;                       (when-let* ((props (nthcdr (if (= (length template) 4) 2 5) template))
+;;                                   (spec (plist-get (plist-get props :doct) :icon)))
+;;                         (setf (nth 1 template)
+;;                               (concat (+doct-icon-declaration-to-icon spec) "\t" (nth 1 template))))
+;;                       template)
+;;                     templates))))
+
+;;   (setq doct-after-conversion-functions '(+doct-iconify-capture-templates))
+
+;;   (defun set-org-capture-templates ()
+;;     (setq org-capture-templates
+;;           (doct `(("Personal todo" :keys "t"
+;;                    :icon ("checklist" :set "octicon" :color "green")
+;;                    :file (dropbox-file "org/inbox.org")
+;;                    :prepend t
+;;                    :headline "Inbox"
+;;                    :type entry
+;;                    :template ("* TODO %?" "%i %a"))))))
+
+;;   (set-org-capture-templates)
+;;   (unless (display-graphic-p)
+;;     (add-hook 'server-after-make-frame-hook
+;;               (defun org-capture-reinitialise-hook ()
+;;                 (when (display-graphic-p)
+;;                   (set-org-capture-templates)
+;;                   (remove-hook 'server-after-make-frame-hook
+;;                                #'org-capture-reinitialise-hook))))))
+#+end_src
+
+**** Roam
+
+**** Journal
+
+*** Visuals
+**** Fonts
+Use mixed pitch via =+org-pretty-mode=.
+
+#+begin_src emacs-lisp
+(add-hook 'org-mode-hook #'+org-pretty-mode)
+#+end_src
+
+Increase header size.
+
+#+begin_src emacs-lisp
+(custom-set-faces!
+  '(outline-1 :weight extra-bold :height 1.25)
+  '(outline-2 :weight bold :height 1.15)
+  '(outline-3 :weight bold :height 1.12)
+  '(outline-4 :weight semi-bold :height 1.09)
+  '(outline-5 :weight semi-bold :height 1.06)
+  '(outline-6 :weight semi-bold :height 1.03)
+  '(outline-8 :weight semi-bold)
+  '(outline-9 :weight semi-bold))
+#+end_src
+
+Increase title size.
+
+#+begin_src emacs-lisp
+(custom-set-faces!
+  '(org-document-title :height 1.2))
+#+end_src
+
+Make deadlines colored like errors.
+
+#+begin_src emacs-lisp
+(setq org-agenda-deadline-faces
+      '((1.001 . error)
+        (1.0 . org-warning)
+        (0.5 . org-upcoming-deadline)
+        - (0.0 . org-upcoming-distant-deadline)))
+#+end_src
+
+Put quotes in italics.
+
+#+begin_src emacs-lisp
+(setq org-fontify-quote-and-verse-blocks t)
+#+end_src
+
+Speed up large files by deferring font locking.
+
+#+begin_src emacs-lisp
+(defun locally-defer-font-lock ()
+  "Set jit-lock defer and stealth, when buffer is over a certain size."
+  (when (> (buffer-size) 50000)
+    (setq-local jit-lock-defer-time 0.05
+                jit-lock-stealth-time 1)))
+
+(add-hook 'org-mode-hook #'locally-defer-font-lock)
+#+end_src
+
+**** Fontify SRC Blocks
+
+#+begin_src emacs-lisp
+(defvar org-prettify-inline-results t
+  "Whether to use (ab)use prettify-symbols-mode on {{{results(...)}}}.
+Either t or a cons cell of strings which are used as substitutions
+for the start and end of inline results, respectively.")
+
+(defvar org-fontify-inline-src-blocks-max-length 200
+  "Maximum content length of an inline src block that will be fontified.")
+
+(defun org-fontify-inline-src-blocks (limit)
+  "Try to apply `org-fontify-inline-src-blocks-1'."
+  (condition-case nil
+      (org-fontify-inline-src-blocks-1 limit)
+    (error (message "Org mode fontification error in %S at %d"
+                    (current-buffer)
+                    (line-number-at-pos)))))
+
+(defun org-fontify-inline-src-blocks-1 (limit)
+  "Fontify inline src_LANG blocks, from `point' up to LIMIT."
+  (let ((case-fold-search t)
+        (initial-point (point)))
+    (while (re-search-forward "\\_<src_\\([^ \t\n[{]+\\)[{[]?" limit t) ; stolen from `org-element-inline-src-block-parser'
+      (let ((beg (match-beginning 0))
+            pt
+            (lang-beg (match-beginning 1))
+            (lang-end (match-end 1)))
+        (remove-text-properties beg lang-end '(face nil))
+        (font-lock-append-text-property lang-beg lang-end 'face 'org-meta-line)
+        (font-lock-append-text-property beg lang-beg 'face 'shadow)
+        (font-lock-append-text-property beg lang-end 'face 'org-block)
+        (setq pt (goto-char lang-end))
+        ;; `org-element--parse-paired-brackets' doesn't take a limit, so to
+        ;; prevent it searching the entire rest of the buffer we temporarily
+        ;; narrow the active region.
+        (save-restriction
+          (narrow-to-region beg (min (point-max) limit (+ lang-end org-fontify-inline-src-blocks-max-length)))
+          (when (ignore-errors (org-element--parse-paired-brackets ?\[))
+            (remove-text-properties pt (point) '(face nil))
+            (font-lock-append-text-property pt (point) 'face 'org-block)
+            (setq pt (point)))
+          (when (ignore-errors (org-element--parse-paired-brackets ?\{))
+            (remove-text-properties pt (point) '(face nil))
+            (font-lock-append-text-property pt (1+ pt) 'face '(org-block shadow))
+            (unless (= (1+ pt) (1- (point)))
+              (if org-src-fontify-natively
+                  (org-src-font-lock-fontify-block (buffer-substring-no-properties lang-beg lang-end) (1+ pt) (1- (point)))
+                (font-lock-append-text-property (1+ pt) (1- (point)) 'face 'org-block)))
+            (font-lock-append-text-property (1- (point)) (point) 'face '(org-block shadow))
+            (setq pt (point))))
+        (when (and org-prettify-inline-results (re-search-forward "\\= {{{results(" limit t))
+          (font-lock-append-text-property pt (1+ pt) 'face 'org-block)
+          (goto-char pt))))
+    (when org-prettify-inline-results
+      (goto-char initial-point)
+      (org-fontify-inline-src-results limit))))
+
+(defun org-fontify-inline-src-results (limit)
+  (while (re-search-forward "{{{results(\\(.+?\\))}}}" limit t)
+    (remove-list-of-text-properties (match-beginning 0) (point)
+                                    '(composition
+                                      prettify-symbols-start
+                                      prettify-symbols-end))
+    (font-lock-append-text-property (match-beginning 0) (match-end 0) 'face 'org-block)
+    (let ((start (match-beginning 0)) (end (match-beginning 1)))
+      (with-silent-modifications
+        (compose-region start end (if (eq org-prettify-inline-results t) "⟨" (car org-prettify-inline-results)))
+        (add-text-properties start end `(prettify-symbols-start ,start prettify-symbols-end ,end))))
+    (let ((start (match-end 1)) (end (point)))
+      (with-silent-modifications
+        (compose-region start end (if (eq org-prettify-inline-results t) "⟩" (cdr org-prettify-inline-results)))
+        (add-text-properties start end `(prettify-symbols-start ,start prettify-symbols-end ,end))))))
+
+(defun org-fontify-inline-src-blocks-enable ()
+  "Add inline src fontification to font-lock in Org.
+Must be run as part of `org-font-lock-set-keywords-hook'."
+  (setq org-font-lock-extra-keywords
+        (append org-font-lock-extra-keywords '((org-fontify-inline-src-blocks)))))
+
+(add-hook 'org-font-lock-set-keywords-hook #'org-fontify-inline-src-blocks-enable)
+#+end_src
+
+**** Symbols
+Better bullets ans other symbols.
+
+#+begin_src emacs-lisp
+(after! org-superstar
+  (setq org-superstar-headline-bullets-list '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶")
+        org-superstar-prettify-item-bullets t))
+
+(setq org-ellipsis " ▾ "
+      org-hide-leading-stars t
+      org-priority-highest ?A
+      org-priority-lowest ?E
+      org-priority-faces
+      '((?A . 'all-the-icons-red)
+        (?B . 'all-the-icons-orange)
+        (?C . 'all-the-icons-yellow)
+        (?D . 'all-the-icons-green)
+        (?E . 'all-the-icons-blue)))
+#+end_src
+
+Unicode characters for check boxes and other commands.
+
+#+begin_src emacs-lisp
+(appendq! +ligatures-extra-symbols
+          `(:checkbox      "☐"
+            :pending       "◼"
+            :checkedbox    "☑"
+            :list_property "∷"
+            :em_dash       "—"
+            :ellipses      "…"
+            :arrow_right   "→"
+            :arrow_left    "←"
+            :title         "𝙏"
+            :subtitle      "𝙩"
+            :author        "𝘼"
+            :date          "𝘿"
+            :property      "☸"
+            :options       "⌥"
+            :startup       "⏻"
+            :macro         "𝓜"
+            :html_head     "🅷"
+            :html          "🅗"
+            :latex_class   "🄻"
+            :latex_header  "🅻"
+            :beamer_header "🅑"
+            :latex         "🅛"
+            :attr_latex    "🄛"
+            :attr_html     "🄗"
+            :attr_org      "⒪"
+            :begin_quote   "❝"
+            :end_quote     "❞"
+            :caption       "☰"
+            :header        "›"
+            :results       "🠶"
+            :begin_export  "⏩"
+            :end_export    "⏪"
+            :properties    "⚙"
+            :end           "∎"
+            :priority_a   ,(propertize "⚑" 'face 'all-the-icons-red)
+            :priority_b   ,(propertize "⬆" 'face 'all-the-icons-orange)
+            :priority_c   ,(propertize "■" 'face 'all-the-icons-yellow)
+            :priority_d   ,(propertize "⬇" 'face 'all-the-icons-green)
+            :priority_e   ,(propertize "❓" 'face 'all-the-icons-blue)))
+
+(set-ligatures! 'org-mode
+  :merge t
+  :checkbox      "[ ]"
+  :pending       "[-]"
+  :checkedbox    "[X]"
+  :list_property "::"
+  :em_dash       "---"
+  :ellipsis      "..."
+  :arrow_right   "->"
+  :arrow_left    "<-"
+  :title         "#+title:"
+  :subtitle      "#+subtitle:"
+  :author        "#+author:"
+  :date          "#+date:"
+  :property      "#+property:"
+  :options       "#+options:"
+  :startup       "#+startup:"
+  :macro         "#+macro:"
+  :html_head     "#+html_head:"
+  :html          "#+html:"
+  :latex_class   "#+latex_class:"
+  :latex_header  "#+latex_header:"
+  :beamer_header "#+beamer_header:"
+  :latex         "#+latex:"
+  :attr_latex    "#+attr_latex:"
+  :attr_html     "#+attr_html:"
+  :attr_org      "#+attr_org:"
+  :begin_quote   "#+begin_quote"
+  :end_quote     "#+end_quote"
+  :caption       "#+caption:"
+  :header        "#+header:"
+  :begin_export  "#+begin_export"
+  :end_export    "#+end_export"
+  :results       "#+RESULTS:"
+  :property      ":PROPERTIES:"
+  :end           ":END:"
+  :priority_a    "[#A]"
+  :priority_b    "[#B]"
+  :priority_c    "[#C]"
+  :priority_d    "[#D]"
+  :priority_e    "[#E]")
+
+(plist-put +ligatures-extra-symbols :name "⁍")
+#+end_src
 
 * To File
+
 ** GUI
 #+begin_src emacs-lisp :tangle packages.el :comments yes
 (unpin! doom-themes doom-modeline)
 (package! solaire-mode :disable t)
 (package! ox-chameleon :recipe (:host github :repo "tecosaur/ox-chameleon"))
-#+end_src
-
-** LSP
-#+begin_src emacs-lisp :tangle packages.el :comments yes
-;; (unpin! lsp-mode)
-;; (unpin! lsp-ui)
 #+end_src
 
 ** IBuffer
@@ -1294,33 +1830,6 @@ Make Org tables better looking.
                     " " filename)))
 #+end_src
 
-** Term
-Set the shell explicitly to the fish shell.
-
-#+begin_src emacs-lisp
-(setq explicit-shell-file-name (executable-find "fish"))
-#+end_src
-
-Enable ligature support.
-
-#+begin_src emacs-lisp
-(setq +ligatures-in-modes t)
-#+end_src
-
-*** ~Vterm~
-Until I can fully move over to ~eshell~ like a man, setup ~vterm~.
-
-Always compile the ~vterm~ module.
-
-#+begin_src emacs-lisp
-(setq vterm-always-compile-module t)
-#+end_src
-
-Kill the ~vterm~ buffer when the process exits.
-
-#+begin_src emacs-lisp
-(setq vterm-kill-buffer-on-exit t)
-#+end_src
 
 ** Org
 *** Packages
@@ -1334,205 +1843,35 @@ Kill the ~vterm~ buffer when the process exits.
 ;; (package! websocket)
 #+end_src
 
-*** Helper Functions
-Org files live in Dropbox, these functions build paths to Dropbox files.
-
-#+begin_src emacs-lisp
-(defun dropbox-file (path)
-  (concat (getenv "HOME") "/Dropbox/" path))
-
-(defun dropbox-files (&rest paths)
-  (mapcar #'dropbox-file paths))
-#+end_src
-
-*** Org Mode
-Setup basic org-mode configuration.
-
-#+begin_src emacs-lisp
-(setq org-directory (dropbox-file "org")
-      org-use-property-inheritance t
-      org-log-done 'time
-      org-list-allow-alphabetical t
-      org-export-in-background t
-      org-catch-invisible-edits 'smart)
-
-(sp-local-pair
- '(org-mode)
- "<<" ">>"
- :actions '(insert))
-
-(after! org
-  (setq
-
-   org-agenda-files
-   (dropbox-files "org/inbox.org" "org/personal.org" "org/projects.org" "org/inbox_work.org" "org/work.org")
-
-   org-todo-keywords
-   '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
-     (sequence"BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)"
-              "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)""CANC(k@)"))
-
-   org-agenda-prefix-format
-   '((agenda . " %i %?-12t% s")
-     (todo . " %i")
-     (tags . " %i %-12:c")
-     (search . " %i %-12:c"))
-
-   org-capture-templates
-   `(("p" "Personal" entry (file ,(dropbox-file "org/inbox.org")) "* TODO %?\n %i\n %a")
-     ("w" "Work" entry (file+headline ,(dropbox-file "org/inbox_work.org") "To refile") "* TODO %?\n %i\n %a"))))
-#+end_src
-
-*** Visual Enhancements
-Add some padding around org blocks.
-
-#+begin_src emacs-lisp
-(use-package! org-padding
-  :hook (org-mode-hook . org-padding-mode)
-  :defer t)
-
-(setq org-padding-block-begin-line-padding '(1.15 . 0.15)
-      org-padding-block-end-line-padding '(1.15 . 0.15))
-#+end_src
-
-Enable auto-fill mode.
-
-#+begin_src emacs-lisp
-(add-hook 'text-mode-hook #'auto-fill-mode)
-#+end_src
-
-Navigate org-files with a tree view.
-
-#+begin_src emacs-lisp
-(use-package! org-ol-tree
-  :commands org-ol-tree)
-
-(map! :map org-mode-map
-      :after org
-      :localleader
-      :desc "Outline" "O" #'org-ol-tree)
-#+end_src
-
-Nicer tables.
-
-#+begin_src emacs-lisp
-(use-package! org-pretty-table
-  :commands (org-pretty-table-mode global-org-pretty-table-mode))
-#+end_src
-
-Make bullets change with depth.
-
-#+begin_src emacs-lisp
-(setq org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+") ("1." . "a.")))
-#+end_src
-
-Hide emphasis markers.
-
-#+begin_src emacs-lisp
-(use-package! org-appear
-  :hook (org-mode . org-appear-mode)
-  :config
-  (setq org-appear-autoemphasis t
-        org-appear-autosubmarkers t
-        org-appear-autolinks nil)
-  ;; for proper first-time setup, `org-appear--set-elements'
-  ;; needs to run after other hooks have acted.
-  (run-at-time nil nil #'org-appear--set-elements))
-#+end_src
 
 *** Roam
 Setup roam to use the Dropbox folder.
 
 #+begin_src emacs-lisp
-(after! org-roam
-  (setq org-roam-directory (dropbox-file "org/roam")))
-(after! deft
-  (setq deft-directory (dropbox-file "org")))
+;; (after! org-roam
+;;   (setq org-roam-directory (dropbox-file "org/roam")))
+;; (after! deft
+;;   (setq deft-directory (dropbox-file "org")))
 #+end_src
 
 Setup the UI.
 
 #+begin_src emacs-lisp
-; (use-package! websocket
-  ; :after org-roam)
+;; ; (use-package! websocket
+;;   ; :after org-roam)
 
-(use-package! org-roam-ui
-  :after org-roam
-  :commands org-roam-ui-open
-  :hook (org-roam . org-roam-ui-mode)
-  :config
-      (setq org-roam-ui-sync-theme t
-            org-roam-ui-follow t
-            org-roam-ui-update-on-save t
-            org-roam-ui-open-on-start t))
+;; (use-package! org-roam-ui
+;;   :after org-roam
+;;   :commands org-roam-ui-open
+;;   :hook (org-roam . org-roam-ui-mode)
+;;   :config
+;;       (setq org-roam-ui-sync-theme t
+;;             org-roam-ui-follow t
+;;             org-roam-ui-update-on-save t
+;;             org-roam-ui-open-on-start t))
 
-(after! org-roam
-   (setq +org-roam-open-buffer-on-find-file nil))
-#+end_src
-
-*** Babel
-Setup the babel default headers.
-
-#+begin_src emacs-lisp
-(setq org-babel-default-header-args
-      '((:session . "none")
-        (:results . "replace")
-        (:exports . "code")
-        (:cache . "no")
-        (:noweb . "no")
-        (:hlines . "no")
-        (:tangle . "no")
-        (:comments . "link")))
-#+end_src
-
-Fix LSPs
-
-*** Agenda
-Set the agenda files.
-
-#+begin_src emacs-lisp
-(setq org-agenda-files (dropbox-files "org/personal.org" "org/projects.org" "org/work.org"))
-#+end_src
-
-#+begin_src emacs-lisp
-(after! org-agenda
-  (setq
-   org-agenda-custom-commands
-   '(("a" "Personal"
-      ((agenda ""
-               ((org-agenda-span 'day)
-                (org-agenda-files (dropbox-files "org/personal.org"))
-                (org-deadline-warning-days 7)
-                (org-agenda-overriding-header "Agenda\n")))
-       (todo "TODO"
-             ((org-agenda-overriding-header "To Refile\n")
-              (org-agenda-prefix-format "  ")
-              (org-agenda-files (dropbox-files "org/inbox.org"))))
-       (todo "NEXT"
-             ((org-agenda-overriding-header "Projects\n")
-              (org-agenda-prefix-format "  %c (%e) | ")
-              (org-agenda-files (dropbox-files "org/projects.org"))))))
-     ("w" "Work"
-      ((agenda ""
-               ((org-agenda-span 'day)
-                (org-agenda-files (dropbox-files "org/work.org"))
-                (org-deadline-warning-days 14)
-                (org-agenda-overriding-header "Via\n")))
-       (todo "TODO"
-             ((org-agenda-overriding-header "To Refile\n")
-              (org-agenda-prefix-format "  ")
-              (org-agenda-files (dropbox-files "org/inbox_work.org"))))
-       (todo "NEXT"
-             ((org-agenda-overriding-header "Projects\n")
-              (org-agenda-prefix-format "  %i %-12:c [%e] ")
-              (org-agenda-files (dropbox-files "org/work.org"))))
-       (todo "WAITING"
-             ((org-agenda-overriding-header "Waiting on others\n")
-              (org-agenda-files (dropbox-files "org/work.org")))))))))
-
-;; Highlight additional keywords
-(after! hl-todo
-  (setq hl-todo-keyword-faces '(("NEXT" warning bold))))
+;; (after! org-roam
+;;    (setq +org-roam-open-buffer-on-find-file nil))
 #+end_src
 
 *** Journal
@@ -1541,7 +1880,7 @@ Set the agenda files.
   (setq
    org-journal-date-prefix "#+title: "
    org-journal-file-format "%Y-%m-%d.org"
-   org-journal-dir (dropbox-file "roam")
+   org-journal-dir (dropbox-file "org/roam")
    org-journal-date-format "%Y-%m-%d"))
 #+end_src
 
@@ -1563,8 +1902,8 @@ Set the agenda files.
                          '(menu-bar-lines . 0)
                          ;; '(line-spacing . 0.35)
                          '(vertical-scroll-bars . nil))))
-  (setq-default window-resize-pixelwise t)
-  (setq-default frame-resize-pixelwise t)
+  (setq window-resize-pixelwise t)
+  (setq frame-resize-pixelwise t)
   :custom
   (window-divider-default-right-width 24)
   (window-divider-default-bottom-width 12)
@@ -1603,48 +1942,4 @@ Set the agenda files.
 ;; Evil Mode
 (setq evil-snipe-scope 'visible
       evil-want-fine-undo t)
-
-;; Vertico
-(after! marginalia
-  (setq marginalia-censor-variables nil)
-
-  (defadvice! +marginalia--anotate-local-file-colorful (cand)
-    "Just a more colourful version of `marginalia--anotate-local-file'."
-    :override #'marginalia--annotate-local-file
-    (when-let (attrs (file-attributes (substitute-in-file-name
-                                       (marginalia--full-candidate cand))
-                                      'integer))
-      (marginalia--fields
-       ((marginalia--file-owner attrs)
-        :width 12 :face 'marginalia-file-owner)
-       ((marginalia--file-modes attrs))
-       ((+marginalia-file-size-colorful (file-attribute-size attrs))
-        :width 7)
-       ((+marginalia--time-colorful (file-attribute-modification-time attrs))
-        :width 12))))
-
-  (defun +marginalia--time-colorful (time)
-    (let* ((seconds (float-time (time-subtract (current-time) time)))
-           (color (doom-blend
-                   (face-attribute 'marginalia-date :foreground nil t)
-                   (face-attribute 'marginalia-documentation :foreground nil t)
-                   (/ 1.0 (log (+ 3 (/ (+ 1 seconds) 345600.0)))))))
-      ;; 1 - log(3 + 1/(days + 1)) % grey
-      (propertize (marginalia--time time) 'face (list :foreground color))))
-
-  (defun +marginalia-file-size-colorful (size)
-    (let* ((size-index (/ (log10 (+ 1 size)) 7.0))
-           (color (if (< size-index 10000000) ; 10m
-                      (doom-blend 'orange 'green size-index)
-                    (doom-blend 'red 'orange (- size-index 1)))))
-      (propertize (file-size-human-readable size) 'face (list :foreground color)))))
-
-;; Treemacs
-(setq treemacs-width 40)
-(setq doom-themes-treemacs-theme "doom-colors")
-
-;; Tramp
-(setq tramp-default-remote-shell "/run/current-system/sw/bin/dash"
-      projectile-mode-line "Projectile")
-
 #+end_src

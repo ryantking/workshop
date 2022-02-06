@@ -55,7 +55,11 @@ in
   security = (optionalAttrs isLinux { sudo.wheelNeedsPassword = false; });
 
   my = {
-    env = { GITHUB_USER = my.githubUsername; };
+    env = {
+      GITHUB_USER = my.githubUsername;
+      GITHUB_NAME = my.name;
+      GITHUB_EMAIL = my.email;
+    };
 
     hm = {
       home = {
