@@ -14,4 +14,6 @@ lib.makeExtensible (self: {
       type = lib.types.bool;
       example = true;
     };
+
+  mkNerdFamily = family: (builtins.replaceStrings [ " " ] [ "" ] family);
 })

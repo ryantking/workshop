@@ -22,6 +22,7 @@ zinit lucid depth'1' wait'0a' light-mode for \
     pick'autopair.zsh' nocompletions atload'autopair-init' hlissner/zsh-autopair \
     tarrasch/zsh-bd \
     chisui/zsh-nix-shell \
+    pick'.kubectl_aliases' ahmetb/kubectl-aliases \
     atload'!
         export HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_FOUND="fg=green,bold"
         export HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_NOT_FOUND="fg=red,bold"
@@ -32,9 +33,7 @@ zinit lucid depth'1' wait'0a' light-mode for \
         bindkey   "^[[B"              history-substring-search-down;
         bindkey   -M vicmd "^[[B"     history-substring-search-down;
         bindkey   "$terminfo[kcud1]"  history-substring-search-down;
-    ' zsh-users/zsh-history-substring-search \
-    pick'.kubectl_aliases' ahmetb/kubectl-aliases \
-    Flinner/zsh-emacs
+    ' zsh-users/zsh-history-substring-search
 
 # FZF Plugins
 zinit lucid depth'1' wait'0a' light-mode for \

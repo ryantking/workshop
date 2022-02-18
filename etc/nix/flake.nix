@@ -3,31 +3,33 @@
 
   inputs = {
     # Package Sets
-    nixpkgs-stable.url = "github:nixos/nixpkgs/release-21.11";
-    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    nixpkgs-latest.url = "github:nixos/nixpkgs/master";
+    nixpkgs.url = "github:nixos/nixpkgs/release-21.11";
+    nixpkgs-latest.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     nixpkgs-darwin.url = "github:nixos/nixpkgs/nixpkgs-21.11-darwin";
-    nixpkgs.follows = "nixpkgs-stable";
+    # nixpkgs.follows = "nixpkgs";
 
-    # System Management
-    darwin = {
-      url = "github:ryantking/nix-darwin";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
-    home = {
-      url = "github:nix-community/home-manager/release-21.11";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
-
-    # Flake Utilities
+    # Flake Management
     digga = {
-      url = "github:montchr/digga?ref=feature/darwin-hosts-support";
+      url = "github:ryantking/digga";
       inputs = {
-        nixpkgs.follows = "nixpkgs-stable";
-        nixlib.follows = "nixpkgs-stable";
+        nixpkgs.follows = "nixpkgs";
+        nixlib.follows = "nixpkgs";
         home-manager.follows = "home";
       };
     };
+    darwin.follows = "digga/darwin";
+
+    # System Management
+    # darwin = {
+    #   url = "github:ryantking/nix-darwin";
+    #   inputs.nixpkgs.follows = "nixpkgs-unstable";
+    # };
+    # home = {
+    #   url = "github:nix-community/home-manager/release-21.11";
+    #   inputs.nixpkgs.follows = "nixpkgs-unstable";
+    # };
+
+    # Flake Utilities
     utils.url = "github:gytis-ivaskevicius/flake-utils-plus";
     colors.url = "github:misterio77/nix-colors";
 
@@ -38,13 +40,13 @@
     # Secrets Management
     agenix = {
       url = "github:ryantm/agenix";
-      inputs.nixpkgs.follows = "nixpkgs-stable";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
     agenix-cli.url = "github:cole-h/agenix-cli";
 
     # Development Tools
     neovim-nightly.url = "github:nix-community/neovim-nightly-overlay";
-    emacs.url = "github:nix-community/emacs-overlay";
+    # emacs.url = "github:nix-community/emacs-overlay";
     doom-emacs-source = {
       url = "github:hlissner/doom-emacs/develop";
       flake = false;
@@ -55,99 +57,55 @@
       url = "github:sainnhe/tmux-fzf";
       flake = false;
     };
-
-    # Yabai
-    yabai = {
-      url = "github:koekeishiya/yabai/master";
-      flake = false;
-    };
-    spacebar.url = "github:cxa/spacebar";
   };
 
-  outputs = { self, nixpkgs-unstable, home, digga, utils, colors, agenix, nur, nvfetcher, emacs, neovim-nightly, ... } @ inputs:
-    with inputs;
+  outputs = { self, nixpkgs, nixpkgs-latest, home, digga, utils, colors, agenix, nur, nvfetcher, ... } @ inputs:
     let
-      inherit (builtins) attrValues;
-      inherit (digga.lib) rakeLeaves flattenTree;
+      inherit (nixpkgs.lib) mkMerge;
+      inherit (digga.lib) mkFlake rakeLeaves importExportableModules mkHomeConfigurations;
 
-      hosts = rakeLeaves ./hosts;
-      profiles = rakeLeaves ./profiles;
-      homeProfiles = rakeLeaves ./home/profiles;
-      suites = import ./suites { inherit profiles homeProfiles; };
+      common = {
+        modules = importExportableModules ./modules;
 
-      mkNixosHost = name:
-        { system ? "x86_64-linux"
-        , channelName ? "nixpkgs-stable"
-        , extraSuites ? [ ]
-        }: {
-          ${name} = {
-            inherit system channelName;
-            specialArgs = { inherit profiles suites; };
-            modules = suites.base ++ extraSuites ++ [
-              hosts.${name}
-              home.nixosModules.home-manager
-              agenix.nixosModules.age
-            ];
-          };
+        profiles = rakeLeaves ./profiles // { users = rakeLeaves ./users; };
+
+        suites = with common.profiles; {
+          base = [ core secrets users.rking ];
+          gui = [ fonts ];
+          devel = [ languages.go languages.nodejs ];
         };
 
-      mkDarwinHost = name:
-        { system ? "x86_64-darwin"
-        , channelName ? "nixpkgs-darwin"
-        , extraSuites ? [ ]
-        }: {
-          ${name} = {
-            inherit system channelName;
-            output = "darwinConfigurations";
-            builder = darwin.lib.darwinSystem;
-            specialArgs = { inherit profiles suites; };
-            modules = suites.base ++ extraSuites
-              ++ [ hosts.${name} home.darwinModules.home-manager ];
-          };
-        };
+        imports = [ (digga.lib.importOverlays ./overlays) ];
 
-      mkHosts = hosts: (builtins.foldl' (a: b: a // b) { } hosts);
+        overlays = [ nur.overlay agenix.overlay nvfetcher.overlay ];
+      };
     in
-    utils.lib.mkFlake {
+    mkFlake {
       inherit self inputs;
+
+      supportedSystems = [ "x86_64-linux" "x86_64-darwin" ];
 
       channelsConfig = { allowUnfree = true; };
 
-      channels = import ./channels { inherit self inputs; };
+      channels = mkMerge [
+        (import ./darwin/channels.nix { inherit inputs common; })
+        (import ./nixos/channels.nix { inherit inputs common; })
+      ];
 
-      lib = import ./lib { lib = digga.lib // nixpkgs-unstable.lib; };
+      lib = import ./lib { lib = digga.lib // nixpkgs.lib; };
 
       sharedOverlays = [
         (final: prev: {
           __dontExport = true;
-          inherit inputs;
           lib = prev.lib.extend (lfinal: lprev: { our = self.lib; });
         })
-
-        agenix.overlay
-        nur.overlay
-        nvfetcher.overlay
-        emacs.overlay
-        neovim-nightly.overlay
       ];
 
-      hostDefaults = {
-        extraArgs = { inherit utils inputs; };
-        specialArgs = { inherit suites profiles homeProfiles; };
-        modules = [ ./users/rking colors.homeManagerModule ]
-          ++ (attrValues (flattenTree (rakeLeaves ./modules)))
-          ++ (attrValues (flattenTree (rakeLeaves ./home/modules)));
-      };
+      darwin = import ./darwin { inherit self inputs common; };
 
-      hosts = with suites;
-        mkHosts [
-          (mkDarwinHost "trashbook" {
-            extraSuites = (suites.darwin ++ devel ++ personal);
-          })
-          (mkNixosHost "trashstation" { extraSuites = [ ]; })
-        ];
+      home = import ./home { inherit inputs; };
 
-      homeConfigurations = digga.lib.mkHomeConfiguration
-        (self.nixosConfigurations // self.darwinConfigurations);
+      homeConfigurations = mkHomeConfigurations
+        self.darwinConfigurations;
     };
 }

@@ -6,9 +6,9 @@ in
 {
   imports = [ ./fzf.nix ];
 
-  environment.extraInit =
+  programs.zsh.envExtra =
     let
-      vars = concatStringsSep "\n" (mapAttrsToList (n: v: ''export ${n}="${v}"'') config.my.env);
+      vars = concatStringsSep "\n" (mapAttrsToList (n: v: ''export ${n}="${v}"'') config.shell.env);
     in
     ''
       has() {
@@ -18,16 +18,14 @@ in
       ${vars}
     '';
 
-  my = {
-    env = {
+  shell = {
+    env = with config.xdg; {
       PATH = [ "$XDG_BIN_HOME" "$PATH" ];
       CARGO_HOME = "$XDG_DATA_HOME/cargo";
       RUSTUP_HOME = "$XDG_DATA_HOME/rustup";
     };
 
-    shell = {
-      abbrs = import ./abbrs.nix;
-      aliases = import ./aliases.nix;
-    };
+    abbrs = import ./abbrs.nix;
+    aliases = import ./aliases.nix;
   };
 }

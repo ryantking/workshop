@@ -3,12 +3,6 @@
 
   "reload!" = "exec zsh";
 
-  ".." = "cd ..";
-  "..." = "cd ../..";
-  "...." = "cd ../../..";
-  "....." = "cd ../../../..";
-  "......" = "cd ../../../../..";
-
   l = "exa";
   ls = "exa --color always --group-directories-first --git";
   ll = "exa --classify --group --icons --oneline";

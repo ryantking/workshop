@@ -26,16 +26,14 @@ let
   fzfOpts = ''--no-bold --prompt='/ ' --pointer='➜' --marker='·' --color=\"${fzfTheme}\"'';
 in
 {
-  my = {
-    user.packages = [ pkgs.fzf ];
+  home.packages = [ pkgs.fzf ];
 
-    env = {
-      FZF_DEFAULT_COMMAND = "${fdCmd}";
-      FZF_DEFAULT_OPTS = "${fzfOpts}";
-      FZF_CTRL_T_COMMAND = "${fdCmd}";
-      FZF_CTRL_T_OPTS = "${fzfOpts} --preview 'bat --color=always --plain {}'";
-      FZF_ALT_C_COMMAND = "${fdCmd} --type d";
-      FZF_ALT_C_OPTS = "${fzfOpts} --preview 'exa -l --tree --level=2 --color=always {}'";
-    };
+  shell.env = {
+    FZF_DEFAULT_COMMAND = "${fdCmd}";
+    FZF_DEFAULT_OPTS = "${fzfOpts}";
+    FZF_CTRL_T_COMMAND = "${fdCmd}";
+    FZF_CTRL_T_OPTS = "${fzfOpts} --preview 'bat --color=always --plain {}'";
+    FZF_ALT_C_COMMAND = "${fdCmd} --type d";
+    FZF_ALT_C_OPTS = "${fzfOpts} --preview 'exa -l --tree --level=2 --color=always {}'";
   };
 }

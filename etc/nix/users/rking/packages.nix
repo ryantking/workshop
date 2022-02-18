@@ -1,6 +1,7 @@
 { pkgs }:
 
 with pkgs;[
+  alejandra
   bottom
   bandwhich
   exa
@@ -14,6 +15,7 @@ with pkgs;[
   lnav
   most
   neovim
+  nixpkgs-fmt
   nnn
   pandoc
   podman

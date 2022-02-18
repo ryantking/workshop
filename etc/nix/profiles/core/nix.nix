@@ -7,7 +7,6 @@ in
 {
   nix = mkMerge [
     {
-      package = pkgs.nix_2_5;
       useSandbox = mkDefault true;
       allowedUsers = [ "*" ];
       trustedUsers = [ "root" "@wheel" ];
@@ -29,6 +28,7 @@ in
       '';
     }
     (optionalAttrs isLinux {
+      package = pkgs.nix_2_5;
       autoOptimiseStore = true;
       optimise.automatic = true;
       gc.dates = "weekly";

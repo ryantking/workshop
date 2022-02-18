@@ -867,12 +867,10 @@ Set the dictionary and personal dictionaries.
 When connecting to remote machines, Tramp can have a hard time understanding
 prompts.
 
-#+begin_src emacs-lisp
-(after! tramp
-  (setenv "SHELL" "/run/current-system/sw/bin/dash")
-  (setq tramp-shell-prompt-pattern "\\(?:^\\|
-\\)[^]#$%>\n]*#?[]#$%>] *\\(\\[[0-9;]*[a-zA-Z] *\\)*")) ;; default + 
-#+end_src
+;; (after! tramp
+;; (setenv "SHELL" "/run/current-system/sw/bin/dash")
+;;   (setq tramp-shell-prompt-pattern "\\(?:^\\|
+;; \\)[^]#$%>\n]*#?[]#$%>] *\\(\\[[0-9;]*[a-zA-Z] *\\)*")) ;; default + 
 
 **** Nix Shell Locations
 Since I use Nix on most machines, tell Tramp how to find the shell executables.
@@ -979,6 +977,17 @@ Better LSP UI.
         lsp-ui-peek-enable t
         lsp-ui-peek-fontify 'on-demand
         lsp-enable-symbol-highlighting nil))
+#+end_src
+
+Support nix lsp:
+
+#+begin_src emacs-lisp
+(with-eval-after-load 'lsp-mode
+  (add-to-list 'lsp-language-id-configuration '(nix-mode . "nix"))
+  (lsp-register-client
+   (make-lsp-client :new-connection (lsp-stdio-connection '("rnix-lsp"))
+                    :major-modes '(nix-mode)
+                    :server-id 'nix)))
 #+end_src
 ** Visual
 *** Info Colors
