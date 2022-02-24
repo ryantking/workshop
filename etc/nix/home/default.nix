@@ -1,23 +1,25 @@
-{ inputs, ... }:
+{ self, inputs, ... }:
 
 with inputs;
+with digga.lib;
 
-let
-  inherit (digga.lib) rakeLeaves importExportableModules;
-in
 {
-  imports = [ (importExportableModules ./modules) ];
+  home = {
+    imports = [ (importExportableModules ./modules) ];
 
-  modules = [ colors.homeManagerModule ];
+    modules = [ colors.homeManagerModule ];
 
-  importables = rec {
-    profiles = rakeLeaves ./profiles;
-    suites = with profiles; rec {
-      base = [ alacritty bat direnv git gpg languages.go tealdeer zsh emacs ssh ];
+    importables = rec {
+      profiles = rakeLeaves ./profiles;
+      suites = with profiles; rec {
+        base = [ alacritty bat direnv git gpg languages.go tealdeer zsh emacs ssh ];
+      };
+    };
+
+    users = {
+      rking = { suites, ... }: { imports = suites.base; };
     };
   };
 
-  users = {
-    rking = { suites, ... }: { imports = suites.base; };
-  };
+  homeConfigurations = mkHomeConfigurations (self.darwinConfigurations // self.nixosConfigurations);
 }

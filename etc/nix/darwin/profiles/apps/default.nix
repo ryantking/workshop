@@ -1,13 +1,14 @@
 { config, lib, pkgs, ... }:
 
 {
-  imports = [ ./alacritty.nix ./emacs.nix ];
+  imports = [ ./emacs.nix ];
 
   homebrew = {
     casks = [
       "1password-beta"
       "adobe-acrobat-reader"
       "adobe-creative-cloud"
+      "alacritty"
       "alfred"
       "displaperture"
       "dropbox"

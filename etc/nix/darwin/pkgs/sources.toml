@@ -1,7 +1,3 @@
 [yabai]
 src.git = "https://github.com/koekeishiya/yabai.git"
-fetch.git = "https://github.com/koekeishiya/yabai.git"
-[spacebar]
-src.github = "cmacrae/spacebar"
-fetch.github = "cmacrae/spacebar"
-# fetch.tarball = "https://github.com/cmacrae/spacebar/releases/download/$ver/spacebar-$ver.tar.gz"
+fetch.github = "koekeishiya/yabai"

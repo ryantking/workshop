@@ -11,21 +11,21 @@ let
   doomDataDir = "${dataHome}/doom";
 in
 {
-    shell = {
-        env = {
-            EDITOR = "emacsclient -t";
-            VISUAL = "emacsclient -c -a emacs";
-            ALTERNATE_EDITOR = "";
-            EMACSDIR = emacsDir;
-            DOOMDIR = doomDir;
-            DOOMLOCALDIR = doomDataDir;
-            PATH = [ "${emacsDir}/bin" "$PATH" ];
-        };
-
-        aliases = {
-            e = "emacsclient -t";
-        };
+  shell = {
+    env = {
+      EDITOR = "emacsclient -t";
+      VISUAL = "emacsclient -c -a emacs";
+      ALTERNATE_EDITOR = "";
+      EMACSDIR = emacsDir;
+      DOOMDIR = doomDir;
+      DOOMLOCALDIR = doomDataDir;
+      PATH = [ "${emacsDir}/bin" "$PATH" ];
     };
+
+    aliases = {
+      e = "emacsclient -t";
+    };
+  };
 
   programs.emacs = {
     enable = isLinux;

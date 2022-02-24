@@ -1,6 +1,6 @@
 { pkgs }:
 
-with pkgs;[
+with pkgs; [
   alejandra
   bottom
   bandwhich
@@ -12,6 +12,9 @@ with pkgs;[
   grc
   jq
   kind
+  kubectl
+  kubectx
+  krew
   lnav
   most
   neovim

@@ -40,6 +40,19 @@
           "ControlPersist" = "30m";
         };
       };
+      "trashsite-master" = {
+        user = config.home.username;
+        identitiesOnly = true;
+        identityFile = "~/.ssh/id_rsa_yubikey.pub";
+        extraOptions = {
+          "StreamLocalBindUnlink" = "yes";
+          "RemoteForward /run/user/1000/gnupg/S.gpg-agent" =
+            "/Users/rking/.gnupg/S.gpg-agent.extra";
+          "RemoteForward /run/user/1000/gnupg/S.gpg-agent.ssh" =
+            "/Users/rking/.gnupg/S.gpg-agent.ssh";
+          "ControlPersist" = "30m";
+        };
+      };
     };
   };
 }

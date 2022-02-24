@@ -14,12 +14,11 @@ in
     env = {
       PGPKEYID = key;
       GNUPGHOME = gnupgHome;
+      GPG_TTY = "$(tty)";
+      SSH_AUTH_SOCK = "$(gpgconf --list-dirs agent-ssh-socket)";
     };
 
-    extraInit = ''
-    export GPG_TTY="$(tty)"
-    export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
-    gpgconf --launch gpg-agent'';
+    extraInit = "gpgconf --launch gpg-agent";
   };
 
   home = {

@@ -4,28 +4,32 @@ with inputs;
 with digga.lib;
 
 {
-  channels.nixpkgs-darwin = {
-    imports = common.imports ++ [ (importOverlays ./overlays) ];
-    overlays = common.overlays ++ [ ./pkgs ];
+  channels = {
+    nixpkgs = {
+      imports = common.imports ++ [ (importOverlays ./overlays) ];
+      overlays = common.overlays;
+    };
+
+    nixpkgs-latest = { };
   };
 
-  darwin = {
+  nixos = {
     hostDefaults = {
-      system = "x86_64-darwin";
-      channelName = "nixpkgs-darwin";
+      system = "x86_64-linux";
+      channelName = "nixpkgs";
       imports = [ ((importExportableModules ./modules) // common.modules) ];
       modules = [
         { lib.our = self.lib; }
 
-        digga.darwinModules.nixConfig
-        home.darwinModules.home-manager
+        digga.nixosModules.nixConfig
+        home.nixosModules.home-manager
       ];
     };
 
     imports = [ (importHosts ./hosts) ];
 
     hosts = {
-      trashbook = { };
+      trashsite-master = { };
     };
 
     importables = rec {
