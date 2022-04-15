@@ -7,6 +7,7 @@ let
   inherit (pkgs.lib.our) mkOpt;
 
   cfg = config.shell;
+  fmt = pkgs.formats.toml { };
 in
 {
   options.shell = {
@@ -35,5 +36,12 @@ in
         ${concatMapStrings (path: "source '${path}'") cfg.rcFiles}
         ${cfg.extraInit}
       '';
+
+    prompt = {
+      starship = mkOption {
+        inherit (fmt) type;
+        default = { };
+      };
+    };
   };
 }

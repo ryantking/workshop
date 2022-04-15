@@ -12,7 +12,6 @@ with pkgs; [
   grc
   jq
   kind
-  kubectl
   kubectx
   krew
   lnav

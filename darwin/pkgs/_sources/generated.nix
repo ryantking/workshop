@@ -3,13 +3,13 @@
 {
   yabai = {
     pname = "yabai";
-    version = "916d9133f9d13fb38678baa3d0adf3cfb9dff003";
+    version = "v4.0.0";
     src = fetchFromGitHub ({
       owner = "koekeishiya";
       repo = "yabai";
-      rev = "916d9133f9d13fb38678baa3d0adf3cfb9dff003";
+      rev = "v4.0.0";
       fetchSubmodules = false;
-      sha256 = "sha256-RFEuVIMP9+HXnkSPRobCATzg9fsu48zoAFq7AqodLaQ=";
+      sha256 = "sha256-rllgvj9JxyYar/DTtMn5QNeBTdGkfwqDr7WT3MvHBGI=";
     });
   };
 }

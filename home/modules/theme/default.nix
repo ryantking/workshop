@@ -30,5 +30,23 @@ in
 
     home.packages = with pkgs;
       [ fontconfig cfg.codeFont.pkg (nerdfonts.override { fonts = [ (mkNerdFamily cfg.codeFont.family) ]; }) ];
+
+    xdg.configFile."colorrc".text = with config.colorscheme.colors; ''
+      # Colorscheme: ${config.colorscheme.name}
+
+      COLORSCHEME=${config.colorscheme.name}
+      COLOR_FG=${base04}
+      COLOR_BG=${base00}
+      COLOR_FG_ALT=${base06}
+      COLOR_BG_ALT=${base03}
+      COLOR_BLACK=${base01}
+      COLOR_RED=${base08}
+      COLOR_GREEN=${base0B}
+      COLOR_YELLOW=${base0A}
+      COLOR_BLUE=${base0D}
+      COLOR_MAGENTA=${base0E}
+      COLOR_CYAN=${base0C}
+      COLOR_WHITE=${base05}
+    '';
   };
 }

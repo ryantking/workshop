@@ -4,7 +4,7 @@ with lib.types;
 
 let
   inherit (builtins) elem getEnv;
-  inherit (lib) mkAliasDefinitions;
+  inherit (lib) mkAliasDefinitions mkAliasOptionModule;
   inherit (pkgs.lib.our) mkOpt;
 
   username =
@@ -13,13 +13,15 @@ let
 in
 {
   imports = [
-    (lib.mkAliasOptionModule [ "user" ] [ "home-manager" "users" username "user" ])
-    (lib.mkAliasOptionModule [ "workshop" ] [ "home-manager" "users" username "workshop" ])
-    (lib.mkAliasOptionModule [ "theme" ] [ "home-manager" "users" username "theme" ])
-    (lib.mkAliasOptionModule [ "emacs" ] [ "home-manager" "users" username "emacs" ])
-    (lib.mkAliasOptionModule [ "home" "configHome" ] [ "home-manager" "users" username "xdg" "configHome" ])
-    (lib.mkAliasOptionModule [ "home" "dataHome" ] [ "home-manager" "users" username "xdg" "dataHome" ])
-    (lib.mkAliasOptionModule [ "home" "cacheHome" ] [ "home-manager" "users" username "xdg" "cacheHome" ])
+    (mkAliasOptionModule [ "user" ] [ "home-manager" "users" username "user" ])
+    (mkAliasOptionModule [ "workshop" ] [ "home-manager" "users" username "workshop" ])
+    (mkAliasOptionModule [ "theme" ] [ "home-manager" "users" username "theme" ])
+    (mkAliasOptionModule [ "colorscheme" ] [ "home-manager" "users" username "colorscheme" ])
+    (mkAliasOptionModule [ "emacs" ] [ "home-manager" "users" username "emacs" ])
+    (mkAliasOptionModule [ "shell" ] [ "home-manager" "users" username "shell" ])
+    (mkAliasOptionModule [ "home" "configHome" ] [ "home-manager" "users" username "xdg" "configHome" ])
+    (mkAliasOptionModule [ "home" "dataHome" ] [ "home-manager" "users" username "xdg" "dataHome" ])
+    (mkAliasOptionModule [ "home" "cacheHome" ] [ "home-manager" "users" username "xdg" "cacheHome" ])
   ];
 
   options = {

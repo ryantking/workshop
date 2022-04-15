@@ -6,17 +6,14 @@ in
 {
   imports = [ ./cachix.nix ./nix.nix ./shell.nix ];
 
-  # time.timeZone = config.home-manager.users.rking.my.timezone;
-  # time.timeZone = config.my.timezone;
-
   environment = {
     variables = {
-      # WORKSHOP_DIR = config.workshop.path;
       KERNEL_NAME = if pkgs.stdenv.isDarwin then "darwin" else "linux";
       LANG = "en_US.UTF-8";
       LC_ALL = "en_US.UTF-8";
       HOSTNAME = config.networking.hostName;
       TMPDIR = "/tmp";
+      WORKSHOP_DIR = config.workshop.dir;
     };
 
     shells = with pkgs; [ bashInteractive dash zsh ];

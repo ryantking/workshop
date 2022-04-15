@@ -12,6 +12,8 @@
   environment = {
     darwinConfig = "$WORKSHOP_DIR/lib/compat/darwin";
 
+    variables.PATH = [ "/usr/local/sbin" "$PATH" ];
+
     systemPackages = with pkgs; [ m-cli mas terminal-notifier ];
   };
 

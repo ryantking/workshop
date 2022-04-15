@@ -37,8 +37,8 @@ with digga.lib;
 
       suites = with profiles; rec {
         base = common.suites.base ++ [ core ];
-        gui = common.suites.gui ++ [ apps yabai ];
-        devel = common.suites.devel ++ [ gpg ];
+        gui = common.suites.gui ++ [ apps yabai sketchybar ];
+        devel = common.suites.devel;
       };
     };
   };

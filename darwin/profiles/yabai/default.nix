@@ -20,13 +20,16 @@ let
   };
 
   mkRule = { app, ... }@args:
-    let args' = (filterAttrs (n: _: !elem n [ "app" ]) args);
-    in "yabai -m rule --add app='${app}' ${mkArgString args'}";
+    let args' = filterAttrs (n: _: ! elem n [ "app" ]) args;
+    in
+    ''
+      yabai -m rule --add app='${app}' ${mkArgString args'}
+    '';
 
   mkRules = rules: concatMapStringsSep "\n" (r: mkRule r) rules;
 in
 {
-  imports = [ ./skhd.nix ./sketchybar.nix ];
+  imports = [ ./skhd.nix ];
 
   services.yabai = {
     enable = true;
@@ -34,7 +37,7 @@ in
     enableScriptingAddition = true;
 
     config = {
-      external_bar = false;
+      external_bar = "all:32:0";
       layout = "bsp";
 
       mouse_follows_focus = "on";
@@ -53,58 +56,66 @@ in
       active_window_opacity = 1.0;
       normal_window_opacity = 0.98;
 
-      window_border = "off";
-      top_padding = 48;
+      window_border = "on";
+      active_window_border_color = "0xFF${config.colorscheme.colors.base0C}";
+      normal_window_border_color = "0x00${config.colorscheme.colors.base00}";
+      insert_feedback_color = "0xFF${config.colorscheme.colors.base0B}";
+      top_padding = 18;
       bottom_padding = 18;
       left_padding = 18;
       right_padding = 18;
       window_gap = 18;
     };
 
-    extraConfig = let
-      commonRules = {
-        managed = false;
-        sticky = true;
-      };
-
-      rules = mkRules [
-        (commonRules // { app = "1Password"; })
-        (commonRules // { app = "Alfred Preferences"; })
-        (commonRules // { app = "Fantastical Helper"; })
-        (commonRules // { app = "System Preferences$"; })
-        (commonRules // { app = "SentinelOne"; })
-        {
-          app = "zoom.us";
-          opacity = "1.0";
-        }
-        {
-          app = "Emacs";
-          title = "doom-capture";
+    extraConfig =
+      let
+        commonRules = {
           manage = false;
-          grid = "3:3:1:1:1:1";
-          label = "[Emacs]: Float and center the doom capture window";
-        }
-        {
-          app = "Emacs";
-          title = ".*Minibuf.*";
-          manage = false;
-          border = false;
-          label = "[Emacs]: Float minibuffer";
-        }
-      ];
-      in ''
-      yabai -m space 1 --label 'code'
-      yabai -m space 2 --label 'browse'
-      yabai -m space 3 --label 'term'
-      yabai -m space 4 --label 'connect'
-      yabai -m space 5 --label 'chat'
-      yabai -m space 6 --label 'scratch'
-      yabai -m space 7 --label 'empty'
-      yabai -m space 8 --label 'media'
-      yabai -m space 9 --label 'browse-all'
+          sticky = true;
+        };
 
-      ${rules}
-    '';
+        rules = mkRules [
+          (commonRules // { app = "1Password"; })
+          (commonRules // { app = "Alfred Preferences"; })
+          (commonRules // { app = "Fantastical Helper"; })
+          (commonRules // { app = "^System Preferences$"; })
+          (commonRules // { app = "SentinelOne"; })
+          {
+            app = "zoom.us";
+            opacity = "1.0";
+          }
+          {
+            app = "Emacs";
+            title = "doom-capture";
+            manage = false;
+            grid = "3:3:1:1:1:1";
+            label = "[Emacs]: Float and center the doom capture window";
+          }
+          {
+            app = "Emacs";
+            title = ".*Minibuf.*";
+            manage = false;
+            border = false;
+            label = "[Emacs]: Float minibuffer";
+          }
+        ];
+      in
+      ''
+          yabai -m space 1 --label 'code'
+          yabai -m space 2 --label 'browse'
+          yabai -m space 3 --label 'term'
+          yabai -m space 4 --label 'connect'
+          yabai -m space 5 --label 'chat'
+          yabai -m space 6 --label 'scratch'
+          yabai -m space 7 --label 'empty'
+          yabai -m space 8 --label 'media'
+          yabai -m space 9 --label 'browse-all'
+
+          ${rules}
+
+        yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
+        yabai -m signal --add event=window_focused action="sketchybar --trigger window_focus"
+      '';
   };
 
   launchd.user.agents.yabai.serviceConfig = {

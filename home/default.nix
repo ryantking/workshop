@@ -7,12 +7,12 @@ with digga.lib;
   home = {
     imports = [ (importExportableModules ./modules) ];
 
-    modules = [ colors.homeManagerModule ];
+    modules = [ colors.homeManagerModule doom-emacs.hmModule ];
 
     importables = rec {
       profiles = rakeLeaves ./profiles;
       suites = with profiles; rec {
-        base = [ alacritty bat direnv git gpg languages.go tealdeer zsh emacs ssh ];
+        base = [ alacritty bat direnv emacs git gpg languages.go ssh tealdeer tmux zsh ];
       };
     };
 

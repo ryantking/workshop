@@ -3,6 +3,7 @@
 let
   inherit (lib) optionals;
   inherit (pkgs.stdenv) isLinux;
+  inherit (lib) concatStrings;
 
   zdotDir = "${self}/etc/zsh";
 in
@@ -16,19 +17,15 @@ in
 
   home.packages = with pkgs; [ zinit zoxide ];
 
-  programs = {
-    zsh = {
-      enable = true;
-      dotDir = ".config/zsh";
-      initExtra = ''
-        source "''${ZDOTDIR}/config.zsh"
-        source "''${ZDOTDIR}/plugins.zsh"
-        source "''${ZDOTDIR}/extra.zsh"
-        typeset -aU path
-      '';
-    };
-
-    starship = { enableZshIntegration = false; };
+  programs.zsh = {
+    enable = true;
+    dotDir = ".config/zsh";
+    initExtra = ''
+      source "''${ZDOTDIR}/config.zsh"
+      source "''${ZDOTDIR}/plugins.zsh"
+      source "''${ZDOTDIR}/extra.zsh"
+      typeset -aU path
+    '';
   };
 
   xdg.configFile = {

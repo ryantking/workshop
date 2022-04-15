@@ -32,8 +32,6 @@ in
       autoOptimiseStore = true;
       optimise.automatic = true;
       gc.dates = "weekly";
-
-      shellAliases.nixos-option = "nixos-option -I nixpkgs=${self}/lib/compat";
     })
   ];
 }

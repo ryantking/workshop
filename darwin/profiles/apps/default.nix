@@ -11,11 +11,13 @@
       "alacritty"
       "alfred"
       "displaperture"
+      "docker"
       "dropbox"
       "karabiner-elements"
       "logitech-options"
       "logseq"
       "jetbrains-toolbox"
+      "meetingbar"
       "pictogram"
       "protonvpn"
       "qlcolorcode"
@@ -28,6 +30,7 @@
       "sonos"
       "spotify"
       "webpquicklook"
+      "yubico-yubikey-personalization-gui"
       "zsa-wally"
     ];
 

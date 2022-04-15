@@ -5,19 +5,18 @@
 # Load Zinit
 source "${ZDOTDIR}/zinit.zsh"
 
-# Load vi-mode first so its bindings can be overwritten
-zinit depth'1' light-mode for jeffreytse/zsh-vi-mode
+# Load colors
+source "${XDG_CONFIG_DIR:-$HOME/.config}/colorrc"
 
-# Pure Prompt
-zinit pick"async.zsh" src"pure.zsh" light-mode atload'
-  export PURE_PROMPT_SYMBOL="➜"
-  export PURE_PROMPT_VICMD_SYMBOL=""
-' for sindresorhus/pure
+# Load vi-mode first so its bindings can be overwritten
+zinit depth'1' if'[[ $TERM != "dumb" && -z $INSIDE_EMACS ]]' light-mode for jeffreytse/zsh-vi-mode
 
 # Basic Plugins
 zinit lucid depth'1' wait'0a' light-mode for \
     silent atinit"ZINIT[COMPINIT_OPTS]=-C; zicompinit; zicdreplay" zdharma-continuum/fast-syntax-highlighting \
-    atload"!_zsh_autosuggest_start" zsh-users/zsh-autosuggestions \
+    atload'!_zsh_autosuggest_start
+        export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#$COLOR_BG_ALT"
+    ' zsh-users/zsh-autosuggestions \
     as"completion" zsh-users/zsh-completions \
     pick'autopair.zsh' nocompletions atload'autopair-init' hlissner/zsh-autopair \
     tarrasch/zsh-bd \

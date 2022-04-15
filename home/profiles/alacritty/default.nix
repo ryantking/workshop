@@ -12,7 +12,7 @@ in
     {
       enable = true;
       settings = {
-        env.TERM = "alacritty";
+        env.TERM = "alacritty-direct";
         mouse.hide_when_typing = true;
         live_config_reload = true;
         use_thin_strokes = true;

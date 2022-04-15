@@ -4,7 +4,7 @@ let
   inherit (lib) concatStringsSep mapAttrsToList;
 in
 {
-  imports = [ ./fzf.nix ];
+  imports = [ ./fzf.nix ./starship.nix ];
 
   programs.zsh.envExtra =
     let

@@ -3,6 +3,7 @@
 let
   inherit (builtins) hasAttr toString;
   inherit (lib) mkMerge optionalAttrs;
+  inherit (config) emacs;
   inherit (config.xdg) configHome dataHome;
   inherit (pkgs.stdenv) isLinux;
 in
@@ -11,18 +12,17 @@ in
     env = {
       EDITOR = "emacsclient -t";
       VISUAL = "emacsclient -c -a emacs";
-      ALTERNATE_EDITOR = "";
       PATH = [ "${config.emacs.configDir}/bin" "$PATH" ];
     };
 
     aliases = {
-      e = "emacsclient -t";
+      ec = "emacsclient -t";
     };
   };
 
-  programs.emacs = {
+  programs.doom-emacs = {
     enable = isLinux;
-    # package = pkgs.emacsGcc;
+    doomPrivateDir = emacs.doom.configDir;
   };
 
   home.packages = with pkgs; [
@@ -66,9 +66,6 @@ in
     nodePackages.vscode-json-languageserver
 
     # :lang markdown
-    nodePackages.markdownlint-cli
-    nodePackages.unified-language-server
-    nodePackages.prettier
     pandoc
 
     # :lang nix

@@ -1,12 +1,11 @@
 { config, pkgs, ... }:
 
 {
-  my.hm.programs.tmux = {
+  programs.tmux = {
     enable = true;
     baseIndex = 1;
     prefix = "C-a";
     resizeAmount = 10;
-    shell = "${pkgs.fish}/bin/fish";
     shortcut = "a";
     terminal = "tmux-256color";
 

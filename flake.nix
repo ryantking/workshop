@@ -31,6 +31,7 @@
     agenix-cli.url = "github:cole-h/agenix-cli";
 
     # Development Tools
+    doom-emacs.url = "github:nix-community/nix-doom-emacs";
     neovim-nightly.url = "github:nix-community/neovim-nightly-overlay";
     rnix-lsp.url = "github:nix-community/rnix-lsp";
     treefmt.url = "github:numtide/treefmt";

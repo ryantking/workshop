@@ -1,36 +1,38 @@
 { self, config, lib, pkgs, ... }:
 
 let
-  inherit (lib) mkMerge optionalAttrs;
-  inherit (pkgs.stdenv) isLinux isDarwin;
+  inherit (pkgs.stdenv) isDarwin;
+
+  fmt = pkgs.formats.toml { };
+  starshipSettings = fmt.generate "starship.toml" config.shell.prompt.starship;
 in
 {
-  environment = mkMerge [
-    {
-      shellInit = ''
-        export STARSHIP_CONFIG=${pkgs.writeText "starship.toml" (lib.fileContents ./starship.toml)}
-      '';
-    }
-    (optionalAttrs isLinux {
-      shellAliases.nixos-option = "nixos-option -I nixpkgs=${self}/lib/compat";
-    })
-  ];
+  environment.shellAliases = (if isDarwin then {
+    darwin-option = "darwin-option -I nixpkgs=${self}/lib/compat";
+  } else {
+    nixos-option = "nixos-option -I nixpkgs=${self}/lib/compat";
+  });
 
   programs = {
-    bash = mkMerge [
-      {
-        interactiveShellInit = ''
-          eval "$(${pkgs.direnv}/bin/direnv hook bash)"
-        '' + (if isDarwin then ''eval "$(${pkgs.starship}/bin/starship init bash)"'' else "");
-      }
-      (optionalAttrs isLinux { promptInit = ''eval "$(${pkgs.starship}/bin/starship init bash)"''; })
-    ];
+    bash.interactiveShellInit = ''
+      eval $(${pkgs.direnv}/bin/direnv hook bash)
+
+      if [[ $TERM != "dumb" && (-z $INSIDE_EMACS || $INSIDE_EMACS == "vterm") ]]; then
+         export STARSHIP_CONFIG=${starshipSettings}
+         eval "$(${pkgs.starship}/bin/starship init bash)"
+      fi
+    '';
 
     zsh = {
       enable = true;
-      enableCompletion = false;
-      enableBashCompletion = false;
-      promptInit = "";
+      enableCompletion = true;
+      enableBashCompletion = true;
+      promptInit = ''
+        if [[ $TERM != "dumb" && (-z $INSIDE_EMACS || $INSIDE_EMACS == "vterm") ]]; then
+            export STARSHIP_CONFIG=${starshipSettings}
+            eval "$(${pkgs.starship}/bin/starship init zsh)"
+        fi
+      '';
     };
   };
 }

@@ -8,7 +8,10 @@ let
   key = config.user.keys.pgp;
 in
 {
-  programs.gpg = { enable = isLinux; };
+  programs.gpg = {
+    enable = true;
+    homedir = gnupgHome;
+  };
 
   shell = {
     env = {
