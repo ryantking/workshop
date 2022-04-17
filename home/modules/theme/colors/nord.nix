@@ -19,18 +19,5 @@ lib.mkIf (config.colorscheme.slug == "nord") {
       cyan = "#6d96a5";
       white = "#aeb3bb";
     };
-
-    neovim = {
-      plugins = [ pkgs.vimPlugins.nord-nvim ];
-      extraConfig =
-        let inherit (config.colorscheme) colors;
-        in
-        ''
-          let g:nord_borders = v:true
-          color nord
-          hi IndentBlanklineContextChar guifg=${colors.base0E}
-          hi VertSplit guifg=${colors.base8}
-        '';
-    };
   };
 }

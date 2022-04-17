@@ -1,5 +1,4 @@
 [formatter.nix]
 command = "nixpkgs-fmt"
-# options = ["--width=100"]
 includes = [ "*.nix" ]
-excludes = []
+excludes = [ "etc/emacs/**" ]

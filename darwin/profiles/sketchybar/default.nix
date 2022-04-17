@@ -1,47 +1,7 @@
 { config, lib, ... }:
 
 let
-  inherit (config.home) cacheHome;
-  inherit (builtins) map concatLists concatStringsSep hasAttr;
-  inherit (lib) mergeAttrs pipe mapAttrs mapAttrsToList isBool optional;
-
-  mkSettings = settings:
-    pipe settings [
-      (mapAttrs (_: v: if isBool v then (if v then "on" else "off") else toString v))
-      (mapAttrsToList (k: v: "${k}=${v}"))
-      (concatStringsSep " \\\n\t\t")
-    ];
-
-  mkItem = item:
-    let
-      type = if (hasAttr "type" item) then item.type else "item";
-      action = if (type == "clone") then "--clone" else "--add ${type}";
-    in
-    concatStringsSep " \\\n" (concatLists [
-      (optional (type != "set") "\t${action} \"${item.name}\" ${concatStringsSep " \\\n\t\t" item.args}")
-      [
-        "\t--set \"${item.name}\""
-        "\t\t${mkSettings item.settings}"
-      ]
-      (optional (hasAttr "events" item) "\t--subscribe ${item.name} ${concatStringsSep " " item.events}")
-    ]);
-
-  mkConfig = { bar, default, events, items }:
-    let
-      bar' = "\t--bar \\\n\t\t${mkSettings bar}";
-      default' = "\t--default \\\n\t\t${mkSettings default}";
-      events' = map (event: "\t--add event ${event}") events;
-      items' = map mkItem items;
-    in
-    ''#!/usr/bin/env dash
-
-HAS_BATTERY=$(if [ "$(pmset -g batt | grep "Battery")" = "" ]; then echo "false"; else echo "true"; fi)
-
-${concatStringsSep " \\\n" (["sketchybar" bar' default'] ++ events' ++ items')}
-
-sketchybar --update
-
-echo "sketchybar configuration loaded.."'';
+  inherit (builtins) concatLists;
 
   barConfig = {
     font = "SF Pro";
@@ -85,73 +45,126 @@ echo "sketchybar configuration loaded.."'';
   };
 in
 {
-  homebrew = {
-    taps = [ "FelixKratz/formulae" ];
-    brews = [ "sketchybar" "ifstat" ];
-    casks = [ "font-sf-pro" "sf-symbols" ];
-  };
+  services.sketchybar = with barConfig; {
+    enable = true;
 
-  system.defaults.NSGlobalDomain._HIHideMenuBar = true;
-
-  services.yabai.config.external_bar = "main:32:0";
-
-  home.configFile = with barConfig; {
-    "sketchybar/sketchybarrc" = {
-      executable = true;
-      text = mkConfig ((import ./core.nix { inherit barConfig; }) // {
-        events = [ "window_focus" "monocle" "battery" "wifi" "brew_upgrade" "git_push" "spotify_change ${spotifyEvent}" ];
-        items = concatLists [
-          [{
-            name = "label_template";
-            args = [ "left" ];
-            settings = {
-              drawing = false;
-              click_script = ''"${pluginDir}/toggle_bracket.sh"'';
-              "icon.darwing" = false;
-              "label.font" = ''"${font}:Black:12.0"'';
-              "label.background.drawing" = true;
-              "label.color" = colors.fg;
-              "label.padding_right" = 5;
-              "label.background.height" = segment.height;
-              "background.padding_left" = segment.spacing;
-              "background.padding_right" = 0;
-            };
-          }]
-          (import ./menu.nix { inherit barConfig lib; })
-          (import ./system.nix { inherit barConfig; })
-          (import ./spaces.nix { inherit barConfig lib; })
-          (import ./github.nix { inherit barConfig; })
-          (import ./calendar.nix { inherit barConfig; })
-          (import ./cpu.nix { inherit barConfig; })
-          (import ./spotify.nix { inherit barConfig; })
-        ];
-      });
+    bar = {
+      height = 32;
+      corner_radius = 0;
+      border_width = 0;
+      border_color = colors.bg;
+      margin = 0;
+      blur_radius = 30;
+      position = "top";
+      padding_left = 5;
+      padding_right = 5;
+      color = colors.bg;
+      topmost = false;
+      font_smoothing = false;
+      y_offset = 0;
+      shadow = true;
     };
 
-    "sketchybar/colors.sh".text = with colors; ''
-      COLOR_FG=${fg}
-      COLOR_BG=${bg}
-      COLOR_FG_ALT=${fgAlt}
-      COLOR_BG_ALT=${bgAlt}
-      COLOR_BLACK=${black}
-      COLOR_RED=${red}
-      COLOR_GREEN=${green}
-      COLOR_YELLOW=${yellow}
-      COLOR_BLUE=${blue}
-      COLOR_MAGENTA=${magenta}
-      COLOR_CYAN=${cyan}
-      COLOR_WHITE=${white}
-    '';
+    default = {
+      drawing = true;
+      lazy = false;
+      updates = "when_shown";
+      cache_scripts = true;
+      "label.font" = ''"${font}:Semibold:13.0"'';
+      "icon.font" = ''"${font}:Bold:14.0"'';
+      "icon.color" = colors.fg;
+      "label.color" = colors.fg;
+      "icon.padding_left" = padding;
+      "icon.padding_right" = padding;
+      "label.padding_left" = padding;
+      "label.padding_right" = padding;
+      "background.padding_left" = padding;
+      "background.padding_right" = padding;
+      "background.color" = colors.none;
+      "background.border_color" = colors.none;
+      "background.border_width" = segment.borderWidth;
+      "background.height" = segment.height;
+      "background.corner_radius" = segment.cornerRadius;
+      "background.drawing" = false;
+      "icon.background.height" = segment.height;
+      "icon.background.color" = colors.none;
+      "icon.background.corner_radius" = segment.cornerRadius;
+      "icon.background.drawing" = false;
+      "label.background.color" = colors.none;
+      "label.background.border_width" = segment.borderWidth;
+      "label.background.border_color" = colors.none;
+      "label.background.height" = segment.height;
+      "label.background.corner_radius" = segment.cornerRadius;
+      "label.background.drawing" = false;
+      "popup.background.border_width" = 2;
+      "popup.background.corner_radius" = segment.cornerRadius;
+      "popup.background.border_color" = colors.bg;
+      "popup.background.color" = colors.bgAlt;
+      "popup.background.shadow.drawing" = true;
+      "icon.shadow.drawing" = true;
+      "label.shadow.drawing" = true;
+      "alias.shadow.drawing" = true;
+      "icon.shadow.color" = colors.bg;
+      "label.shadow.color" = colors.bg;
+      "alias.shadow.color" = colors.bg;
+      "icon.shadow.distance" = shadow.distance;
+      "label.shadow.distance" = shadow.distance;
+      "alias.shadow.distance" = shadow.distance;
+      "icon.shadow.angle" = shadow.angle;
+      "label.shadow.angle" = shadow.angle;
+      "alias.shadow.angle" = shadow.angle;
+      "alias.color" = colors.fg;
+    };
+
+    events = [
+      "window_focus"
+      "monocle"
+      "battery"
+      "wifi"
+      "brew_upgrade"
+      "git_push"
+      "spotify_change${spotifyEvent}"
+    ];
+
+    items = concatLists [
+      [{
+        name = "label_template";
+        args = [ "left" ];
+        settings = {
+          drawing = false;
+          click_script = ''"${pluginDir}/toggle_bracket.sh"'';
+          "icon.darwing" = false;
+          "label.font" = ''"${font}:Black:12.0"'';
+          "label.background.drawing" = true;
+          "label.color" = colors.fg;
+          "label.padding_right" = 5;
+          "label.background.height" = segment.height;
+          "background.padding_left" = segment.spacing;
+          "background.padding_right" = 0;
+        };
+      }]
+      (import ./menu.nix { inherit barConfig lib; })
+      (import ./system.nix { inherit barConfig; })
+      (import ./spaces.nix { inherit barConfig lib; })
+      (import ./github.nix { inherit barConfig; })
+      (import ./calendar.nix { inherit barConfig; })
+      (import ./cpu.nix { inherit barConfig; })
+      (import ./spotify.nix { inherit barConfig; })
+    ];
   };
 
-  launchd.user.agents."sketchybar".serviceConfig = {
-    ProgramArguments = [ "/usr/local/bin/sketchybar" ];
-    EnvironmentVariables.PATH = config.environment.systemPath;
-    RunAtLoad = true;
-    KeepAlive = true;
-    ProcessType = "Interactive";
-    Nice = -20;
-    StandardOutPath = "${cacheHome}/logs/sketchybar.out.log";
-    StandardErrorPath = "${cacheHome}/logs/sketchybar.err.log";
-  };
+  home.configFile."sketchybar/colors.sh".text = with barConfig.colors; ''
+    COLOR_FG=${fg}
+    COLOR_BG=${bg}
+    COLOR_FG_ALT=${fgAlt}
+    COLOR_BG_ALT=${bgAlt}
+    COLOR_BLACK=${black}
+    COLOR_RED=${red}
+    COLOR_GREEN=${green}
+    COLOR_YELLOW=${yellow}
+    COLOR_BLUE=${blue}
+    COLOR_MAGENTA=${magenta}
+    COLOR_CYAN=${cyan}
+    COLOR_WHITE=${white}
+  '';
 }

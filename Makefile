@@ -12,7 +12,7 @@ help: ## Show this help screen.
 UNAME := $(shell uname -s | tr A-Z a-z)
 
 .PHONY: switch switch-darwin switch-linux
-switch: switch-$(UNAME) ## Switch to the new configuration
+switch: update-pkgs switch-$(UNAME) ## Switch to the new configuration
 switch-darwin:
 	darwin-rebuild switch --flake .
 switch-linux: /etc/nixos/flake.nix
@@ -25,3 +25,10 @@ switch-linux: /etc/nixos/flake.nix
 .PHONY: update
 update: ## Update flake dependencies
 	nix flake update
+
+##@ Packages
+
+.PHONY: update-pkgs
+update-pkgs: pkgs/_sources/generated.nix
+pkgs/_sources/generated.nix: pkgs/sources.toml
+	nvfetcher -o $(dir $@) -c $<

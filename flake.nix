@@ -31,17 +31,12 @@
     agenix-cli.url = "github:cole-h/agenix-cli";
 
     # Development Tools
-    doom-emacs.url = "github:nix-community/nix-doom-emacs";
-    neovim-nightly.url = "github:nix-community/neovim-nightly-overlay";
+    emacs.url = "github:nix-community/emacs-overlay";
     rnix-lsp.url = "github:nix-community/rnix-lsp";
     treefmt.url = "github:numtide/treefmt";
-    tmux-fzf = {
-      url = "github:sainnhe/tmux-fzf";
-      flake = false;
-    };
   };
 
-  outputs = { self, nixpkgs, home, digga, colors, agenix, nur, nvfetcher, ... } @ inputs:
+  outputs = { self, nixpkgs, home, digga, colors, agenix, nur, nvfetcher, emacs, ... } @ inputs:
     let
       inherit (digga.lib) mkFlake rakeLeaves importExportableModules importOverlays;
 
@@ -60,12 +55,17 @@
 
         imports = [ (importOverlays ./overlays) ];
 
-        overlays = [ nur.overlay agenix.overlay nvfetcher.overlay ];
+        overlays = [ nur.overlay agenix.overlay nvfetcher.overlay emacs.overlay ];
       };
     in
     mkFlake
       {
         inherit self inputs;
+
+        channels.nixpkgs-darwin = {
+          imports = common.imports;
+          overlays = common.overlays ++ [ ./pkgs ];
+        };
 
         channelsConfig = { allowUnfree = true; };
 

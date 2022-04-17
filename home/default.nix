@@ -7,7 +7,7 @@ with digga.lib;
   home = {
     imports = [ (importExportableModules ./modules) ];
 
-    modules = [ colors.homeManagerModule doom-emacs.hmModule ];
+    modules = [ colors.homeManagerModule ];
 
     importables = rec {
       profiles = rakeLeaves ./profiles;

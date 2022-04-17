@@ -4,12 +4,7 @@ with inputs;
 with digga.lib;
 
 {
-  supportedSystems = [ "x86_64-linux" "x86_64-darwin" ];
-
-  channels.nixpkgs-darwin = {
-    imports = common.imports ++ [ (importOverlays ./overlays) ];
-    overlays = common.overlays ++ [ ./pkgs ];
-  };
+  supportedSystems = [ "x86_64-darwin" ];
 
   darwin = {
     hostDefaults = {
@@ -17,7 +12,7 @@ with digga.lib;
 
       channelName = "nixpkgs-darwin";
 
-      imports = [ ((importExportableModules ./modules) // common.modules) ];
+      imports = [ common.modules (importExportableModules ./modules) ];
 
       modules = [
         { lib.our = self.lib; }
@@ -37,7 +32,7 @@ with digga.lib;
 
       suites = with profiles; rec {
         base = common.suites.base ++ [ core ];
-        gui = common.suites.gui ++ [ apps yabai sketchybar ];
+        gui = common.suites.gui ++ [ apps yabai skhd sketchybar ];
         devel = common.suites.devel;
       };
     };

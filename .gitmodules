@@ -1,0 +1,3 @@
+[submodule "etc/emacs"]
+	path = etc/emacs
+	url = https://github.com/hlissner/doom-emacs.git

@@ -1,28 +1,50 @@
-{ config, options, lib, pkgs, ... }:
+{ self, config, options, lib, pkgs, ... }:
 
 let
   inherit (builtins) hasAttr toString;
   inherit (lib) mkMerge optionalAttrs;
-  inherit (config) emacs;
+  inherit (config) workshop;
   inherit (config.xdg) configHome dataHome;
   inherit (pkgs.stdenv) isLinux;
+
+  emacsDir = "${configHome}/emacs";
+  doomDir = "${workshop.configDir}/doom";
+  doomDataDir = "${dataHome}/doom";
 in
 {
   shell = {
     env = {
       EDITOR = "emacsclient -t";
       VISUAL = "emacsclient -c -a emacs";
-      PATH = [ "${config.emacs.configDir}/bin" "$PATH" ];
+      PATH = [ "${emacsDir}/bin" "$PATH" ];
+
+      DOOMDIR = doomDir;
+      DOOMLOCALDIR = doomDataDir;
+      LSP_USE_PLISTS = "true";
     };
 
     aliases = {
       ec = "emacsclient -t";
+      ecv = "emacsclient";
     };
   };
 
-  programs.doom-emacs = {
+  xdg.configFile = {
+    "emacs" = {
+      source = pkgs.sources.chemacs.src;
+      recursive = true;
+    };
+
+    "chemacs/profiles.el".text = ''
+      (("default" . ((user-emacs-directory . "${workshop.configDir}/emacs"))))
+    '';
+
+    "chemacs/profile".text = "default";
+  };
+
+  programs.emacs = {
     enable = isLinux;
-    doomPrivateDir = emacs.doom.configDir;
+    package = pkgs.emacsPgtkGcc;
   };
 
   home.packages = with pkgs; [

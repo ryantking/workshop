@@ -15,8 +15,6 @@ in
 
   programs = {
     bash.interactiveShellInit = ''
-      eval $(${pkgs.direnv}/bin/direnv hook bash)
-
       if [[ $TERM != "dumb" && (-z $INSIDE_EMACS || $INSIDE_EMACS == "vterm") ]]; then
          export STARSHIP_CONFIG=${starshipSettings}
          eval "$(${pkgs.starship}/bin/starship init bash)"

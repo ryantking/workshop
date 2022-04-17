@@ -37,11 +37,6 @@ in
         ${cfg.extraInit}
       '';
 
-    prompt = {
-      starship = mkOption {
-        inherit (fmt) type;
-        default = { };
-      };
-    };
+    prompt.starship = mkOpt fmt.type { };
   };
 }

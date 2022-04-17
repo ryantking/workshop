@@ -17,7 +17,6 @@ in
     (mkAliasOptionModule [ "workshop" ] [ "home-manager" "users" username "workshop" ])
     (mkAliasOptionModule [ "theme" ] [ "home-manager" "users" username "theme" ])
     (mkAliasOptionModule [ "colorscheme" ] [ "home-manager" "users" username "colorscheme" ])
-    (mkAliasOptionModule [ "emacs" ] [ "home-manager" "users" username "emacs" ])
     (mkAliasOptionModule [ "shell" ] [ "home-manager" "users" username "shell" ])
     (mkAliasOptionModule [ "home" "configHome" ] [ "home-manager" "users" username "xdg" "configHome" ])
     (mkAliasOptionModule [ "home" "dataHome" ] [ "home-manager" "users" username "xdg" "dataHome" ])

@@ -1,0 +1,6 @@
+[yabai]
+src.github = "koekeishiya/yabai"
+fetch.github = "koekeishiya/yabai"
+[chemacs]
+src.git = "https://github.com/plexus/chemacs2.git"
+fetch.github = "plexus/chemacs2"
