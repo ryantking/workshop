@@ -13,7 +13,7 @@ let
 in
 {
   imports = [
-    (mkAliasOptionModule [ "user" ] [ "home-manager" "users" username "user" ])
+    (mkAliasOptionModule [ "whoami" ] [ "home-manager" "users" username "whoami" ])
     (mkAliasOptionModule [ "workshop" ] [ "home-manager" "users" username "workshop" ])
     (mkAliasOptionModule [ "theme" ] [ "home-manager" "users" username "theme" ])
     (mkAliasOptionModule [ "colorscheme" ] [ "home-manager" "users" username "colorscheme" ])

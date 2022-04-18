@@ -5,7 +5,7 @@ let
   inherit (pkgs.stdenv) isDarwin isLinux;
 
   gnupgHome = "${config.xdg.dataHome}/gnupg";
-  key = config.user.keys.pgp;
+  key = config.whoami.keys.pgp;
 in
 {
   programs.gpg = {

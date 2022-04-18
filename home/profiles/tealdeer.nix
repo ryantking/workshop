@@ -2,7 +2,7 @@
 
 {
   # system.activationScripts.postUserActivation.text = ''
-  #   mkdir -p "${config.my.xdg.cache}/tealdeer"
+  #   mkdir -p "${config.whoami.xdg.cache}/tealdeer"
   # '';
   home.activation."ensureTealdeerCache" = "mkdir -p ${config.xdg.cacheHome}/tealdeer";
 

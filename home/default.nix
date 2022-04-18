@@ -12,7 +12,7 @@ with digga.lib;
     importables = rec {
       profiles = rakeLeaves ./profiles;
       suites = with profiles; rec {
-        base = [ alacritty bat direnv emacs git gpg languages.go ssh tealdeer tmux zsh ];
+        base = [ alacritty bat direnv emacs git gpg languages.go mail secrets ssh tealdeer tmux zsh ];
       };
     };
 

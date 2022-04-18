@@ -18,6 +18,7 @@ with digga.lib;
         { lib.our = self.lib; }
         digga.darwinModules.nixConfig
         home.darwinModules.home-manager
+        agenix.nixosModules.age
       ];
     };
 

@@ -1,24 +1,24 @@
 { config, pkgs, lib, ... }:
 
 let
-  inherit (config) user;
+  inherit (config) whoami;
 in
 {
   shell.env = {
-    GITHUB_USER = user.githubUsername;
-    GITHUB_NAME = user.name;
-    GITHUB_EMAIL = user.email;
+    GITHUB_USER = whoami.usernames.github;
+    GITHUB_NAME = whoami.name;
+    GITHUB_EMAIL = whoami.emails.personal;
   };
 
   programs = {
     git = {
       enable = true;
       package = pkgs.gitAndTools.gitFull;
-      userName = user.name;
-      userEmail = user.email;
+      userName = whoami.name;
+      userEmail = whoami.emails.personal;
 
       signing = {
-        key = user.keys.pgp;
+        key = whoami.keys.pgp;
         signByDefault = true;
       };
 
@@ -26,7 +26,7 @@ in
         init.defaultBranch = "master";
         pull.rebase = false;
         tag.sort = "version:refname";
-        github.user = user.githubUsername;
+        github.user = whoami.usernames.github;
       };
 
       aliases = {
@@ -117,5 +117,8 @@ in
     sessionVariables = { DELTA_PAGER = "less -FR"; };
   };
 
-  xdg.configFile."gh/hosts.yml".source = ./hosts.yml;
+  age.secrets."gh-hosts" = {
+    file = ./hosts.yml.age;
+    path = "${config.xdg.configHome}/gh/hosts.yml";
+  };
 }

@@ -19,10 +19,10 @@ in
     extraGroups = [ "wheel" "networkmanager" "audio" "pulse" ];
     hashedPassword =
       "$6$xL0fzTOIJV5KEQ$clkH7gC8TThDI/2cqBmpi2eVDH5JTWXUMlPnh4Qwq3LhmB9tSwrlPlgF51V0lXBZtzyQnuQJX4.hM0pr2JcpV0";
-    openssh.authorizedKeys.keys = [ config.user.keys.ssh ];
+    openssh.authorizedKeys.keys = config.whoami.keys.ssh.identities;
   });
 
-  environment.variables = let inherit (config.user) xdg; in
+  environment.variables = let inherit (config.whoami) xdg; in
     {
       CACHEDIR = xdg.cache;
       XDG_BIN_HOME = xdg.bin;

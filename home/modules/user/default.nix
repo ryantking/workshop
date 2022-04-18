@@ -9,17 +9,26 @@ let
 in
 {
   options = {
-    user = {
+    whoami = {
       name = mkOpt str "Ryan King";
-      email = mkOpt str "ryantking@protonmail.com";
-      terminal = mkOpt str "alacritty";
-      editor = mkOpt str "emacsclient";
       timezone = mkOpt str "America/New_York";
-      githubUsername = mkOpt str "ryantking";
+
+      usernames = {
+        github = mkOpt str "ryantking";
+      };
+
+      emails = {
+        personal = mkOpt str "ryantking@protonmail.com";
+        gmail = mkOpt str "ryan.taylor.king@gmail.com";
+        work = mkOpt str "ryking@redhat.com";
+      };
 
       keys = {
         pgp = mkOpt str "0xD718BA353C298BB2";
-        ssh = mkOpt str (import ./ssh-key.nix);
+        ssk = {
+          primary = mkOpt str (import ./ssh-key.nix);
+          identities = mkOpt (listOf str) (import ./ssh-identities.nix);
+        };
       };
 
       xdg = {

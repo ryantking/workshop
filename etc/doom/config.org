@@ -5,13 +5,49 @@
 #+property: header-args :tangle no :results silent :eval no-export
 #+startup: fold
 * Introduction
-Customizing and ricing editors has always been something that I've enjoyed. As of the writing of this configuration, I recently switched from Neovim to Emacs with the Doom framework with the goal of making Org the core of a unified development and productivity workflow. I previously used some Apple-ecosystem apps such as Bear Notes and Todoist, but, while really convenient on the go, really felt separated from my development workflow. I decided to add Org, and use apps such as =BeOrg= and =LogSeq= to bring it on the go. The end result is a workflow with plain-text Org files as the core and different desktop and mobile apps to work with those files.
+Once I realized that the text editor was something that you could customize in my Boston University dorm room, sometime in the fall of 2015, I would go on to spend a great deal of time just sort of screwing around with different editors. This configuration is what powers my current Editor, Emacs with the Doom framework.
+
+** Editor Journey
+My editor journey is something that is probably interesting to nobody except for myself, but I felt like writing it up for fun reminiscing more than anything so here it is.
+
+*** Proto-Editors
+When I first started programming, I didn't immediately choose a side in the Vim v. Emacs holy war, I was just told what to use. Depending on the situation I wrote code in Game Maker, CodeBlocks, NotePad++, DevC, and probably some others that I've since forgotten. I used a bunch on the Mac also: Coda, Text Wrangler, and one more, that I ended up using for a little bit longer than the rest...
+
+*** Sublime Text 2
+I think I even paid the $50 for the license at one point. I think the first thing I really started using the editor for was Lua code for my Corona SDK apps. I have the code somewhere I think. I didn't use too much actual editor functionality. I mean, I used DropBox for version control so I don't think I would have cared too much about a git plugin. I eventually would go onto start using more of Sublime Text 2. I think I did briefly experiment with Coda for a bit for web development, and used IntelliJ for some Java work, but Sublime Text 2 was ultimately the one I would dive into. I didn't do a whole lot, but I installed packages, and split windows. There was a single "a-ha!" moment that I remember where I first ran a Python file in a split window, I think this is when something clicked I would go on to get a hunger for optimizing editors.
+
+*** Emacs
+I did a little stint with Emacs. I think I choose it because it was on the school servers we used to run homework. I have no idea how people who didn't just figure out how to run the homework locally actually did homework in nano or terminal vanilla Emacs over SSH. I didn't do much with it besides read a book called "Mastering Emacs." I might have made minor config edits and installed a package or two.
+
+*** Vim
+Vim was the first editor I properly dug into. And by dug into, I mean copied and pasted a config off of GitHub. I probably had some mild plugin and config action, but nothing insane. I think I also might have dabbled in some ZSH config by now. This is when I truly fell in love with modal keybindings. I used the product that I will shill from the rooftops: [[https://vim-adventures.com/][Vim Adventures]].
+
+*** Emacs (again)
+At some point, I discovered the first [[https://github.com/aaronbieber/dotfiles][set of dotfiles]] that would send me on a lifelong journey of full system customization. I created my own repo, found =r/UnixPorn=, and started slowly working on my full system configuration, which included Emacs as my editor. What was special about the dotfiles I found, was they were by the author of a presentation called "Evil Mode: Or, How I Learned to Stop Worrying and Love Emacs." Which basically said "hey, you can use modal editing in Emacs." A philosophy I would stray from, but return to. I soon found the Spacemacs configuration, which would power me for almost two years. Spacemacs really was the right tool for the job at the time. I didn't need any fancy tool integrations for school projects, and editing LaTeX was really easy, which I did a significant amount of.
+
+*** Vim (just for a hot second)
+When I was gearing up to graduate and move to my first real job a Software Engineer, I decided to do a stint in Vim. Might have been NeoVim, but I think I opted for the newly released Vim 8 since NeoVim didn't offer that much different at that point. I think I did write (steal) a config, but I only used it for three projects my last semester when I only had one class.
+
+*** Visual Studio Code
+When I started working, Visual Studio Code was really all the rage. It had taken most of the Atom users, and due to peer pressure, I would also boot up Visual Studio Code. I really liked the file switching dialogue, as someone who hadn't discovered ctrl-p and used vinegar for years. I didn't like the window management. Something that Emacs and Vim have that other editors don't is the concept of a buffer. I think Emac's is a better abstraction since Emacs does everything on buffers, but as far as visual sections on the screen that contain files or widgets, they're pretty similar. What this meant was in Vim/Emacs, code files, the file tree, the terminal, etc. all played by the same rules of interaction. In VS Code, code files, the file tree, and the terminal, and other UI widgets all had their own "rules" so learning each set was a lot of work. I eventually made a config that was pretty decent using a plugin to limit tabs per window to one to make buffer behave more like Vim. I think I used it for half a year or so before getting too frustrated and going to Neovim.
+
+*** Neovim
+After getting frustrated with Visual Studio Code, which felt like it was getting slower and buggier as time went on, I moved onto Neovim, which I would configure to be slow and buggy. I wrote (stole) a giant multi-file config in VimScript. I got pretty deep this time, started learning about the ecosystem, async plugins, LSP, etc.. There were still some pain points. Project management was a big one that never really felt nice in Vim. So it was only a matter of time until I switched.
+
+*** GoLand
+I have to say, GoLand is actually pretty good. If I just wanted an off-the-shelf editor to boot up, spend an hour installing plugins and going through the config then edit code, GoLand would be the one I'd use. Its a bit snappier than the electron editors, has a lot of nice features, has a pretty good Vim plugin, and has decent support for working with a lot of repos. I even contributed five or so issues to fix some problems with its multiple content root support, a feature I gathered not many people used. The biggest issue is the same one that VS Code had: the missing buffer abstraction. Everything had its own hotkeys, which where modifiers and random keys so hard to remember. Even though I was fast moving around and between files, I did everything else clicking around the UI. I used GoLand for more than a year. Probably the longest I had used an editor since my almost two year Spacemacs stint.
+
+*** Neovim (ft. Lisp)
+I decided that I wanted a buffer based editor with a great terminal interface that I could configure in Lisp. So I choose Neovim. I dove deep into the Neovim 0.5 Lua features, even going as far to decide to use Fennel for my configuration, in order to make it insanely hard to write since there were like 20 of us. I spent so much time writing this Fennel code, which as of the writing this section I just deleted, to do silly things like setup the modeline. I remember spending a lot of time on that. A lot of time on which-key. A lot of time screwing with nix packages and packer. Hey, it was something to do.
+
+*** Emacs (Current)
+I had been deep in my Nix config for a bit when I started seeing Doom Emacs in the wild a bunch. I forget what really was the deciding factor in trying it, but I did. I installed a bunch of modules, and decided to get deep into Org, and fell in love. Org-mode finally gave my the unification between my development and productivity workflows. I'm still working on my editor, just now while writing this I disabled company mode, which made typing prose way less clunky, but I have become a committed member of the Church of Plaintext. I can't wait to do all my budgeting in BeanCount.
 
 ** Goals of the Configuration
 This configuration has two primary goals:
 
 1. Setup the editing experience such that I have the same level of agility to move around and between files as I did in NeoVim with plugins like =Telscope.nvim= and =Lightspeed.nvim=.
-2. Design a productivity workflow around =org-mode= that feels snappy and logical.
+2. Design a productivity workflow around =org-mode= that I can use to track tasks and knowledge.
 
 *** Improvements from NeoVim
 There are some aspects of my NeoVim flow that I did not fine tune that I am going to solve in this configuration.
@@ -93,6 +129,12 @@ Doom has three configuration files. They each need a header comment for things l
 
        :lang
        <<doom-lang>>
+
+       :email
+       <<doom-email>>
+
+       :app
+       <<doom-app>>
 
        :config
        <<doom-config>>)
@@ -591,13 +633,6 @@ Keep the UI simple and minimalist.
 (fringe-mode 0)
 #+end_src
 
-Make new frames slightly smaller.
-
-#+begin_src emacs-lisp
-(add-to-list 'default-frame-alist '(height . 24))
-(add-to-list 'default-frame-alist '(width . 80))
-#+end_src
-
 *** Window Title
 Set the window title to the buffer name and project folder.
 
@@ -620,22 +655,22 @@ Set the window title to the buffer name and project folder.
 Use Tecosaur's greedy daemon startup.
 
 #+begin_src emacs-lisp
-;; (defun greedily-do-daemon-setup ()
-;;   (require 'org)
-;;   (require 'vertico)
-;;   (require 'consult)
-;;   (require 'marginalia)
-;;   (when (require 'mu4e nil t)
-;;     (setq mu4e-confirm-quit t)
-;;     (setq +mu4e-lock-greedy t)
-;;     (setq +mu4e-lock-relaxed t)
-;;     (+mu4e-lock-add-watcher)
-;;     (when (+mu4e-lock-available t)
-;;       (mu4e~start))))
+(defun greedily-do-daemon-setup ()
+  (require 'org)
+  (require 'vertico)
+  (require 'consult)
+  (require 'marginalia)
+  (when (require 'mu4e nil t)
+    (setq mu4e-confirm-quit t)
+    (setq +mu4e-lock-greedy t)
+    (setq +mu4e-lock-relaxed t)
+    (+mu4e-lock-add-watcher)
+    (when (+mu4e-lock-available t)
+      (mu4e~start))))
 
-;; (when (daemonp)
-;;   (add-hook 'emacs-startup-hook #'greedily-do-daemon-setup)
-;;   (add-hook 'emacs-startup-hook #'init-mixed-pitch-h))
+(when (daemonp)
+  (add-hook 'emacs-startup-hook #'greedily-do-daemon-setup)
+  (add-hook 'emacs-startup-hook #'init-mixed-pitch-h))
 #+end_src
 
 ** TRAMP
@@ -649,6 +684,18 @@ Since I use Nix on most machines, tell Tramp how to find the shell executables.
 #+end_src
 
 * Modules
+** App
+Some apps to do things slower in Emacs.
+
+#+name: doom-apps
+#+begin_src emacs-lisp :tangle no
+calendar
+everywhere
+irc
+(rss +org)
+twitter
+#+end_src
+
 ** Checkers
 Modules that know what you meant.
 
@@ -952,8 +999,18 @@ Use transient for repeated operations.
       ("q" "quit" (lambda () (interactive) (smerge-auto-leave)))]]))
 #+end_src
 
+** Email
+Now I can answer emails even slower in Emacs.
+
+#+name: doom-email
+#+begin_src emacs-lisp :tangle no
+(mu4e +org +gmail)
+#+end_src
+
 ** Languages
 All the languages I need to edit, at least once in my life, or maybe someday (looking at you ~solidity~).
+
+*UPDATE:* I have written some =Solidity=.
 
 #+name: doom-lang
 #+begin_src emacs-lisp :tangle no
