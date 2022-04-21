@@ -3,20 +3,43 @@
 
   inputs = {
     # Channels
-    nixpkgs.url = "github:nixos/nixpkgs/release-21.11";
-    nixpkgs-latest.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixos.url = "github:nixos/nixpkgs/nixos-21.11";
+    latest.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     nixpkgs-darwin.url = "github:nixos/nixpkgs/nixpkgs-21.11-darwin";
+    nixpkgs.follows = "nixos";
+
+    # Configuration Layers
+    darwin = {
+      # url = "github:ryantking/nix-darwin";
+      url = "path:/Users/rking/Projects/nix/nix-darwin";
+      inputs.nixpkgs.follows = "nixos";
+    };
+    home = {
+      # url = "github:nix-community/home-manager";
+      url = "path:/Users/rking/Projects/nix/home-manager";
+      inputs.nixpkgs.follows = "nixos";
+    };
 
     # Flake Utilities
     digga = {
-      url = "github:ryantking/digga";
+      url = "github:divnix/digga/darwin-support";
       inputs = {
-        nixpkgs.follows = "nixpkgs-latest";
-        nixlib.follows = "nixpkgs-latest";
+        nixpkgs.follows = "nixos";
+        nixlib.follows = "nixos";
+        darwin.follows = "darwin";
         home-manager.follows = "home";
+        deploy.follows = "deploy";
+        devshell.follows = "devshell";
       };
     };
-    darwin.follows = "digga/darwin";
+    deploy = {
+      url = "github:serokell/deploy-rs";
+      inputs.nixpkgs.follows = "nixos";
+    };
+    devshell = {
+      url = "github:numtide/devshell";
+      inputs.nixpkgs.follows = "nixos";
+    };
     colors.url = "github:misterio77/nix-colors";
 
     # Source Management
@@ -26,17 +49,26 @@
     # Secrets Management
     agenix = {
       url = "github:ryantm/agenix";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs.follows = "nixos";
     };
-    agenix-cli.url = "github:cole-h/agenix-cli";
 
     # Development Tools
     emacs.url = "github:nix-community/emacs-overlay";
-    rnix-lsp.url = "github:nix-community/rnix-lsp";
+    naersk = {
+      url = "github:nix-community/naersk";
+      inputs.nixpkgs.follows = "nixos";
+    };
+    rnix-lsp = {
+      url = "github:nix-community/rnix-lsp";
+      inputs = {
+        nixpkgs.follows = "nixos";
+        naersk.follows = "naersk";
+      };
+    };
     treefmt.url = "github:numtide/treefmt";
   };
 
-  outputs = { self, nixpkgs, home, digga, colors, agenix, nur, nvfetcher, emacs, ... } @ inputs:
+  outputs = { self, nixos, digga, colors, agenix, nur, nvfetcher, emacs, ... } @ inputs:
     let
       inherit (digga.lib) mkFlake rakeLeaves importExportableModules importOverlays;
 
@@ -48,7 +80,7 @@
         modules = importExportableModules ./modules;
 
         suites = with profiles; {
-          base = [ core secrets users.rking ];
+          base = [ core users.rking ];
           gui = [ fonts ];
           devel = [ languages.go languages.nodejs ];
         };
@@ -67,9 +99,12 @@
           overlays = common.overlays ++ [ ./pkgs ];
         };
 
-        channelsConfig = { allowUnfree = true; };
+        channelsConfig = {
+          allowUnfree = true;
+          allowUnspportedSystem = true;
+        };
 
-        lib = import ./lib { lib = digga.lib // nixpkgs.lib; };
+        lib = import ./lib { lib = digga.lib // nixos.lib; };
 
         sharedOverlays = [
           (final: prev: {

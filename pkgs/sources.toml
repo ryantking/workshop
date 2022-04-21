@@ -4,3 +4,9 @@ fetch.github = "koekeishiya/yabai"
 [chemacs]
 src.git = "https://github.com/plexus/chemacs2.git"
 fetch.github = "plexus/chemacs2"
+[goimapnotify]
+src.git = "https://gitlab.com/shackra/goimapnotify.git"
+fetch.git = "https://gitlab.com/shackra/goimapnotify.git"
+[nord-dircolors]
+src.git = "https://github.com/arcticicestudio/nord-dircolors"
+fetch.git = "https://github.com/arcticicestudio/nord-dircolors"

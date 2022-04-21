@@ -7,18 +7,18 @@ with digga.lib;
   supportedSystems = [ "x86_64-linux" ];
 
   channels = {
-    nixpkgs = {
+    nixos = {
       imports = common.imports ++ [ (importOverlays ./overlays) ];
       overlays = common.overlays;
     };
 
-    nixpkgs-latest = { };
+    latest = { };
   };
 
   nixos = {
     hostDefaults = {
       system = "x86_64-linux";
-      channelName = "nixpkgs";
+      channelName = "nixos";
       imports = [ ((importExportableModules ./modules) // common.modules) ];
       modules = [
         { lib.our = self.lib; }

@@ -1,4 +1,4 @@
-{ config, lib, ... }:
+{ config, lib, pkgs, ... }:
 
 let
   inherit (lib) concatStringsSep mapAttrsToList;
@@ -6,17 +6,23 @@ in
 {
   imports = [ ./fzf.nix ./starship.nix ];
 
-  programs.zsh.envExtra =
-    let
-      vars = concatStringsSep "\n" (mapAttrsToList (n: v: ''export ${n}="${v}"'') config.shell.env);
-    in
-    ''
-      has() {
-        type "$1" >/dev/null 2>&1
-      }
+  programs = {
+    zsh.envExtra =
+      let
+        vars = concatStringsSep "\n" (mapAttrsToList (n: v: ''export ${n}="${v}"'') config.shell.env);
+      in
+      ''
+        has() {
+          type "$1" >/dev/null 2>&1
+        }
 
-      ${vars}
-    '';
+        ${vars}
+      '';
+
+    dircolors.enable = true;
+  };
+
+  home.file.".dir_colors".source = "${pkgs.sources.nord-dircolors.src}/src/dir_colors";
 
   shell = {
     env = with config.xdg; {

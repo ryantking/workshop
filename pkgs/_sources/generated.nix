@@ -12,6 +12,30 @@
       sha256 = "sha256-qR5+TeAe3Kvnn5YSj4utvfhC8gzCXswP2ZP6vI0FOgM=";
     });
   };
+  goimapnotify = {
+    pname = "goimapnotify";
+    version = "fdb48850f961909301b8e74fc9a9d27542e586bc";
+    src = fetchgit {
+      url = "https://gitlab.com/shackra/goimapnotify.git";
+      rev = "fdb48850f961909301b8e74fc9a9d27542e586bc";
+      fetchSubmodules = false;
+      deepClone = false;
+      leaveDotGit = false;
+      sha256 = "sha256-6mYWeXcuuSdcvHcAh0Zd9nrYAQaPKZhxk7eYiYTZtRQ=";
+    };
+  };
+  nord-dircolors = {
+    pname = "nord-dircolors";
+    version = "35166d328992213194d7d02cd034e39da962f19e";
+    src = fetchgit {
+      url = "https://github.com/arcticicestudio/nord-dircolors";
+      rev = "35166d328992213194d7d02cd034e39da962f19e";
+      fetchSubmodules = false;
+      deepClone = false;
+      leaveDotGit = false;
+      sha256 = "sha256-6A3h1R1+kZbCwouUshvRpUL3fVkkDuHCD+bz8Jbq4M0=";
+    };
+  };
   yabai = {
     pname = "yabai";
     version = "v4.0.0";

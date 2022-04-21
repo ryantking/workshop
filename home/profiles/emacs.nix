@@ -29,17 +29,24 @@ in
     };
   };
 
-  xdg.configFile = {
-    "emacs" = {
-      source = pkgs.sources.chemacs.src;
-      recursive = true;
+  xdg = {
+    configFile = {
+      "emacs" = {
+        source = pkgs.sources.chemacs.src;
+        recursive = true;
+      };
+
+      "chemacs/profiles.el".text = ''
+        (("default" . ((user-emacs-directory . "${workshop.configDir}/emacs"))))
+      '';
+
+      "chemacs/profile".text = "default";
     };
 
-    "chemacs/profiles.el".text = ''
-      (("default" . ((user-emacs-directory . "${workshop.configDir}/emacs"))))
-    '';
-
-    "chemacs/profile".text = "default";
+    dataFile."emacs/site-lisp/mu4e" = {
+      source = "${pkgs.mu}/share/emacs/site-lisp/mu4e";
+      recursive = true;
+    };
   };
 
   programs.emacs = {

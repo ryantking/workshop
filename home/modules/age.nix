@@ -1,9 +1,8 @@
-{
-  config,
-  options,
-  lib,
-  pkgs,
-  ...
+{ config
+, options
+, lib
+, pkgs
+, ...
 }:
 with lib; let
   cfg = config.age;
@@ -11,7 +10,7 @@ with lib; let
   # we need at least rage 0.5.0 to support ssh keys
   rage =
     if lib.versionOlder pkgs.rage.version "0.5.0"
-    then pkgs.callPackage ../pkgs/rage.nix {}
+    then pkgs.callPackage ../pkgs/rage.nix { }
     else pkgs.rage;
   ageBin = "${rage}/bin/rage";
 
@@ -31,9 +30,9 @@ with lib; let
     $DRY_RUN_CMD mv $VERBOSE_ARG -f "$TMP_FILE" "${secretType.path}"
   '';
 
-  installSecrets = builtins.concatStringsSep "\n" (["echo '[agenix] decrypting user secrets...'"] ++ (map installSecret (attrValues cfg.secrets)));
+  installSecrets = builtins.concatStringsSep "\n" ([ "echo '[agenix] decrypting user secrets...'" ] ++ (map installSecret (attrValues cfg.secrets)));
 
-  secretType = types.submodule ({config, ...}: {
+  secretType = types.submodule ({ config, ... }: {
     options = {
       name = mkOption {
         type = types.str;
@@ -78,11 +77,12 @@ with lib; let
       };
     };
   });
-in {
+in
+{
   options.age = {
     secrets = mkOption {
       type = types.attrsOf secretType;
-      default = {};
+      default = { };
       description = ''
         Attrset of secrets.
       '';
@@ -100,16 +100,16 @@ in {
       '';
     };
   };
-  config = mkIf (cfg.secrets != {}) (mkMerge [
+  config = mkIf (cfg.secrets != { }) (mkMerge [
     {
       assertions = [
         {
-          assertion = cfg.identityPaths != [];
+          assertion = cfg.identityPaths != [ ];
           message = "age.identityPaths must be set.";
         }
       ];
 
-      home.activation.agenix = hm.dag.entryAfter ["writeBoundary"] installSecrets;
+      home.activation.agenix = hm.dag.entryAfter [ "writeBoundary" ] installSecrets;
     }
   ]);
 }

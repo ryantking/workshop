@@ -7,7 +7,6 @@
     enableScriptingAddition = true;
 
     config = {
-      external_bar = "all:32:0";
       layout = "bsp";
 
       mouse_follows_focus = "on";

@@ -66,7 +66,6 @@ in
 
           echo "sketchybar configuration loaded.."'';
       };
-
     };
 
     homebrew = {
@@ -77,7 +76,7 @@ in
 
     system.defaults.NSGlobalDomain._HIHideMenuBar = true;
 
-    services.yabai.config.external_bar = "main:32:0";
+    services.yabai.config.external_bar = "all:32:0";
 
     launchd.user.agents.sketchybar.serviceConfig = {
       ProgramArguments = [ "/usr/local/bin/sketchybar" ];

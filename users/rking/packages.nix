@@ -2,7 +2,6 @@
 
 with pkgs; [
   alejandra
-  agenix
   bottom
   bandwhich
   exa
@@ -23,7 +22,6 @@ with pkgs; [
   pandoc
   podman
   procs
-  rage
   (ripgrep.override { withPCRE2 = true; })
   ripgrep-all
   sd
