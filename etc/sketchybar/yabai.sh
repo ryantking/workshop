@@ -16,22 +16,22 @@ update() {
   else
     args+=(--set $NAME label.drawing=off)
     case "$(echo "$WINDOW" | jq '.["is-floating"]')" in
-      "false")
-        if [ "$(echo "$WINDOW" | jq '.["has-fullscreen-zoom"]')" = "true" ]; then
-          args+=(--set $NAME icon="􀏜")
-          yabai -m config active_window_border_color $COLOR_YELLOW
-        elif [ "$(echo "$WINDOW" | jq '.["has-parent-zoom"]')" = "true" ]; then
-          args+=(--set $NAME icon="􀥃")
-          yabai -m config active_window_border_color $COLOR_RED
-        else
-          args+=(--set $NAME icon="􀏝")
-          yabai -m config active_window_border_color $COLOR_CYAN
-        fi
-        ;;
-      "true")
-        args+=(--set $NAME icon="􀢌")
-        yabai -m config active_window_border_color $COLOR_PURPLE
-        ;;
+    "false")
+      if [ "$(echo "$WINDOW" | jq '.["has-fullscreen-zoom"]')" = "true" ]; then
+        args+=(--set $NAME icon="􀏜")
+        yabai -m config active_window_border_color $COLOR_YELLOW
+      elif [ "$(echo "$WINDOW" | jq '.["has-parent-zoom"]')" = "true" ]; then
+        args+=(--set $NAME icon="􀥃")
+        yabai -m config active_window_border_color $COLOR_RED
+      else
+        args+=(--set $NAME icon="􀏝")
+        yabai -m config active_window_border_color $COLOR_CYAN
+      fi
+      ;;
+    "true")
+      args+=(--set $NAME icon="􀢌")
+      yabai -m config active_window_border_color $COLOR_PURPLE
+      ;;
     esac
   fi
 
@@ -52,19 +52,19 @@ mouse_exited() {
 }
 
 case "$SENDER" in
-  "mouse.entered")
-    mouse_entered
-    ;;
-  "mouse.exited")
-    mouse_exited
-    ;;
-  "mouse.clicked")
-    mouse_clicked
-    ;;
-  "forced")
-    exit 0
-    ;;
-  *)
-    update
-    ;;
+"mouse.entered")
+  mouse_entered
+  ;;
+"mouse.exited")
+  mouse_exited
+  ;;
+"mouse.clicked")
+  mouse_clicked
+  ;;
+"forced")
+  exit 0
+  ;;
+*)
+  update
+  ;;
 esac

@@ -13,13 +13,13 @@ update() {
 }
 
 case "$SENDER" in
-  "mouse.entered")
-    sketchybar --set $NAME background.drawing=on #Inactive
-    ;;
-  "mouse.exited")
-    sketchybar --set $NAME background.drawing=off #Inactive
-    ;;
-  *)
-    update
-    ;;
+"mouse.entered")
+  sketchybar --set $NAME background.drawing=on #Inactive
+  ;;
+"mouse.exited")
+  sketchybar --set $NAME background.drawing=off #Inactive
+  ;;
+*)
+  update
+  ;;
 esac

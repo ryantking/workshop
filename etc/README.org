@@ -1,0 +1,16 @@
+#+begin_src
+.....__.._.......
+...././.|.|......
+..././__|.|_.___.
+.././._.\.__/.__|
+././..__/.||.(__.
+/_/.\___|\__\___|
+#+end_src
+
+All hand-written configuration files.
+
+* Directories
+- ~/doom~ :: Doom-emacs configuration.
+- ~/nix~ :: Nix flake configuration.
+- ~/sketchybar~ :: =Sketchybar= scripts. Not in ~/bin~ since only =Sketchybar= should be able to use these.
+- ~/zsh~ :: Zshell configuration files.

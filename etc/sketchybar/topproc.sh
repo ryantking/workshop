@@ -4,4 +4,3 @@ TOPPROC=$(ps axo "%cpu,ucomm" | sort -nr | tail +1 | head -n1 | awk '{printf "%.
 CPUP=$(echo $TOPPROC | sed -nr 's/([^\%]+).*/\1/p')
 
 sketchybar --set $NAME label="$TOPPROC"
-

@@ -1,2 +1,0 @@
-# workshop
-Where work happens.

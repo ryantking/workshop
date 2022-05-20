@@ -249,7 +249,8 @@ If REC is non-nil then do recursive search."
 
 (defun vulpea--title-to-tag (title)
   "Convert TITLE to tag."
-  (concat "@" (s-replace " " "" title)))
+  (concat "@"
+    (s-replace-all '((" " . "") ("'" . "")) title)))
 
 ;;;###autoload
 (defun vulpea-activate-link (start end path _brackets)

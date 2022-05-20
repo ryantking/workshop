@@ -2,47 +2,41 @@
 
 PATH="/run/current-system/sw/bin:/etc/profiles/per-user/rking/bin:$PATH"
 
-next ()
-{
+next() {
   osascript -e 'tell application "Spotify" to play next track'
 }
 
-back () 
-{
+back() {
   osascript -e 'tell application "Spotify" to play previous track'
 }
 
-play_pause () 
-{
+play_pause() {
   osascript -e 'tell application "Spotify" to playpause'
 }
 
-repeat () 
-{
+repeat() {
   REPEAT=$(osascript -e 'tell application "Spotify" to get repeating')
   if [ "$REPEAT" = "false" ]; then
     sketchybar -m --set spotify.repeat icon.highlight=on
     osascript -e 'tell application "Spotify" to set repeating to true'
-  else 
+  else
     sketchybar -m --set spotify.repeat icon.highlight=off
     osascript -e 'tell application "Spotify" to set repeating to false'
   fi
 }
 
-shuffle () 
-{
+shuffle() {
   SHUFFLE=$(osascript -e 'tell application "Spotify" to get shuffling')
   if [ "$SHUFFLE" = "false" ]; then
     sketchybar -m --set spotify.shuffle icon.highlight=on
     osascript -e 'tell application "Spotify" to set shuffling to true'
-  else 
+  else
     sketchybar -m --set spotify.shuffle icon.highlight=off
     osascript -e 'tell application "Spotify" to set shuffling to false'
   fi
 }
 
-update ()
-{
+update() {
   PLAYING=1
   if [ "$(echo "$INFO" | jq -r '.["Player State"]')" = "Playing" ]; then
     PLAYING=0
@@ -60,39 +54,47 @@ update ()
     else
       args+=(--set spotify.name label="$TRACK  􀉮  $ARTIST" drawing=on)
     fi
-    args+=(--set spotify.play_pause icon=􀊆 \
-           --set spotify.shuffle icon.highlight=$SHUFFLE \
-           --set spotify.repeat icon.highlight=$REPEAT)
+    args+=(--set spotify.play_pause icon=􀊆
+      --set spotify.shuffle icon.highlight=$SHUFFLE
+      --set spotify.repeat icon.highlight=$REPEAT)
   else
-    args+=(--set spotify.name drawing=off \
-           --set spotify.name popup.drawing=off \
-           --set spotify.play_pause icon=􀊄)
+    args+=(--set spotify.name drawing=off
+      --set spotify.name popup.drawing=off
+      --set spotify.play_pause icon=􀊄)
   fi
   sketchybar -m "${args[@]}"
 }
 
-mouse_clicked () {
+mouse_clicked() {
   case "$NAME" in
-    "spotify.next") next
+  "spotify.next")
+    next
     ;;
-    "spotify.back") back
+  "spotify.back")
+    back
     ;;
-    "spotify.play_pause") play_pause
+  "spotify.play_pause")
+    play_pause
     ;;
-    "spotify.shuffle") shuffle
+  "spotify.shuffle")
+    shuffle
     ;;
-    "spotify.repeat") repeat
+  "spotify.repeat")
+    repeat
     ;;
-    *)
-    ;;
+  *) ;;
+
   esac
 }
 
 case "$SENDER" in
-  "mouse.clicked") mouse_clicked
+"mouse.clicked")
+  mouse_clicked
   ;;
-  "forced") exit
+"forced")
+  exit
   ;;
-  *) update
+*)
+  update
   ;;
 esac

@@ -12,4 +12,3 @@ if [ "$RUNNING" = "0" ]; then
 else
   sketchybar --set $NAME label="!" icon="􀍜"
 fi
-

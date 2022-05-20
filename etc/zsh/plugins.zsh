@@ -3,7 +3,7 @@
 # --------------------------------------
 
 # Load Zinit
-source "${ZDOTDIR}/zinit.zsh"
+source "${ZINIT_HOME}/zinit.zsh"
 
 # Load colors
 source "${XDG_CONFIG_DIR:-$HOME/.config}/colorrc"
@@ -18,6 +18,7 @@ zinit lucid depth'1' wait'0a' light-mode for \
         export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#$COLOR_BG_ALT"
     ' zsh-users/zsh-autosuggestions \
     as"completion" zsh-users/zsh-completions \
+    as"completion" spwhitt/nix-zsh-completions \
     pick'autopair.zsh' nocompletions atload'autopair-init' hlissner/zsh-autopair \
     tarrasch/zsh-bd \
     chisui/zsh-nix-shell \
@@ -58,7 +59,7 @@ zinit lucid wait light-mode for \
     OMZP::aliases \
     OMZP::alias-finder \
     OMZP::colored-man-pages \
-    OMZP::copydir \
+    OMZP::copypath \
     OMZP::copyfile \
     OMZP::cp \
     OMZP::direnv \
@@ -78,5 +79,4 @@ zinit lucid wait light-mode for \
     OMZP::rust \
     OMZP::safe-paste \
     OMZP::sudo \
-    OMZP::tmux \
     OMZP::zoxide

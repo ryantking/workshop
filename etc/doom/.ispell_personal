@@ -1,4 +1,4 @@
-personal_ws-1.1 en 45 
+personal_ws-1.1 en 49 
 ansible
 apis
 approvers
@@ -11,10 +11,13 @@ configs
 customizations
 doom
 dotfiles
+eslint
+ethereum
 etrace
 executables
 fgiloux
 flycheck
+frontend
 gallettilance
 goland
 graphviz
@@ -34,6 +37,7 @@ proto
 pruneable
 repo
 repos
+runtimes
 ryantking
 subcommands
 tecosaur's

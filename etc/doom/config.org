@@ -102,6 +102,7 @@ Doom has three configuration files. They each need a header comment for things l
 
 #+begin_src emacs-lisp :tangle "init.el" :noweb no-export :comments no
 ;;; init.el -*- lexical-binding: t; -*-
+(setq byte-compile-warnings '(cl-functions))
 
 (doom! :completion
        <<doom-completion>>
@@ -162,131 +163,101 @@ Doom has three configuration files. They each need a header comment for things l
 
 ** GUI
 *** Fonts
-Use the current and forever changing fonts.
+Load the fonts configured in the environment at sync time.
 
-#+begin_src emacs-lisp
-(setq doom-font (font-spec :family "Victor Mono" ':size 12)
-      doom-big-font (font-spec :family "Victor Mono" :size 24)
-      doom-variable-pitch-font (font-spec :family "Overpass" :size 12)
-      doom-unicode-font (font-spec :family "JuliaMono")
-      doom-serif-font (font-spec :family "IBM Plex Mono" :weight 'light))
-#+end_src
-
-Script that will detect missing fonts on the system. Since the config calls the script inline, it is part of the ~doom sync~ process.
-
-#+name: detect-missing-fonts
+#+name: load-fonts
 #+begin_src emacs-lisp :tangle no
-(defvar required-fonts '("Victor Mono.*" "Overpass" "JuliaMono" "IBM Plex Mono" "Alegreya"))
-
-(defvar available-fonts
-  (delete-dups (or (font-family-list)
-                   (split-string (shell-command-to-string "fc-list : family") "[,\n]"))))
-
-(defvar missing-fonts
-  (delq nil (mapcar
-             (lambda (font) (unless (delq nil (mapcar (lambda (f) (string-match-p (format "^%s$" font) f)) available-fonts)) font))
-             required-fonts)))
-
-(if missing-fonts
-    (pp-to-string
-     `(unless noninteractive
-        (add-hook! 'doom-init-ui-hook
-          (run-at-time
-           nil nil
-           (lambda ()
-             (message "%s missing the following fonts: %s"
-                      (propertize "Warning!" 'face '(bold warning))
-                      (mapconcat (lambda (font) (propertize font 'face 'font-lock-variable-name-face)) ',missing-fonts ", "))
-             (sleep-for 0.5))))))
-  ";; No missing fonts detected")
+`(setq doom-font (font-spec :family ,(getenv "FONT_MONOSPACE") ':size 14)
+       doom-big-font (font-spec :famil ,(getenv "FONT_MONOSPACE") :size 24)
+       doom-unicode-font (font-spec :family ,(getenv "FONT_UNICODE"))
+       doom-variable-pitch-font (font-spec :family ,(getenv "FONT_SANS"))
+       doom-serif-font (font-spec :family ,(getenv "FONT_SERIF")))
 #+end_src
 
 #+begin_src emacs-lisp :noweb no-export
-<<detect-missing-fonts()>>
+<<load-fonts()>>
 #+end_src
 
 *** Theme
-In order to keep Emacs in sync with the rest of the Nix system, load the theme from the environment.
+Load the theme from the environment at sync time.
+
+#+name: load-theme
+#+begin_src emacs-lisp :tangle no
+`(setq doom-theme (intern ,(getenv "EMACS_THEME")))
+#+end_src
+
+
+#+begin_src emacs-lisp :noweb no-export
+<<load-theme()>>
+#+end_src
+
+Also set theme-specific settings and move the hooks. Theme-specific settings are fine even if the theme they're for is not in use. The settings will just have no impact.
 
 #+begin_src emacs-lisp
-(setq doom-theme (intern (getenv "EMACS_THEME"))
-      doom-nord-padded-modeline t)
-
+(setq doom-nord-padded-modeline nil)
 (remove-hook 'window-setup-hook #'doom-init-theme-h)
 (add-hook 'after-init-hook #'doom-init-theme-h 'append)
 (delq! t custom-theme-load-path)
 #+end_src
 
-**** TODO Find better way to load theme from Nix config.
-One idea is a small generated =settings.el= file that the Nix config generates and this config will load in if it is present with sensible defaults.
-
 *** Modeline
-Minor modeline improvements.
+#+begin_src emacs-lisp :noweb no-export
+(require 'lib-modeline)
 
-#+begin_src emacs-lisp
 (after! doom-modeline
-  (setq doom-modeline-major-mode-icon t
-        doom-modeline-buffer-file-name-style 'truncate-with-project
-        doom-modeline-modal-icon t
-        inhibit-compacting-font-caches t))
+  <<modeline-core>>
+
+  <<modeline-encoding>>
+
+  <<modeline-pdf>>)
+#+end_src
+
+Some basic UI customizations to make it a little less crowded.
+
+#+name: modeline-core
+#+begin_src emacs-lisp :tangle no
+(setq doom-modeline-major-mode-icon t
+      doom-modeline-buffer-file-name-style 'truncate-with-project
+      doom-modeline-modal-icon t
+      inhibit-compacting-font-caches t)
+
+(doom-modeline-def-segment buffer-name
+  "Display the current buffer's name, without any other information."
+  (concat
+   (doom-modeline-spc)
+   (doom-modeline--buffer-name)))
 #+end_src
 
 Everything is basically =UTF-8= these days. There is no reason to display the current file encoding in the modeline unless its something that is not that.
 
-#+begin_src emacs-lisp
-(defun doom-modeline-conditional-buffer-encoding ()
-  "We expect the encoding to be LF UTF-8, so only show the modeline when this is not the case"
-  (setq-local doom-modeline-buffer-encoding
-              (unless (and (memq (plist-get (coding-system-plist buffer-file-coding-system) :category)
-                                 '(coding-category-undecided coding-category-utf-8))
-                           (not (memq (coding-system-eol-type buffer-file-coding-system) '(1 2))))
-                t)))
+#+name: modeline-encoding
+#+begin_src emacs-lisp :tangle no
 (add-hook 'after-change-major-mode-hook #'doom-modeline-conditional-buffer-encoding)
 #+end_src
 
 Make the PDF modeline better by using the name and icon.
 
-#+begin_src emacs-lisp
-(after! doom-modeline
-  (doom-modeline-def-segment buffer-name
-    "Display the current buffer's name, without any other information."
-    (concat
-     (doom-modeline-spc)
-     (doom-modeline--buffer-name)))
+#+name: modeline-pdf
+#+begin_src emacs-lisp :tangle no
+(doom-modeline-def-segment pdf-icon
+  "PDF icon from all-the-icons."
+  (concat (doom-modeline-spc) (doom-modeline--pdf-icon)))
 
-  (doom-modeline-def-segment pdf-icon
-    "PDF icon from all-the-icons."
-    (concat
-     (doom-modeline-spc)
-     (doom-modeline-icon 'octicon "file-pdf" nil nil
-                         :face (if (doom-modeline--active)
-                                   'all-the-icons-red
-                                 'mode-line-inactive)
-                         :v-adjust 0.02)))
+(doom-modeline-def-segment pdf-pages
+  "Display PDF pages."
+  (if (doom-modeline--active) doom-modeline--pdf-pages
+    (propertize doom-modeline--pdf-pages 'face 'mode-line-inactive)))
 
-  (defun doom-modeline-update-pdf-pages ()
-    "Update PDF pages."
-    (setq doom-modeline--pdf-pages
-          (let ((current-page-str (number-to-string (eval `(pdf-view-current-page))))
-                (total-page-str (number-to-string (pdf-cache-number-of-pages))))
-            (concat
-             (propertize
-              (concat (make-string (- (length total-page-str) (length current-page-str)) ? )
-                      " P" current-page-str)
-              'face 'mode-line)
-             (propertize (concat "/" total-page-str) 'face 'doom-modeline-buffer-minor-mode)))))
-
-  (doom-modeline-def-segment pdf-pages
-    "Display PDF pages."
-    (if (doom-modeline--active) doom-modeline--pdf-pages
-      (propertize doom-modeline--pdf-pages 'face 'mode-line-inactive)))
-
-  (doom-modeline-def-modeline 'pdf
-    '(bar window-number pdf-pages pdf-icon buffer-name)
-    '(misc-info matches major-mode process vcs)))
+(doom-modeline-def-modeline 'pdf
+  '(bar window-number pdf-pages pdf-icon buffer-name)
+  '(misc-info matches major-mode process vcs))
 #+end_src
 
 *** Dashboard
+#+begin_src emacs-lisp
+(require 'lib-dashboard)
+#+end_src
+
 The default dashboard keybindings are a bit too long, and the config option should use the literate config.
 
 #+begin_src emacs-lisp
@@ -301,7 +272,7 @@ The default dashboard keybindings are a bit too long, and the config option shou
       :ne "q" #'save-buffers-kill-terminal)
 #+end_src
 
-Some of the default dashboard hooks are less than optimal.
+Remove some unneeded bits from the dashboard, specifically the menu, modeline, and evil cursor indicator.
 
 #+begin_src emacs-lisp
 (remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
@@ -309,180 +280,11 @@ Some of the default dashboard hooks are less than optimal.
 (setq-hook! '+doom-dashboard-mode-hook evil-normal-state-cursor (list nil))
 #+end_src
 
-**** Application
-Let's replace the default GUI Doom splash screen with Tecosaur's nice and simple one.
+Let's replace the default GUI Doom splash screen with Tecosaur's nice and simple one with a phrase straight from a video game loading screen.
 
 #+begin_src emacs-lisp
-(defvar fancy-splash-image-template
-  (expand-file-name "emacs-e.svg" doom-private-dir)
-  "Default template svg used for the splash image, with substitutions from ")
-
-(defvar fancy-splash-sizes
-  `((:height 300 :min-height 50 :padding (0 . 2))
-    (:height 250 :min-height 42 :padding (2 . 4))
-    (:height 200 :min-height 35 :padding (3 . 3))
-    (:height 150 :min-height 28 :padding (3 . 3))
-    (:height 100 :min-height 20 :padding (2 . 2))
-    (:height 75  :min-height 15 :padding (2 . 1))
-    (:height 50  :min-height 10 :padding (1 . 0))
-    (:height 1   :min-height 0  :padding (0 . 0)))
-  "list of plists with the following properties
-  :height the height of the image
-  :min-height minimum `frame-height' for image
-  :padding `+doom-dashboard-banner-padding' (top . bottom) to apply
-  :template non-default template file
-  :file file to use instead of template")
-
-(defvar fancy-splash-template-colours
-  '(("$colour1" . keywords) ("$colour2" . type) ("$colour3" . base5) ("$colour4" . base8))
-  "list of colour-replacement alists of the form (\"$placeholder\" . 'theme-colour) which applied the template")
-
-(unless (file-exists-p (expand-file-name "theme-splashes" doom-cache-dir))
-  (make-directory (expand-file-name "theme-splashes" doom-cache-dir) t))
-
-(defun fancy-splash-filename (theme-name height)
-  (expand-file-name
-   (concat (file-name-as-directory "theme-splashes")
-           theme-name "-" (number-to-string height) ".svg") doom-cache-dir))
-
-(defun fancy-splash-clear-cache ()
-  "Delete all cached fancy splash images"
-  (interactive)
-  (delete-directory (expand-file-name "theme-splashes" doom-cache-dir) t)
-  (message "Cache cleared!"))
-
-(defun fancy-splash-generate-image (template height)
-  "Read TEMPLATE and create an image if HEIGHT with colour substitutions as
-   described by `fancy-splash-template-colours' for the current theme"
-  (with-temp-buffer
-    (insert-file-contents template)
-    (re-search-forward "$height" nil t)
-    (replace-match (number-to-string height) nil nil)
-    (dolist (substitution fancy-splash-template-colours)
-      (goto-char (point-min))
-      (while (re-search-forward (car substitution) nil t)
-        (replace-match (doom-color (cdr substitution)) nil nil)))
-    (write-region nil nil (fancy-splash-filename (symbol-name doom-theme) height) nil nil)))
-
-(defun fancy-splash-generate-images ()
-  "Perform `fancy-splash-generate-image' in bulk"
-  (dolist (size fancy-splash-sizes)
-    (unless (plist-get size :file)
-      (fancy-splash-generate-image
-       (or (plist-get size :template)
-           fancy-splash-image-template)
-       (plist-get size :height)))))
-
-(defun ensure-theme-splash-images-exist (&optional height)
-  (unless (file-exists-p
-           (fancy-splash-filename (symbol-name doom-theme)
-                                  (or height (plist-get (car fancy-splash-sizes) :height))))
-    (fancy-splash-generate-images)))
-
-(defun get-appropriate-splash ()
-  (let ((height (frame-height)))
-    (cl-some (lambda (size) (when (>= height (plist-get size :min-height)) size))
-             fancy-splash-sizes)))
-
-(setq fancy-splash-last-size nil)
-(setq fancy-splash-last-theme nil)
-
-(defun set-appropriate-splash (&rest _)
-  (let ((appropriate-image (get-appropriate-splash)))
-    (unless (and (equal appropriate-image fancy-splash-last-size)
-                 (equal doom-theme fancy-splash-last-theme)))
-    (unless (plist-get appropriate-image :file)
-      (ensure-theme-splash-images-exist (plist-get appropriate-image :height)))
-    (setq fancy-splash-image
-          (or (plist-get appropriate-image :file)
-              (fancy-splash-filename (symbol-name doom-theme) (plist-get appropriate-image :height))))
-    (setq +doom-dashboard-banner-padding (plist-get appropriate-image :padding))
-    (setq fancy-splash-last-size appropriate-image)
-    (setq fancy-splash-last-theme doom-theme)
-    (+doom-dashboard-reload)))
-
 (add-hook 'window-size-change-functions #'set-appropriate-splash)
 (add-hook 'doom-load-theme-hook #'set-appropriate-splash)
-#+end_src
-
-For fun, also add a quirky phrase to the splash screen. The kind of thing game developers love to put onto their loading screens.
-
-#+begin_src emacs-lisp
-(defvar splash-phrase-source-folder
-  (expand-file-name "splash-phrases" doom-private-dir)
-  "A folder of text files with a fun phrase on each line.")
-
-(defvar splash-phrase-sources
-  (let* ((files (directory-files splash-phrase-source-folder nil "\\.txt\\'"))
-         (sets (delete-dups (mapcar
-                             (lambda (file)
-                               (replace-regexp-in-string "\\(?:-[0-9]+-\\w+\\)?\\.txt" "" file))
-                             files))))
-    (mapcar (lambda (sset)
-              (cons sset
-                    (delq nil (mapcar
-                               (lambda (file)
-                                 (when (string-match-p (regexp-quote sset) file)
-                                   file))
-                               files))))
-            sets))
-  "A list of cons giving the phrase set name, and a list of files which contain phrase components.")
-
-(defvar splash-phrase-set
-  (nth (random (length splash-phrase-sources)) (mapcar #'car splash-phrase-sources))
-  "The default phrase set. See `splash-phrase-sources'.")
-
-(defun splase-phrase-set-random-set ()
-  "Set a new random splash phrase set."
-  (interactive)
-  (setq splash-phrase-set
-        (nth (random (1- (length splash-phrase-sources)))
-             (cl-set-difference (mapcar #'car splash-phrase-sources) (list splash-phrase-set))))
-  (+doom-dashboard-reload t))
-
-(defvar splase-phrase--cache nil)
-
-(defun splash-phrase-get-from-file (file)
-  "Fetch a random line from FILE."
-  (let ((lines (or (cdr (assoc file splase-phrase--cache))
-                   (cdar (push (cons file
-                                     (with-temp-buffer
-                                       (insert-file-contents (expand-file-name file splash-phrase-source-folder))
-                                       (split-string (string-trim (buffer-string)) "\n")))
-                               splase-phrase--cache)))))
-    (nth (random (length lines)) lines)))
-
-(defun splash-phrase (&optional set)
-  "Construct a splash phrase from SET. See `splash-phrase-sources'."
-  (mapconcat
-   #'splash-phrase-get-from-file
-   (cdr (assoc (or set splash-phrase-set) splash-phrase-sources))
-   " "))
-
-(defun doom-dashboard-phrase ()
-  "Get a splash phrase, flow it over multiple lines as needed, and make fontify it."
-  (mapconcat
-   (lambda (line)
-     (+doom-dashboard--center
-      +doom-dashboard--width
-      (with-temp-buffer
-        (insert-text-button
-         line
-         'action
-         (lambda (_) (+doom-dashboard-reload t))
-         'face 'doom-dashboard-menu-title
-         'mouse-face 'doom-dashboard-menu-title
-         'help-echo "Random phrase"
-         'follow-link t)
-        (buffer-string))))
-   (split-string
-    (with-temp-buffer
-      (insert (splash-phrase))
-      (setq fill-column (min 70 (/ (* 2 (window-width)) 3)))
-      (fill-region (point-min) (point-max))
-      (buffer-string))
-    "\n")
-   "\n"))
 
 (defadvice! doom-dashboard-widget-loaded-with-phrase ()
   :override #'doom-dashboard-widget-loaded
@@ -499,27 +301,9 @@ For fun, also add a quirky phrase to the splash screen. The kind of thing game d
    "\n"))
 #+end_src
 
-**** Console
-The console Emacs also should have a better splash screen.
+Also add a nicer splash screen for the console.
 
 #+begin_src emacs-lisp
-(defun doom-dashboard-draw-ascii-emacs-banner-fn ()
-  (let* ((banner
-          '(",---.,-.-.,---.,---.,---."
-            "|---'| | |,---||    `---."
-            "`---'` ' '`---^`---'`---'"))
-         (longest-line (apply #'max (mapcar #'length banner))))
-    (put-text-property
-     (point)
-     (dolist (line banner (point))
-       (insert (+doom-dashboard--center
-                +doom-dashboard--width
-                (concat
-                 line (make-string (max 0 (- longest-line (length line)))
-                                   32)))
-               "\n"))
-     'face 'doom-dashboard-banner)))
-
 (unless (display-graphic-p) ; for some reason this messes up the graphical splash screen atm
   (setq +doom-dashboard-ascii-banner-fn #'doom-dashboard-draw-ascii-emacs-banner-fn))
 #+end_src
@@ -560,11 +344,16 @@ Use one abbreviation file for everything across all
 
 * Settings
 ** General
-Read the user information from the environment. The config expects that Nix will set the environment variables. Eventually, we should enforce that they're set during tangling.
+Read the user information from the environment during the sync.
 
-#+begin_src emacs-lisp
-(setq user-full-name (getenv "GITHUB_USER")
-      user-mail-address (getenv "GITHUB_EMAIL"))
+#+name: load-info
+#+begin_src emacs-lisp :tangle no
+`(setq user-full-name ,(getenv "GITHUB_USER")
+       user-mail-address ,(getenv "GITHUB_EMAIL"))
+#+end_src
+
+#+begin_src emacs-lisp :noweb no-export
+<<load-info()>>
 #+end_src
 
 Since Doom owns =EMACSDIR=, move the authentication cache file to the home directory. Now, we can freely remove, update, and reset the =EMACSDIR= without losing cached authentication information.
@@ -617,24 +406,39 @@ Overwrite the default snippet directories for some file types.
 #+end_src
 
 *** Native Compilation
-I don't currently use Emacs 28 because the [[https://github.com/railwaycat/homebrew-emacsmacport][Famous Emacs Mac Port]] support for it currently doesn't work with Mac Metal, and I find the second has a larger impact on performance. I hope to have both eventually.
+Now that the [[https://github.com/railwaycat/homebrew-emacsmacport][Famous Emacs Mac Port]] has support for native compilation, we got the speed pickup from both mac metal and native compilation.
 
 #+begin_src emacs-lisp
 (when 'native-comp-compiler-options
   (setq native-comp-compiler-options '("-O3")))
 #+end_src
 
-** GUI
-Keep the UI simple and minimalist.
+
+*** Fix "Package 'cl' is deprecated"
+This is a hack that Hlissner officially "recommended" on the Doom discourse [[https://discourse.doomemacs.org/t/warning-at-startup-package-cl-is-deprecated/60][here]]. Package authors should replace ~(require 'cl)~ with ~(require 'cl-lib)~, but that is out of my our control.
 
 #+begin_src emacs-lisp
-(menu-bar-mode t)
+(defadvice! fixed-do-after-load-evaluation (abs-file)
+  :override #'do-after-load-evaluation
+  (dolist (a-l-element after-load-alist)
+    (when (and (stringp (car a-l-element))
+               (string-match-p (car a-l-element) abs-file))
+      (mapc #'funcall (cdr a-l-element))))
+  (run-hook-with-args 'after-load-functions abs-file))
+#+end_src
+
+
+** GUI
+Disable most of the GUI to keep it simple.
+
+#+begin_src emacs-lisp
+(menu-bar-mode 0)
 (tool-bar-mode 0)
 (fringe-mode 0)
 #+end_src
 
 *** Window Title
-Set the window title to the buffer name and project folder.
+Set the window title to the buffer name and project folder. Also remove the org roam id prefix from the filename.
 
 #+begin_src emacs-lisp
 (setq frame-title-format
@@ -651,28 +455,6 @@ Set the window title to the buffer name and project folder.
              (format (if (buffer-modified-p)  " ◉ %s" "  ●  %s") project-name))))))
 #+end_src
 
-** Daemon
-Use Tecosaur's greedy daemon startup.
-
-#+begin_src emacs-lisp
-(defun greedily-do-daemon-setup ()
-  (require 'org)
-  (require 'vertico)
-  (require 'consult)
-  (require 'marginalia)
-  (when (require 'mu4e nil t)
-    (setq mu4e-confirm-quit t)
-    (setq +mu4e-lock-greedy t)
-    (setq +mu4e-lock-relaxed t)
-    (+mu4e-lock-add-watcher)
-    (when (+mu4e-lock-available t)
-      (mu4e~start))))
-
-(when (daemonp)
-  (add-hook 'emacs-startup-hook #'greedily-do-daemon-setup)
-  (add-hook 'emacs-startup-hook #'init-mixed-pitch-h))
-#+end_src
-
 ** TRAMP
 Since I use Nix on most machines, tell Tramp how to find the shell executables.
 
@@ -685,15 +467,21 @@ Since I use Nix on most machines, tell Tramp how to find the shell executables.
 
 * Modules
 ** App
-Some apps to do things slower in Emacs.
-
-#+name: doom-apps
+#+name: doom-app
 #+begin_src emacs-lisp :tangle no
 calendar
 everywhere
-irc
+;; irc
 (rss +org)
-twitter
+;; twitter
+#+end_src
+
+*** Calendar
+
+
+*** RSS
+#+begin_src emacs-lisp
+(add-to-list 'rmh-elfeed-org-files (expand-file-name "elfeed.org" org-directory ))
 #+end_src
 
 ** Checkers
@@ -728,7 +516,7 @@ Speed up company.
 #+begin_src emacs-lisp
 (after! company
   (setq company-idle-delay 0.1
-        company-minimum-prefix-length 2
+        company-minimum-prefix-length 1
         company-select-wrap-around t
         company-require-match 'never
         company-dabbrev-downcase nil
@@ -736,24 +524,19 @@ Speed up company.
         company-dabbrev-other-buffers nil
         company-tooltip-limit 5
         company-tooltip-minimum-width 40)
+
+  (set-company-backend!
+    '(text-mode
+      markdown-mode
+      gfm-mode)
+    '(:seperate
+      company-files
+      company-yasnippet))
   ;; (add-hook 'evil-normal-state-entry-hook #'company-abort)
   ) ;; make aborting less annoying.
 
-(setq-default history-length 1000)
-(setq-default prescient-history-length 1000)
-#+end_src
-
-Set completion backends for text files.
-
-#+begin_src emacs-lisp
-(set-company-backend!
-  '(text-mode
-    markdown-mode
-    gfm-mode)
-  '(:seperate
-    company-ispell
-    company-files
-    company-yasnippet))
+;; (setq-default history-length 1000)
+;; (setq-default prescient-history-length 1000)
 #+end_src
 
 *** Vertico
@@ -1013,95 +796,163 @@ Now I can answer emails even slower in Emacs.
 :END:
 First, add the mu4e package to the load path. This is because its installed with mu, not as an emacs package.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :noweb no-export
 (add-to-list 'load-path "~/.local/share/emacs/site-lisp/mu4e")
+
+(after! mu4e
+  <<mu4e-core>>
+
+  <<mu4e-contexts>>
+
+  <<mu4e-bookmarks>>
+
+  <<mu4e-reindex>>
+
+  <<mu4e-ui>>)
+#+end_src
+
+Set some basic configuration options.
+
+#+name: mu4e-core
+#+begin_src emacs-lisp :tangle no
+(setq mu4e-maildir "~/Mail"
+      mu-4e-context-policy 'pick-first
+      mu4e-update-interval (* 10 60)
+      mu4e-completing-read-function #'ivy-completing-read
+      mu4e-view-prefer-html t)
+
+#+end_src
+
+Create a context for each of my email accounts.
+
+#+name: mu4e-contexts
+#+begin_src emacs-lisp :tangle no
+(setq mu4e-contexts
+      (list
+       (make-mu4e-context
+        :name "Personal"
+        :match-func (lambda (msg) (when msg (string-prefix-p "/personal" (mu4e-message-field msg :maildir))))
+        :vars '((user-full-name . "Ryan King")
+                (user-mail-address . "ryantking@protonmail.com")
+                (mu4e-drafts-folder . "/personal/drafts")
+                (mu4e-sent-folder . "/personal/sent")
+                (mu4e-refile-folder . "/personal/archive")
+                (mu4e-trash-folder . "/personal/trash")))
+       (make-mu4e-context
+        :name "Gmail"
+        :match-func (lambda (msg) (when msg (string-prefix-p "/gmail" (mu4e-message-field msg :maildir))))
+        :vars '((user-full-name . "Ryan King")
+                (user-mail-address . "ryan.taylor.king@gmail.com")
+                (mu4e-drafts-folder . "/gmail/drafts")
+                (mu4e-sent-folder . "/gmail/sent")
+                (mu4e-refile-folder . "/gmail/archive")
+                (mu4e-trash-folder . "/gmail/trash")))
+       (make-mu4e-context
+        :name "Work"
+        :match-func (lambda (msg) (when msg (string-prefix-p "/work" (mu4e-message-field msg :maildir))))
+        :vars '((user-full-name . "Ryan Taylor King")
+                (user-mail-address . "ryking@redhat.com")
+                (mu4e-drafts-folder . "/work/drafts")
+                (mu4e-sent-folder . "/work/sent")
+                (mu4e-refile-folder . "/work/archive")
+                (mu4e-trash-folder . "/work/trash")))))
+#+end_src
+
+And some bookmarks.
+
+#+name: mu4e-bookmarks
+#+begin_src emacs-lisp :tangle no
+(add-to-list 'mu4e-bookmarks
+             (make-mu4e-bookmark
+              :name "All Inboxes"
+              :query "maildir:/personal/inbox OR maildir:/gmail/inbox OR maildir:/work/inbox"
+              :key ?i))
 #+end_src
 
 Add a bit from tecosaur that automatically rebuilds the index.
 
-#+begin_src emacs-lisp
-(after! mu4e
-  (defvar mu4e-reindex-request-file "/tmp/mu_reindex_now"
-    "Location of the reindex request, signaled by existance")
-  (defvar mu4e-reindex-request-min-seperation 5.0
-    "Don't refresh again until this many second have elapsed.
+#+name: mu4e-reindex
+#+begin_src emacs-lisp :tangle no
+(defvar mu4e-reindex-request-file "/tmp/mu_reindex_now"
+  "Location of the reindex request, signaled by existance")
+
+(defvar mu4e-reindex-request-min-seperation 5.0
+  "Don't refresh again until this many second have elapsed.
 Prevents a series of redisplays from being called (when set to an appropriate value)")
 
-  (defvar mu4e-reindex-request--file-watcher nil)
-  (defvar mu4e-reindex-request--file-just-deleted nil)
-  (defvar mu4e-reindex-request--last-time 0)
+(defvar mu4e-reindex-request--file-watcher nil)
+(defvar mu4e-reindex-request--file-just-deleted nil)
+(defvar mu4e-reindex-request--last-time 0)
 
-  (defun mu4e-reindex-request--add-watcher ()
-    (setq mu4e-reindex-request--file-just-deleted nil)
-    (setq mu4e-reindex-request--file-watcher
-          (file-notify-add-watch mu4e-reindex-request-file
-                                 '(change)
-                                 #'mu4e-file-reindex-request)))
+(defun mu4e-reindex-request--add-watcher ()
+  (setq mu4e-reindex-request--file-just-deleted nil)
+  (setq mu4e-reindex-request--file-watcher
+        (file-notify-add-watch mu4e-reindex-request-file
+                                '(change)
+                                #'mu4e-file-reindex-request)))
 
-  (defadvice! mu4e-stop-watching-for-reindex-request ()
-    :after #'mu4e~proc-kill
-    (if mu4e-reindex-request--file-watcher
-        (file-notify-rm-watch mu4e-reindex-request--file-watcher)))
+(defadvice! mu4e-stop-watching-for-reindex-request ()
+  :after #'mu4e~proc-kill
+  (if mu4e-reindex-request--file-watcher
+      (file-notify-rm-watch mu4e-reindex-request--file-watcher)))
 
-  (defadvice! mu4e-watch-for-reindex-request ()
-    :after #'mu4e~proc-start
-    (mu4e-stop-watching-for-reindex-request)
-    (when (file-exists-p mu4e-reindex-request-file)
-      (delete-file mu4e-reindex-request-file))
-    (mu4e-reindex-request--add-watcher))
+(defadvice! mu4e-watch-for-reindex-request ()
+  :after #'mu4e~proc-start
+  (mu4e-stop-watching-for-reindex-request)
+  (when (file-exists-p mu4e-reindex-request-file)
+    (delete-file mu4e-reindex-request-file))
+  (mu4e-reindex-request--add-watcher))
 
-  (defun mu4e-file-reindex-request (event)
-    "Act based on the existance of `mu4e-reindex-request-file'"
-    (if mu4e-reindex-request--file-just-deleted
-        (mu4e-reindex-request--add-watcher)
-      (when (equal (nth 1 event) 'created)
-        (delete-file mu4e-reindex-request-file)
-        (setq mu4e-reindex-request--file-just-deleted t)
-        (mu4e-reindex-maybe t))))
+(defun mu4e-file-reindex-request (event)
+  "Act based on the existance of `mu4e-reindex-request-file'"
+  (if mu4e-reindex-request--file-just-deleted
+      (mu4e-reindex-request--add-watcher)
+    (when (equal (nth 1 event) 'created)
+      (delete-file mu4e-reindex-request-file)
+      (setq mu4e-reindex-request--file-just-deleted t)
+      (mu4e-reindex-maybe t))))
 
-  (defun mu4e-reindex-maybe (&optional new-request)
-    "Run `mu4e~proc-index' if it's been more than
+(defun mu4e-reindex-maybe (&optional new-request)
+  "Run `mu4e~proc-index' if it's been more than
 `mu4e-reindex-request-min-seperation'seconds since the last request,"
-    (let ((time-since-last-request (- (float-time)
-                                      mu4e-reindex-request--last-time)))
+  (let ((time-since-last-request (- (float-time)
+                                    mu4e-reindex-request--last-time)))
+    (when new-request
+      (setq mu4e-reindex-request--last-time (float-time)))
+    (if (> time-since-last-request mu4e-reindex-request-min-seperation)
+        (mu4e~proc-index nil t)
       (when new-request
-        (setq mu4e-reindex-request--last-time (float-time)))
-      (if (> time-since-last-request mu4e-reindex-request-min-seperation)
-          (mu4e~proc-index nil t)
-        (when new-request
-          (run-at-time (* 1.1 mu4e-reindex-request-min-seperation) nil
-                       #'mu4e-reindex-maybe))))))
+        (run-at-time (* 1.1 mu4e-reindex-request-min-seperation) nil
+                      #'mu4e-reindex-maybe)))))
 #+end_src
 
 Some minor UI customization.
 
-#+begin_src emacs-lisp
-(after! mu4e
-  (setq mu4e-headers-fields
-        '((:flags . 6)
-          (:account-stripe . 2)
-          (:from-or-to . 25)
-          (:folder . 10)
-          (:recipnum . 2)
-          (:subject . 80)
-          (:human-date . 8))
-        +mu4e-min-header-frame-width 142
-        mu4e-headers-date-format "%d/%m/%y"
-        mu4e-headers-time-format "⧖ %H:%M"
-        mu4e-headers-results-limit 1000
-        mu4e-index-cleanup t)
+#+name: mu4e-ui
+#+begin_src emacs-lisp :tangle no
+(setq mu4e-headers-fields
+      '((:flags . 6)
+        (:account-stripe . 2)
+        (:from-or-to . 25)
+        (:folder . 10)
+        (:recipnum . 2)
+        (:subject . 80)
+        (:human-date . 8))
+      +mu4e-min-header-frame-width 142
+      mu4e-headers-date-format "%d/%m/%y"
+      mu4e-headers-time-format "⧖ %H:%M"
+      mu4e-headers-results-limit 1000
+      mu4e-index-cleanup t)
 
-  (add-to-list 'mu4e-bookmarks
-               '(:name "Yesterday's messages" :query "date:2d..1d" :key ?y) t)
+(defvar +mu4e-header--folder-colors nil)
 
-  (defvar +mu4e-header--folder-colors nil)
-  (appendq! mu4e-header-info-custom
-            '((:folder .
-               (:name "Folder" :shortname "Folder" :help "Lowest level folder" :function
-                (lambda (msg)
-                  (+mu4e-colorize-str
-                   (replace-regexp-in-string "\\`.*/" "" (mu4e-message-field msg :maildir))
-                   '+mu4e-header--folder-colors)))))))
+(appendq! mu4e-header-info-custom
+          '((:folder .
+              (:name "Folder" :shortname "Folder" :help "Lowest level folder" :function
+              (lambda (msg)
+                (+mu4e-colorize-str
+                  (replace-regexp-in-string "\\`.*/" "" (mu4e-message-field msg :maildir))
+                  '+mu4e-header--folder-colors))))))
 #+end_src
 
 ** Languages
@@ -1138,7 +989,21 @@ By default, =markdownlint= doesn't recognize the config file in the repository. 
 My productivity workflow is entirely designed around ~org-mode~.
 
 **** Packages
+***** Core Org
+Use the latest ~org-mode~ because bugs aren't real.
+
+#+begin_src emacs-lisp :tangle packages.el
+(unpin! org-mode)
+
+(package! org-contrib
+  :recipe (:host nil :repo "https://git.sr.ht/~bzg/org-contrib"
+           :files ("lisp/*.el"))
+  :pin "b8012e759bd5bf5da802b0b41734a8fec218323c")
+#+end_src
 ***** Vulpea
+:PROPERTIES:
+:ID:                     e63d2527-2b11-4cf6-802d-eec8206ef9b6
+:END:
 Use the fantastic [[https://github.com/d12frosted/vulpea][Vulpea]] for a unified ~org-roam~-based experience.
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -1146,13 +1011,13 @@ Use the fantastic [[https://github.com/d12frosted/vulpea][Vulpea]] for a unified
 #+end_src
 
 #+begin_src emacs-lisp
-(require 'lib-vulpea)
 (use-package! vulpea
   :ensure t
   :hook ((before-save . vulpea-pre-save-hook)
          (org-roam-db-autosync-mode . vulpea-db-autosync-enable))
   :init
-  (setq vulpea-directory (expand-file-name "~/Dropbox/org"))
+  (require 'lib-vulpea)
+  (setq vulpea-directory (expand-file-name "~/Dropbox/org/roam"))
   (add-to-list 'window-buffer-change-functions #'vulpea-setup-buffer)
   (add-hook 'vulpea-insert-handle-functions #'vulpea-insert-handle)
   (setq-default
@@ -1170,18 +1035,6 @@ Add some =Vulpea= keybindings.
       :desc "Insert note" "i" #'vulpea-insert
       :desc "Tag" "t" #'vulpea-tags-add
       :desc "Untag" "T" #'vulpea-tags-delete)
-#+end_src
-
-***** Core Org
-Use the latest ~org-mode~ because bugs aren't real.
-
-#+begin_src emacs-lisp :tangle packages.el
-(unpin! org-mode)
-
-(package! org-contrib
-  :recipe (:host nil :repo "https://git.sr.ht/~bzg/org-contrib"
-           :files ("lisp/*.el"))
-  :pin "b8012e759bd5bf5da802b0b41734a8fec218323c")
 #+end_src
 
 ***** Visuals
@@ -1274,23 +1127,38 @@ Cool package to handle graphs.
 
 **** Behavior
 ***** Defaults
+#+begin_src emacs-lisp :noweb no-export
+(after! org
+  <<org-core>>
+
+  <<org-babel>>
+
+  <<org-keywords>>
+
+  <<org-apps>>
+
+  <<org-bindings>>)
+#+end_src
+
 Configure the behavior for editing Org files.
 
-#+begin_src emacs-lisp
-(after! org
-  (setq org-directory vulpea-directory
-        org-modules '(org-id org-attach)
-        org-log-done 'time
-        org-use-property-inheritance t
-        org-list-allow-alphabetical t
-        org-export-in-background t
-        org-catch-invisible-edits 'smart
-        org-export-with-sub-superscripts '{}))
+#+name: org-core
+#+begin_src emacs-lisp :tangle no
+(setq org-directory (expand-file-name "~/Dropbox/org")
+      org-modules '(org-id org-attach)
+      org-log-done 'time
+      org-use-property-inheritance t
+      org-list-allow-alphabetical t
+      org-export-in-background t
+      org-catch-invisible-edits 'smart
+      org-export-with-sub-superscripts '{}
+      org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+") ("1." . "a.")))
 #+end_src
 
 Use some nicer default values for babel stuff.
 
-#+begin_src emacs-lisp
+#+name: org-babel
+#+begin_src emacs-lisp :tangle no
 (setq org-babel-default-header-args
       '((:session . "none")
         (:results . "replace")
@@ -1304,27 +1172,28 @@ Use some nicer default values for babel stuff.
 
 Configure keywords for org. The first sequence probably won't change all that much, but the second one might become a "type sequence" of sorts for labeling projects, meetings etc.
 
-#+begin_src emacs-lisp
-(after! org
-  (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "HOLD(h)" "|" "DONE(d)" "CANCELLED(c)")
-                            (sequence "PROJ(p)" "MEETING(m)" "|" "CANCELLED(c)"))
-        org-property-format "%-24s %s"
-        org-tag-persistent-alias '(("FOCUS" . ?f) ("PROJECT" . ?p))
-        org-tags-exclude-from-inheritance '("project" "people")))
+#+name: org-keywords
+#+begin_src emacs-lisp :tangle no
+(setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "HOLD(h)" "|" "DONE(d)")
+                          (sequence "|" "CANCELLED(c)"))
+      org-property-format "%-24s %s"
+      org-tag-persistent-alias '(("FOCUS" . ?f) ("PROJECT" . ?p))
+      org-tags-exclude-from-inheritance '("project" "people" "upstream" "downstream"))
 #+end_src
 
 Open directory links in =dired= and open files in the same window.
 
-#+begin_src emacs-lisp
-(after! org
-  (add-to-list 'org-file-apps '(directory . emacs))
-  (add-to-list 'org-link-frame-setup '(file . find-file))
-  (setq org-indirect-buffer-display 'current-window))
+#+name: org-apps
+#+begin_src emacs-lisp :tangle no
+(add-to-list 'org-file-apps '(directory . emacs))
+(add-to-list 'org-link-frame-setup '(file . find-file))
+(setq org-indirect-buffer-display 'current-window)
 #+end_src
 
 Add missing arrow key bindings.
 
-#+begin_src emacs-lisp
+#+name: org-bindings
+#+begin_src emacs-lisp :tangle no
 (after! org
   (map! :map evil-org-mode-map
         :after evil-org
@@ -1332,52 +1201,6 @@ Add missing arrow key bindings.
         :n "g <down>" #'org-forward-heading-same-level
         :n "g <left>" #'org-up-element
         :n "g <right>" #'org-down-element))
-#+end_src
-
-***** Extra Functionality
-Make bullets change with depth.
-
-#+begin_src emacs-lisp
-(setq org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+") ("1." . "a.")))
-#+end_src
-
-Enable spell check.
-
-#+begin_src emacs-lisp
-;; (add-hook 'org-mode-hook 'turn-on-flyspell)
-#+end_src
-
-Make the =LSP= work when editing source blocks.
-
-#+begin_src emacs-lisp
-(cl-defmacro lsp-org-babel-enable (lang)
-  "Support LANG in org source code block."
-  (setq centaur-lsp 'lsp-mode)
-  (cl-check-type lang stringp)
-  (let* ((edit-pre (intern (format "org-babel-edit-prep:%s" lang)))
-         (intern-pre (intern (format "lsp--%s" (symbol-name edit-pre)))))
-    `(progn
-       (defun ,intern-pre (info)
-         (let ((file-name (->> info caddr (alist-get :file))))
-           (unless file-name
-             (setq file-name (make-temp-file "babel-lsp-")))
-           (setq buffer-file-name file-name)
-           (lsp-deferred)))
-       (put ',intern-pre 'function-documentation
-            (format "Enable lsp-mode in the buffer of org source block (%s)."
-                    (upcase ,lang)))
-       (if (fboundp ',edit-pre)
-           (advice-add ',edit-pre :after ',intern-pre)
-         (progn
-           (defun ,edit-pre (info)
-             (,intern-pre info))
-           (put ',edit-pre 'function-documentation
-                (format "Prepare local buffer environment for org source block (%s)."
-                        (upcase ,lang))))))))
-(defvar org-babel-lang-list
-  '("go" "python" "ipython" "bash" "sh"))
-(dolist (lang org-babel-lang-list)
-  (eval `(lsp-org-babel-enable ,lang)))
 #+end_src
 
 ***** ID
@@ -1395,8 +1218,7 @@ Some settings that make org IDs work more better.
         org-id-track-globally t
         org-id-extra-files'((expand-file-name ".archive/archive" org-directory)
                             (expand-file-name ".archive/archive.org" org-directory))
-        org-id-link-to-org-use-id t
-        ))
+        org-id-link-to-org-use-id t))
 #+end_src
 
 ***** Clock
@@ -1409,6 +1231,41 @@ Its important to keep track of time spend on tasks.
 #+end_src
 
 ***** Agenda
+Setup the calendar using ~org-gcal~:
+
+#+name: org-gcal
+#+begin_src emacs-lisp :tangle no
+`(setq org-gcal-client-id "613018054642-vsjcnrqaf8vkdm7m3s5ahmvr8rfbat31.apps.googleusercontent.com"
+       org-gcal-client-secret ,(string-trim-right (shell-command-to-string "pass oauth/rh-emacs-sync") "\n")
+       org-gcal-fetch-file-alist '(("ryking@redhat.com" .  ,(expand-file-name "~/Dropbox/org/cal/work.org"))
+                                   ("ryan.taylor.king@gmail.com" .  ,(expand-file-name "~/Dropbox/org/cal/personal.org"))))
+#+end_src
+
+#+begin_src emacs-lisp :noweb no-export
+(require 'org-gcal)
+
+<<org-gcal()>>
+#+end_src
+
+Configure =org-gcal= to add a timestamp to all events so they show up on the org agenda properly. Note that we cannot use ~SCHEDULED:~ here because it will remain on the agenda until we mark it as cone. Even if it is not a task.
+
+#+begin_src emacs-lisp
+(defun org-gcal--add-timestamp (_calendar-id event _update-mode)
+  (when (not (org-gcal--event-cancelled-p event))
+    (org-back-to-heading)
+    (org-narrow-to-element)
+    (when (re-search-forward
+           (format "^[ \t]*:%s:[ \t]*$" org-gcal-drawer-name)
+           (point-max)
+           'noerror)
+      (forward-line 1)
+      (when
+          (re-search-forward org-element--timestamp-regexp (point-at-eol) 'noerror)
+        (replace-match (concat "<" (match-string 1) " " "-1d" ">"))))))
+
+(add-hook 'org-gcal-after-update-entry-functions #'org-gcal--add-timestamp)
+#+end_src
+
 Configure the org agenda using [[https://github.com/alphapapa/org-super-agenda][org-super-agenda]].
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -1416,42 +1273,7 @@ Configure the org agenda using [[https://github.com/alphapapa/org-super-agenda][
 #+end_src
 
 #+begin_src emacs-lisp
-(require 'lib-vulpea-agenda)
-
-(use-package! org-super-agenda
-  :commands org-super-agenda-mode)
-
-(after! org-agenda
-  (org-super-agenda-mode)
-  (advice-add 'org-agenda :before #'vulpea-agenda-files-update)
-
-  (setq org-agenda-skip-scheduled-if-done t
-        org-agenda-skip-deadline-if-done t
-        org-agenda-include-deadlines t
-        org-agenda-inhibit-startup t
-        org-agenda-log-mode-updates '(closed clock state)
-        org-agenda-show-inherited-tags nil
-        org-agenda-block-separator nil
-        org-agenda-dim-blocked-tasks nil
-        ;; org-agenda-tags-column 100 ;; from testing this seems to be a good value
-        org-agenda-compact-blocks t
-
-        org-agenda-prefix-format
-        '((agenda . " %(vulpea-agenda-category 24) %?-12t %12s")
-          (todo . " %(vulpea-agenda-category 24) ")
-          (tags . " %(vulpea-agenda-category 24) ")
-          (search . " %(vulpea-agenda-category 24) "))
-        org-todo-keyword-format "%-1s"
-        org-agenda-tags-column 0
-        org-agenda-window-setup 'current-window
-
-        org-agenda-custom-commands
-        `((" " "Agenda"
-           (,vulpea-agenda-cmd-refile
-            ,vulpea-agenda-cmd-today
-            ,vulpea-agenda-cmd-focus
-            ,vulpea-agenda-cmd-waiting)
-           ((org-agenda-buffer-name vulpea-agenda-main-buffer-name))))))
+(after! org-agenda (require 'init-agenda))
 #+end_src
 
 ***** Roam
@@ -1459,7 +1281,7 @@ Set the =org-roam= basic settings.
 
 #+begin_src emacs-lisp
 (setq org-roam-directory vulpea-directory
-      org-roam-dailies-directory (expand-file-name "journal/" org-roam-directory)
+      org-roam-dailies-directory (expand-file-name "journal/" org-directory)
       org-roam-completion-everywhere t)
 #+end_src
 
@@ -1501,6 +1323,9 @@ Add in the roam UI that's a little nicer than the built in one with graphviz. Wo
 #+end_src
 
 ***** Capture
+:PROPERTIES:
+:ID:                     37255dad-fe3f-4baf-b976-fcc5dd3a440d
+:END:
 I will be using [[https://github.com/progfolio/doct][DOCT]] for my capture templates.
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -1510,65 +1335,7 @@ I will be using [[https://github.com/progfolio/doct][DOCT]] for my capture templ
 #+end_src
 
 #+begin_src emacs-lisp :noweb no-export
-(use-package! doct
-  :commands doct)
-
-(require 'lib-vulpea-capture)
-
-(after! org-capture
-  (advice-add 'org-capture-select-template :override #'vulpea-capture-select-template-prettier)
-  (advice-add 'org-mks :override #'vulpea-mks-pretty)
-
-  (setq doct-after-conversion-functions '(+doct-iconify-capture-templates))
-
-  (defun set-org-capture-templates ()
-    "Wire all bits for capturing."
-    (dolist (var '(vulpea-capture-inbox-file))
-      (set var (expand-file-name (symbol-value var) vulpea-directory)))
-    (unless org-default-notes-file
-      (setq org-default-notes-file vulpea-capture-inbox-file))
-    (setq
-     org-capture-templates
-     (doct `(("Todo"
-              :keys "t"
-              :icon ("check" :set "material" :color "cyan")
-              :type plain
-              :file vulpea-capture-inbox-file
-              :template ("* TODO %?"
-                         "%U"))
-             ("Meeting"
-              :keys "m"
-              :icon ("group" :set "material" :color "green")
-              :type entry
-              :function  vulpea-capture-meeting-target
-              :template vulpea-capture-meeting-template)))
-
-     org-roam-capture-templates
-     '(("d" "default" plain "%?"
-        :if-new (file+head
-                 "%(vulpea-subdir-select)/%<%Y%m%d%H%M%S>-${slug}.org"
-                 "#+title: ${title}\n\n")
-        :unnarrowed t))
-
-     org-roam-dailies-capture-templates
-     `(("d" "default" entry
-        "* %<%H:%M>\n\n%?"
-        :if-new (file+head
-                 ,(expand-file-name "%<%Y-%m-%d>.org"
-                                    org-roam-dailies-directory)
-                 ,(string-join '("#+title: %<%A, %d %B %Y>"
-                                 "#+filetags: journal"
-                                 "\n")
-                               "\n"))))))
-
-  (set-org-capture-templates)
-  (unless (display-graphic-p)
-    (add-hook 'server-after-make-frame-hook
-              (defun org-capture-reinitialise-hook ()
-                (when (display-graphic-p)
-                  (set-org-capture-templates)
-                  (remove-hook 'server-after-make-frame-hook
-                               #'org-capture-reinitialise-hook))))))
+(after! org-roam (require 'init-capture))
 #+end_src
 
 Fix ~org-capture~ CLI.
@@ -1587,9 +1354,8 @@ Fix ~org-capture~ CLI.
 Easily refile to the project management org file.
 
 #+begin_src emacs-lisp
-(require 'lib-vulpea-refile)
-
 (after! org-refile
+  (require 'lib-vulpea-refile)
   (setq org-outline-path-complete-in-steps nil
         org-refile-targets '((nil :maxlevel . 4)
                              (org-agenda-files :maxlevel . 4))
@@ -1615,9 +1381,10 @@ Write some feels down with the journal.
   (setq
    org-journal-date-prefix "#+title: "
    org-journal-file-format "%Y-%m-%d.org"
-   org-journal-dir vulpea-directory
+   org-journal-dir (expand-file-name "~/Dropbox/org/journal")
    org-journal-date-format "%Y-%m-%d"))
 #+end_src
+
 ***** Fix Problematic Hooks
 #+begin_src elisp
 (defadvice! shut-up-org-problematic-hooks (orig-fn &rest args)
@@ -1661,7 +1428,7 @@ Make deadlines colored like errors.
       '((1.001 . error)
         (1.0 . org-warning)
         (0.5 . org-upcoming-deadline)
-        - (0.0 . org-upcoming-distant-deadline)))
+        (0.0 . org-upcoming-distant-deadline)))
 #+end_src
 
 Put quotes in italics.
@@ -1874,6 +1641,13 @@ Unicode characters for check boxes and other commands.
 (plist-put +ligatures-extra-symbols :name "⁍")
 #+end_src
 
+*** Go
+Use gofumpt.
+
+#+begin_src emacs-lisp
+(setq lsp-go-use-gofumpt t)
+#+end_src
+
 ** OS
 Modules that interact with the OS.
 
@@ -1920,6 +1694,7 @@ Modules that add external tools to Emacs.
        (debugger +lsp)
        direnv
        (docker +lsp)
+       editorconfig
        (eval +overlay)
        gist
        (lookup +devdocs +docsets)
@@ -1949,11 +1724,12 @@ Better LSP UI.
   (setq lsp-lens-enable t
         lsp-ui-doc-enable t
         lsp-ui-sideline-enable nil
-        lsp-enable-symbol-highlighting nil
+        lsp-enable-symbol-highlighting t
         lsp-enable-semantic-tokens-enable t
         lsp-headerline-breadcrumb-enable nil
-        lsp-ui-peek-enable t
-        lsp-ui-peek-fontify 'on-demand))
+        ;; lsp-ui-peek-enable t
+        ;; lsp-ui-peek-fontify 'on-demand
+        ))
 #+end_src
 
 Support Nix LSP:
@@ -1976,7 +1752,7 @@ doom
 doom-dashboard
 doom-quit
 (:if IS-LINUX (emoji +unicode +github))
-;; fill-column
+fill-column
 hl-todo
 (ligatures +extras)
 modeline
@@ -1984,6 +1760,7 @@ nav-flash
 ophints
 (popup +all +defaults)
 (treemacs +lsp)
+unicode
 vc-gutter
 (window-select +numbers)
 workspaces
@@ -2118,16 +1895,12 @@ Also immediately enables `mixed-pitch-modes' if currently in one of the modes."
 Use mixed pitch with serif.
 
 #+begin_src emacs-lisp
-(autoload #'mixed-pitch-serif-mode "mixed-pitch"
-  "Change the default face of the current buffer to a serifed variable pitch, while keeping some faces fixed pitch." t)
-
 (after! mixed-pitch
-  (defface variable-pitch-serif
-    '((t (:family "serif")))
+  (defface variable-pitch-serif '((t (:family "serif")))
     "A variable-pitch face with serifs."
     :group 'basic-faces)
   (setq mixed-pitch-set-height t)
-  (setq variable-pitch-serif-font (font-spec :family "Alegreya" :size 16))
+  (setq variable-pitch-serif-font (font-spec :family (getenv "FONT_SERIF") :size 16))
   (set-face-attribute 'variable-pitch-serif nil :font variable-pitch-serif-font)
   (defun mixed-pitch-serif-mode (&optional arg)
     "Change the default face of the current buffer to a serifed variable pitch, while keeping some faces fixed pitch."
@@ -2146,6 +1919,7 @@ Some nice aesthetic tweaks.
   (defvar-local +zen--original-org-indent-mode-p nil)
   (defvar-local +zen--original-mixed-pitch-mode-p nil)
   (defvar-local +zen--original-org-pretty-table-mode-p nil)
+
   (defun +zen-enable-mixed-pitch-mode-h ()
     "Enable `mixed-pitch-mode' when in `+zen-mixed-pitch-modes'."
     (when (apply #'derived-mode-p +zen-mixed-pitch-modes)
@@ -2326,15 +2100,3 @@ For easy cycling of symbol cases.
     (define-key evil-normal-state-map (kbd "g~") 'evil-operator-string-inflection)))
 #+end_src
 
-** Very Large Files
-The ~very large files~ mode loads large files in chunks, allowing one to open ridiculously large files.
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! vlf :recipe (:host github :repo "m00natic/vlfi" :files ("*.el"))
-  :pin "cc02f2533782d6b9b628cec7e2dcf25b2d05a27c" :disable t)
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package! vlf-setup
-  :defer-incrementally vlf-tune vlf-base vlf-write vlf-search vlf-occur vlf-follow vlf-ediff vlf)
-#+end_src

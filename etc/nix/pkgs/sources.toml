@@ -1,0 +1,18 @@
+[yabai]
+src.github = "koekeishiya/yabai"
+fetch.github = "koekeishiya/yabai"
+[chemacs]
+src.git = "https://github.com/plexus/chemacs2.git"
+fetch.github = "plexus/chemacs2"
+[goimapnotify]
+src.git = "https://gitlab.com/shackra/goimapnotify.git"
+fetch.git = "https://gitlab.com/shackra/goimapnotify.git"
+[nord-dircolors]
+src.git = "https://github.com/arcticicestudio/nord-dircolors.git"
+fetch.github = "arcticicestudio/nord-dircolors"
+[gofumpt]
+src.git = "https://github.com/mvdan/gofumpt"
+fetch.github = "mvdan/gofumpt"
+[gotools]
+src.git = "https://go.googlesource.com/tools"
+fetch.git = "https://go.googlesource.com/tools"

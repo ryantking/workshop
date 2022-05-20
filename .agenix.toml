@@ -8,3 +8,7 @@ machines = [ ]
 [[paths]]
 glob = "home/profiles/git/*.age"
 groups = [ "all" ]
+
+[[paths]]
+glob = "etc/doom/lisp/*.age"
+groups = [ "all" ]

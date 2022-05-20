@@ -75,7 +75,9 @@ Affects the following commands:
 ;;;###autoload
 (defun vulpea-agenda-files-update (&rest _)
   "Update the value of `org-agenda-files'."
-  (setq org-agenda-files (vulpea-project-files)))
+  (setq org-agenda-files (vulpea-project-files))
+  (add-to-list 'org-agenda-files (expand-file-name "~/Dropbox/org/cal/personal.org"))
+  (add-to-list 'org-agenda-files (expand-file-name "~/Dropbox/org/cal/work.org")))
 
 ;; Commands
 

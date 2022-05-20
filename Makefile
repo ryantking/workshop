@@ -29,6 +29,17 @@ update: ## Update flake dependencies
 ##@ Packages
 
 .PHONY: update-pkgs
-update-pkgs: pkgs/_sources/generated.nix
-pkgs/_sources/generated.nix: pkgs/sources.toml
+update-pkgs: etc/nix/pkgs/_sources/generated.nix
+pkgs/_sources/generated.nix: etc/nix/pkgs/sources.toml
 	nvfetcher -o $(dir $@) -c $<
+
+##@ Website
+
+.PHONY: serve-website
+serve-website: garden
+	cd srv/website
+	hugo server -D
+
+.PHONY: garden
+garden:
+	go run ./src/cmd/trowel/main.go $(HOME)/Dropbox/org/roam -x

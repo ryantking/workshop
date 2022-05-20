@@ -1,0 +1,15 @@
+{{ define "main" }}
+<h1 class="page-title">Digital Garden</h1>
+
+Notes Planted: {{ len .Data.Pages }}
+
+<ul class="posts">
+	{{- range .Data.Pages -}}
+		{{- if (not (in (.Site.Params.excludedTypes | default (slice "page")) .Type)) -}}
+		<li class="post">
+			<a href="{{ .RelPermalink }}">{{.Title}}</a> <span class="meta">Last updated on {{ dateFormat "Jan 2, 2006" .Date }}</span>
+		</li>
+		{{- end -}}
+	{{- end -}}
+</ul>
+{{ end }}

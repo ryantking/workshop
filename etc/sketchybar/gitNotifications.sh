@@ -31,24 +31,24 @@ while read -r repo url type title; do
     title="No new notifications"
   fi
   case "${type}" in
-    "'Issue'")
-      COLOR=$COLOR_GREEN
-      ICON=􀍷
-      PADDING=0
-      URL="$(gh api "$(echo "${url}" | sed -e "s/^'//" -e "s/'$//")" | jq .html_url)"
-      ;;
-    "'Discussion'")
-      COLOR=$COLOR_FG
-      ICON=􀒤
-      PADDING=0
-      URL="https://www.github.com/notifications"
-      ;;
-    "'PullRequest'")
-      COLOR=$COLOR_PURPLE
-      ICON="􀙡"
-      PADDING=4
-      URL="$(gh api "$(echo "${url}" | sed -e "s/^'//" -e "s/'$//")" | jq .html_url)"
-      ;;
+  "'Issue'")
+    COLOR=$COLOR_GREEN
+    ICON=􀍷
+    PADDING=0
+    URL="$(gh api "$(echo "${url}" | sed -e "s/^'//" -e "s/'$//")" | jq .html_url)"
+    ;;
+  "'Discussion'")
+    COLOR=$COLOR_FG
+    ICON=􀒤
+    PADDING=0
+    URL="https://www.github.com/notifications"
+    ;;
+  "'PullRequest'")
+    COLOR=$COLOR_PURPLE
+    ICON="􀙡"
+    PADDING=4
+    URL="$(gh api "$(echo "${url}" | sed -e "s/^'//" -e "s/'$//")" | jq .html_url)"
+    ;;
   esac
 
   if [ "$IMPORTANT" != "" ]; then
