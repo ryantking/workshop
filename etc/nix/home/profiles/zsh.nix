@@ -31,7 +31,7 @@ in
   };
 
   home.activation.runZinitUpdate = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    ZINIT_HOME="${workshop.configHome}/zinit"
+    ZINIT_HOME="${workshop.dataHome}/zinit"
     ${pkgs.zsh}/bin/zsh -c "source "$ZINIT_HOME/zinit.zsh" && zinit self-update >/dev/null"
   '';
 }

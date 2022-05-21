@@ -1,5 +1,4 @@
 { self
-, common
 , digga
 , colors
 , ...

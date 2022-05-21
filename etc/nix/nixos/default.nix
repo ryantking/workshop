@@ -24,8 +24,8 @@
   importables = rec {
     profiles = common.profiles // (digga.lib.rakeLeaves ./profiles);
     suites = with profiles; rec {
-      base = common.suites.base ++ [ core ];
-      gui = common.suites.gui;
+      base = common.suites.base ++ [ core networking hardware.audio hardware.bluetooth hardware.keyboard ];
+      gui = common.suites.gui + [ graphical.nvidia graphical.xserver graphical.kde apps ];
       devel = common.suites.devel ++ [ gpg ];
     };
   };

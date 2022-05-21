@@ -29,7 +29,7 @@ in
         machine = mkOpt (types.nullOr types.str) null;
       };
 
-      ssk = {
+      ssh = {
         primary = mkOpt types.str (import ./ssh-key.nix);
         identities = mkOpt (types.listOf types.str) (import ./ssh-identities.nix);
       };
