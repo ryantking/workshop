@@ -1,0 +1,4 @@
+li > p,
+dd > p {
+  display: inline;
+}

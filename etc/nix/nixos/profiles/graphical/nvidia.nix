@@ -1,16 +1,17 @@
-{ config
-, lib
-, pkgs
-, ...
+{
+  config,
+  lib,
+  pkgs,
+  ...
 }: {
-  services.xserver.videoDrivers = [ "nvidia" ];
+  services.xserver.videoDrivers = ["nvidia"];
 
   hardware.nvidia = {
     package = config.boot.kernelPackages.nvidiaPackages.stable;
-    modesetting = { enable = true; };
+    modesetting = {enable = true;};
   };
 
-  systemd.services.nvidia-control-devices.wantedBy = [ "multi-user.target" ];
+  systemd.services.nvidia-control-devices.wantedBy = ["multi-user.target"];
 
-  boot.blacklistedKernelModules = [ "nouveau" ];
+  boot.blacklistedKernelModules = ["nouveau"];
 }

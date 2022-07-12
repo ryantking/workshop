@@ -1,16 +1,16 @@
-{ lib
-, pluginDir
-, font
-, colors
-, ...
-}:
-let
-  spaceColors = with colors; [ none green yellow orange red magenta blue ];
+{
+  lib,
+  pluginDir,
+  font,
+  colors,
+  ...
+}: let
+  spaceColors = with colors; [none green yellow orange red magenta blue];
 
   mkSpaceIcon = displayNdx: n: space: {
     inherit (space) name;
     type = "clone";
-    args = [ "space_template" ];
+    args = ["space_template"];
     settings = {
       inherit (space) icon;
       associated_space = ((displayNdx - 1) * 6) + n;
@@ -23,7 +23,7 @@ let
   mkSpaceLabel = n: {
     name = "spaces_${toString n}.label";
     type = "clone";
-    args = [ "label_template" ];
+    args = ["label_template"];
     settings = {
       label = "spc";
       "label.width" = 48;
@@ -37,7 +37,7 @@ let
   mkSpaceBracket = n: spaces: {
     name = "spaces_${toString n}";
     type = "bracket";
-    args = [ "spaces_${toString n}.label" ] ++ (map (builtins.getAttr "name") spaces);
+    args = ["spaces_${toString n}.label"] ++ (map (builtins.getAttr "name") spaces);
     settings = {
       "background.drawing" = true;
     };
@@ -56,7 +56,7 @@ let
         (mkSpaceLabel displayNdx)
       ]
       (lib.imap1 (mkSpaceIcon displayNdx) spaces)
-      [ (mkSpaceBracket displayNdx spaces) ]
+      [(mkSpaceBracket displayNdx spaces)]
     ];
 
   mkSpaces = displays:
@@ -65,7 +65,7 @@ let
         {
           name = "space_template";
           type = "space";
-          args = [ "center" ];
+          args = ["center"];
           settings = {
             "icon.highlight_color" = colors.green;
             "label.drawing" = false;
@@ -88,20 +88,20 @@ let
       (builtins.concatLists (lib.imap1 mkSpacesForDisplay displays))
     ];
 
-  mkSpace = name: icon: { inherit name icon; };
+  mkSpace = name: icon: {inherit name icon;};
 in
-mkSpaces [
-  [
-    (mkSpace "code" "􀤙")
-    (mkSpace "web1" "􀆪")
-    (mkSpace "term" "􀩼")
-    (mkSpace "work" "􀷾")
-    (mkSpace "chat" "􀕻")
-    (mkSpace "misc1" "􀍠")
+  mkSpaces [
+    [
+      (mkSpace "code" "􀤙")
+      (mkSpace "web1" "􀆪")
+      (mkSpace "term" "􀩼")
+      (mkSpace "work" "􀷾")
+      (mkSpace "chat" "􀕻")
+      (mkSpace "misc1" "􀍠")
+    ]
+    [
+      (mkSpace "music" "􀑈")
+      (mkSpace "web2" "􀆪")
+      (mkSpace "misc2" "􀍠")
+    ]
   ]
-  [
-    (mkSpace "music" "􀑈")
-    (mkSpace "web2" "􀆪")
-    (mkSpace "misc2" "􀍠")
-  ]
-]

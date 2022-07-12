@@ -1,7 +1,8 @@
-{ self
-, inputs
-, ...
+{
+  self,
+  inputs,
+  ...
 }: {
-  modules = [ ];
-  exportedModules = [ ./workshop.nix ];
+  modules = [];
+  exportedModules = [./workshop.nix];
 }

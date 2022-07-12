@@ -1,34 +1,32 @@
-{ config
-, lib
-, ...
-}:
-let
+{
+  config,
+  lib,
+  ...
+}: let
   font = "SF Pro";
   loadingIcon = "􀖇";
   pluginDir = "${config.workshop.configHome}/sketchybar";
   spotifyEvent = "com.spotify.client.PlaybackStateChanged";
   padding = 3;
 
-  colors =
-    let
-      inherit (config.colorscheme) colors;
-    in
-    {
-      fg = "0xFF${colors.base04}";
-      bg = "0xFF${colors.base00}";
-      fgAlt = "0xFF${colors.base06}";
-      bgAlt = "0xFF${colors.base03}";
-      black = "0xFF${colors.base01}";
-      white = "0xFF${colors.base05}";
-      red = "0xFF${colors.base08}";
-      orange = "0xFF${colors.base09}";
-      yellow = "0xFF${colors.base0A}";
-      green = "0xFF${colors.base0B}";
-      cyan = "0xFF${colors.base0C}";
-      blue = "0xFF${colors.base0D}";
-      magenta = "0xFF${colors.base0E}";
-      none = "0x00000000";
-    };
+  colors = let
+    inherit (config.colorscheme) colors;
+  in {
+    fg = "0xFF${colors.base04}";
+    bg = "0xFF${colors.base00}";
+    fgAlt = "0xFF${colors.base06}";
+    bgAlt = "0xFF${colors.base03}";
+    black = "0xFF${colors.base01}";
+    white = "0xFF${colors.base05}";
+    red = "0xFF${colors.base08}";
+    orange = "0xFF${colors.base09}";
+    yellow = "0xFF${colors.base0A}";
+    green = "0xFF${colors.base0B}";
+    cyan = "0xFF${colors.base0C}";
+    blue = "0xFF${colors.base0D}";
+    magenta = "0xFF${colors.base0E}";
+    none = "0x00000000";
+  };
 
   segment = {
     height = 28;
@@ -45,8 +43,7 @@ let
   settings = {
     inherit lib font loadingIcon pluginDir spotifyEvent padding colors segment shadow;
   };
-in
-{
+in {
   services.sketchybar = {
     enable = true;
 
@@ -132,7 +129,7 @@ in
       [
         {
           name = "label_template";
-          args = [ "left" ];
+          args = ["left"];
           settings = {
             drawing = false;
             click_script = ''"${pluginDir}/toggle_bracket.sh"'';

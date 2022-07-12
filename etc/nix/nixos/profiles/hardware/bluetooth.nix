@@ -1,10 +1,10 @@
-{ pkgs, ... }: {
+{pkgs, ...}: {
   hardware = {
     bluetooth = {
       enable = true;
-      settings = { General.Enable = "Source,Sink,Media,Socket"; };
+      settings = {General.Enable = "Source,Sink,Media,Socket";};
     };
 
-    pulseaudio.extraModules = [ pkgs.pulseaudio-modules-bt ];
+    pulseaudio.extraModules = [pkgs.pulseaudio-modules-bt];
   };
 }

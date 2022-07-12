@@ -10,6 +10,6 @@ while read -r item; do
   if [ "$item" != "$NAME" ]; then
     args+=(--set "$item" drawing=toggle)
   fi
-done <<<"$ITEMS"
+done <<< "$ITEMS"
 
 sketchybar -m "${args[@]}"

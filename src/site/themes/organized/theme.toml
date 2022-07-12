@@ -1,0 +1,22 @@
+name = "Organized"
+license = "MIT"
+licenselink = "https://github.com/ryantking/organized/blob/master/LICENSE"
+description = "Organized is a minimal theme with org-mode flares designed for structured content."
+homepage = "https://github.com/ryantking/organized"
+tags = [
+  "blog",
+  "simple",
+  "responsive",
+  "minimal",
+  "tags",
+  "personal",
+  "clean",
+  "shortcodes",
+  "notes"
+]
+features = ["blog", "Clean and minimal", "Responsive", "Syntax highlighting"]
+min_version = "0.41"
+
+[author]
+name = "Ryan King"
+homepage = "https://ryanking.com"

@@ -1,17 +1,17 @@
-{ inputs
-, config
-, lib
-, pkgs
-, ...
-}:
-let
+{
+  inputs,
+  config,
+  lib,
+  pkgs,
+  ...
+}: let
   inherit (lib) types;
   inherit (pkgs.lib.our) mkOpt;
   inherit (config.colorscheme) colors;
 
   fontModule = types.submodule {
     options = {
-      family = lib.mkOption { type = types.str; };
+      family = lib.mkOption {type = types.str;};
       pkg = mkOpt (types.nullOr types.package) null;
       style = mkOpt types.str "Regular";
       size = mkOpt types.ints.positive 14;
@@ -21,8 +21,7 @@ let
   optionalFont = font: (lib.optional (! isNull font.pkg) font.pkg);
 
   cfg = config.fonts;
-in
-{
+in {
   options.fonts = {
     serif = mkOpt fontModule {
       family = "IBM Plex Serif";
@@ -34,10 +33,11 @@ in
     };
     monospace = mkOpt fontModule {
       family = "Victor Mono";
+      style = "Light";
       pkg = pkgs.victor-mono;
     };
     unicode = mkOpt fontModule {
-      family = "JuliaMono";
+      family = "Julia Mono";
       pkg = pkgs.julia-mono;
     };
   };
@@ -49,7 +49,7 @@ in
       [
         pkgs.fontconfig
         (pkgs.nerdfonts.override {
-          fonts = [ (builtins.replaceStrings [ " " ] [ "" ] cfg.monospace.family) ];
+          fonts = [(builtins.replaceStrings [" "] [""] cfg.monospace.family)];
         })
       ]
       (optionalFont cfg.serif)
@@ -58,16 +58,14 @@ in
       (optionalFont cfg.unicode)
     ];
 
-    shell.env =
-      let
-        font = config.fonts.monospace;
-      in
-      {
-        FONT_SANS = cfg.sans.family;
-        FONT_SERIF = cfg.serif.family;
-        FONT_MONOSPACE = cfg.monospace.family;
-        FONT_UNICODE = cfg.unicode.family;
-      };
+    shell.env = {
+      WORKSHOP_THEME = lib.mkDefault "none";
+
+      FONT_SANS = cfg.sans.family;
+      FONT_SERIF = cfg.serif.family;
+      FONT_MONOSPACE = cfg.monospace.family;
+      FONT_UNICODE = cfg.unicode.family;
+    };
 
     xdg.configFile."colorrc".text = ''
       # Colorscheme: ${config.colorscheme.name}

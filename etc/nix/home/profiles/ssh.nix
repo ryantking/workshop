@@ -1,6 +1,7 @@
-{ config
-, pkgs
-, ...
+{
+  config,
+  pkgs,
+  ...
 }: {
   programs.ssh = {
     enable = true;
@@ -25,7 +26,7 @@
         identitiesOnly = true;
         identityFile = "~/.ssh/id_rsa_yubikey.pub";
         forwardAgent = true;
-        extraOptions = { "ControlPersist" = "30m"; };
+        extraOptions = {"ControlPersist" = "30m";};
       };
       "trashstation" = {
         user = config.home.username;

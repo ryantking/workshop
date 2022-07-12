@@ -1,42 +1,42 @@
-{ pkgs
-, extraModulesPath
-, inputs
-, ...
-}:
-let
+{
+  self,
+  pkgs,
+  extraModulesPath,
+  inputs,
+  ...
+}: let
   hooks = import ./hooks;
 
-  pkgWithCategory = category: package: { inherit package category; };
+  pkgWithCategory = category: package: {inherit package category;};
   linter = pkgWithCategory "linter";
   formatter = pkgWithCategory "formatter";
   docs = pkgWithCategory "docs";
   workshop = pkgWithCategory "workshop";
-  mkEnv = name: value: { inherit name value; };
+  mkEnv = name: value: {inherit name value;};
 
   inherit
     (pkgs)
     agenix
+    alejandra
     cachix
     editorconfig-checker
     go_1_18
     gofumpt
     golangci-lint
-    gopls
     gotools
     nixUnstable
     nvfetcher
-    nixpkgs-fmt
-    statix
     shellcheck
-    shfmt
+    shellharden
+    statix
     treefmt
+    yarn
     ;
-in
-{
+in {
   _file = toString ./.;
 
-  imports = [ "${extraModulesPath}/git/hooks.nix" ];
-  git = { inherit hooks; };
+  imports = ["${extraModulesPath}/git/hooks.nix"];
+  git = {inherit hooks;};
 
   name = "workshop";
   motd = "{7}Welcome to devshell{reset}\n$(type -p menu &>/dev/null && menu)\n";
@@ -48,7 +48,7 @@ in
     (mkEnv "GONOSUMDB" "github.com/ryantking/workshop,gopkg.in/ini.v1")
   ];
 
-  packages = [ gotools gopls ];
+  packages = [gotools];
 
   commands = [
     (workshop nixUnstable)
@@ -56,13 +56,15 @@ in
     (workshop cachix)
     (workshop nvfetcher)
     (workshop go_1_18)
+    (workshop yarn)
+
     (linter statix)
     (linter golangci-lint)
     (linter editorconfig-checker)
     (linter shellcheck)
+
     (formatter treefmt)
-    (formatter nixpkgs-fmt)
+    (formatter alejandra)
     (formatter gofumpt)
-    (formatter shfmt)
   ];
 }

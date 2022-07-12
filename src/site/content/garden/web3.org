@@ -1,0 +1,158 @@
+#+title: Web3
+#+description: I'm starting to dabble in blockchain programming. Since Web3 is still web programming, it involves wrangling a shit load of dependencies.
+#+slug: web3
+#+tags[]: public programming web blockchain
+#+type: garden
+#+lastmod: 2022-05-12 10:28:04.338450587 -0400 EDT
+* Tools
+These tools will build upon the ones used in [[/garden/javascript][JavaScript]].
+
+** HardHat
+HardHat is the development environment that seems to be the best option today, but I'm sure there will be a way better one shortly. You just need to install it and run it to scaffold the project:
+
+#+BEGIN_SRC
+yarn add -D hardhat
+hardhat
+#+END_SRC
+
+*** Enabling TypeScript
+Hardhat automatically enables [[/garden/typescript][TypeScript]] mode when it finds a ~hardhat.config.ts~ file. The TypesScript dependencies need to be manually added:
+
+#+BEGIN_SRC
+yarn add -D ts-node typescript
+yarn add -D chai @types/node @types/mocha @types/chai
+#+END_SRC
+
+We need to tell TypeScript to read the HardHat config file.
+
+#+BEGIN_SRC json
+{
+  "files": ["./hardhat.config.ts"]
+}
+#+END_SRC
+
+**** Generated Contract Types
+TypeChain is the tool we need to add generated contract types:
+
+#+BEGIN_SRC shell
+yarn add -D typechain @typechain/hardhat @typechain/ethers-v5 @ethersproject/abi@^5.0.0 @ethersproject/bytes@^5.0.0 @ethersproject/providers@^5.0.0
+#+END_SRC
+
+Also need this line in ~hardhat.config.ts~:
+
+#+BEGIN_SRC typescript
+import '@typechain/hardhat';
+#+END_SRC
+
+And also tell TypeScript about our types:
+
+#+BEGIN_SRC json
+{
+    "include": [ "./typechain-types" ],
+    "compilerOptions": {
+        "resolveJsonModule": true
+    }
+}
+#+END_SRC
+
+Future calls to ~hardhat compile~ will now generate TypeScript types.
+
+
+*** Testing
+This is the collection of testing libraries and all the required plugins to do Ethereum things:
+
+#+BEGIN_SRC
+yarn add -D @nomiclabs/hardhat-ethers ethers @nomiclabs/hardhat-waffle ethereum-waffle chai
+#+END_SRC
+
+Then need to tell HardHat to load the waffle plugin:
+
+#+BEGIN_SRC typescript
+import "@nomiclabs/hardhat-waffle"
+#+END_SRC
+
+** Solium
+Should also add a good Solidity linter:
+
+#+BEGIN_SRC
+yarn add -D ethlint
+#+END_SRC
+
+** Prettier
+Just add the Solidity plugin to an existing prettier setup:
+
+#+BEGIN_SRC
+yarn add -D prettier-plugin-solidity
+#+END_SRC
+
+And add this to the config in ~package.json~:
+
+#+BEGIN_SRC json
+{
+    "prettier": {
+        "overrides": [{
+            "files": "*.sol",
+            "options": {
+                "printWidth": 80,
+                "tabWidth": 4,
+                "useTabs": false,
+                "singleQuote": false,
+                "bracketSpacing": false,
+                "explicitTypes": "always"
+            }
+        }]
+    }
+}
+#+END_SRC
+
+Now run ~hardhat clean~ and then ~hardhat compile~ to make the types happen.
+
+* Reference
+** Writing Contracts
+Start files with ~pragma solidity ^0.7.0;~
+
+*** Writing Tests
+This block is a starter with all the common imports and structure:
+
+#+BEGIN_SRC typescript
+import { expect } from "chai";
+import { ethers } from "hardhat";
+import { Signer, ContractFactory, Contract } from "ethers";
+
+describe("Greeter", () => {
+    let Token: ContractFactory;
+    let token: Contract;
+    let owner: Signer;
+
+    beforeEach(async () => {
+        Token = await ethers.getContractFactory("Token");
+        [owner] = await ethers.getSigners();
+
+        token = await Token.deploy()
+    });
+
+    it("has been deploymed successfully", async () => {
+        expect(token, "contract was not deployed")
+    });
+});
+#+END_SRC
+
+* Links
+** Solidity
+- [[https://docs.soliditylang.org/][Solidity Docs]] :: Official Solidity language docs.
+- [[https://solidity-by-example.org/][Solidity by Example]] :: Common solidity patterns and recipes.
+- [[https://docs.openzeppelin.com/][OpenZeppelin Docs]] :: A bunch of contracts to use.
+** Game Development
+- [[https://github.com/scaffold-eth/scaffold-eth][scaffold-eth]] :: A tool to scaffold a new Web3 project with the core stack up and running.
+- [[https://speedrunethereum.com/][Speed Run Ethereum]] :: A series of challenges designed to teach you ethereum programming.
+- [[https://github.com/aavegotchi/aavegotchi-minigame-template][Aavegotchi Minigame Template]] :: A template for building Aavegotchi minigames.
+* Links
+
+
+* Backlinks
+
+- [[/garden/javascript][JavaScript]]
+
+- [[/garden/typescript][TypeScript]]
+
+

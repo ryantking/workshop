@@ -1,6 +1,6 @@
-{ colors
-, lib
-,
+{
+  colors,
+  lib,
 }:
 with colors; {
   primary = {

@@ -1,11 +1,12 @@
-{ pluginDir
-, font
-, colors
-, ...
+{
+  pluginDir,
+  font,
+  colors,
+  ...
 }: [
   {
     name = "cpu.separator";
-    args = [ "right" ];
+    args = ["right"];
     settings = {
       "icon.drawing" = false;
       "label.drawing" = false;
@@ -16,7 +17,7 @@
   }
   {
     name = "cpu.topproc";
-    args = [ "right" ];
+    args = ["right"];
     settings = {
       "label.font" = ''"${font}:Semibold:7"'';
       "label" = "CPU";
@@ -31,7 +32,7 @@
   }
   {
     name = "cpu.percent";
-    args = [ "right" ];
+    args = ["right"];
     settings = {
       "label.font" = ''"${font}:Heavy:12"'';
       "label" = "CPU";
@@ -46,7 +47,7 @@
   {
     name = "cpu.user";
     type = "graph";
-    args = [ "right" "100" ];
+    args = ["right" "100"];
     settings = {
       "graph.color" = colors.yellow;
       "update_freq" = 2;
@@ -64,7 +65,7 @@
   {
     name = "cpu.sys";
     type = "graph";
-    args = [ "right" "100" ];
+    args = ["right" "100"];
     settings = {
       "associated_space" = 1;
       "graph.color" = colors.green;
@@ -78,7 +79,7 @@
   {
     name = "cpu.label";
     type = "clone";
-    args = [ "label_template" ];
+    args = ["label_template"];
     settings = {
       "associated_space" = 1;
       "label" = "cpu";
@@ -89,7 +90,7 @@
   {
     name = "cpu";
     type = "bracket";
-    args = [ "cpu.separator" "cpu.topproc" "cpu.percent" "cpu.user" "cpu.sys" "cpu.label" ];
+    args = ["cpu.separator" "cpu.topproc" "cpu.percent" "cpu.user" "cpu.sys" "cpu.label"];
     settings = {
       "background.drawing" = true;
     };

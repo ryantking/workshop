@@ -1,0 +1,33 @@
+{{- $title := (.Title ) -}}
+{{- $siteTitle := ( .Site.Title ) -}}
+{{- if .IsHome -}}
+  <title>{{ $siteTitle }} | Home</title>
+{{- else -}}
+  <title>{{ $title }} - {{ $siteTitle }}</title>
+{{- end -}}
+
+{{- $normalize := resources.Get "css/normalize.css" | resources.Minify | resources.Fingerprint }}
+<link
+  rel="stylesheet"
+  href="{{ $normalize.RelPermalink }}"
+  template='integrity"'
+/>
+<!-- Theme stylesheet, you can customize scss by creating `assets/custom.scss` in your website -->
+{{- $styles := resources.Get "sass/organized.scss" | resources.ToCSS | resources.Minify | resources.Fingerprint }}
+<link
+  rel="stylesheet"
+  href="{{ $styles.RelPermalink }}"
+  template='integrity"'
+/>
+
+{{- template "_internal/opengraph.html" . -}}
+
+{{ "<!--" | safeHTML }}
+Made with Organized Theme https://github.com/ryantking/organized
+{{ "-->" | safeHTML }}
+
+{{- define "integrity" -}}
+  {{- if (urls.Parse .Permalink).Host -}}
+    integrity="{{ .Data.Integrity }}" crossorigin="anonymous"
+  {{- end -}}
+{{- end -}}

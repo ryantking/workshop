@@ -1,7 +1,7 @@
 # ############
 # Workshop
 
-all: switch
+all: update switch
 
 .PHONY: help
 help: ## Show this help screen.
@@ -12,7 +12,7 @@ help: ## Show this help screen.
 UNAME := $(shell uname -s | tr A-Z a-z)
 
 .PHONY: switch switch-darwin switch-linux
-switch: update-pkgs switch-$(UNAME) ## Switch to the new configuration
+switch: switch-$(UNAME) ## Switch to the new configuration
 switch-darwin:
 	darwin-rebuild switch --flake .
 switch-linux: /etc/nixos/flake.nix
@@ -24,14 +24,8 @@ switch-linux: /etc/nixos/flake.nix
 
 .PHONY: update
 update: ## Update flake dependencies
+	nvfetcher -o etc/nix/pkgs -c etc/nix/pkgs/sources.toml
 	nix flake update
-
-##@ Packages
-
-.PHONY: update-pkgs
-update-pkgs: etc/nix/pkgs/_sources/generated.nix
-pkgs/_sources/generated.nix: etc/nix/pkgs/sources.toml
-	nvfetcher -o $(dir $@) -c $<
 
 ##@ Website
 
@@ -42,4 +36,4 @@ serve-website: garden
 
 .PHONY: garden
 garden:
-	go run ./src/cmd/trowel/main.go $(HOME)/Dropbox/org/roam -x
+	go run ./bin/trowel.go $(HOME)/Dropbox/org/roam

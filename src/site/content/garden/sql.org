@@ -1,0 +1,21 @@
+#+title: SQL
+#+description: SQL is something that I use sparingly, but occasionally need to do a little bit of administration on some of my home lab databases. Usually its one of a handful of simple tasks such as creating a new database and user for it.
+#+slug: sql
+#+tags[]: public
+#+type: garden
+#+lastmod: 2022-05-07 23:20:52.274819127 -0400 EDT
+* Reference
+** Create Database
+#+BEGIN_SRC sql
+CREATE DATABASE database_name;
+USE database_name;
+#+END_SRC
+
+** Add User with Permissions
+#+BEGIN_SRC sql
+CREATE USER 'new_user'@'%' IDENTIFIED BY 'password';
+GRANT ALL PRIVILEGES ON database_name.table_name TO 'new_user'@'%'; -- Can also be * for db/table name
+FLUSH PRIVILEGES;
+#+END_SRC
+
+

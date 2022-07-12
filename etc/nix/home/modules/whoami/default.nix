@@ -1,14 +1,13 @@
-{ config
-, lib
-, pkgs
-, ...
-}:
-let
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}: let
   inherit (lib) types;
   inherit (config.home) homeDirectory;
   inherit (pkgs.lib.our) mkOpt;
-in
-{
+in {
   options.whoami = {
     name = mkOpt types.str "Ryan King";
     timezone = mkOpt types.str "America/New_York";

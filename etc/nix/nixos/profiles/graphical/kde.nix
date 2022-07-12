@@ -1,5 +1,5 @@
-{ pkgs, ... }: {
+{pkgs, ...}: {
   services.xserver.desktopManager.plasma5.enable = true;
 
-  environment.systemPackages = with pkgs; [ nordic ];
+  environment.systemPackages = with pkgs; [nordic];
 }

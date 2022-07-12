@@ -1,7 +1,8 @@
-{ config
-, lib
-, pkgs
-, ...
+{
+  config,
+  lib,
+  pkgs,
+  ...
 }: {
   home.activation."ensureTealdeerCache" = "mkdir -p ${config.xdg.cacheHome}/tealdeer";
 

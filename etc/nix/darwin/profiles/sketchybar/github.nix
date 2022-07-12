@@ -1,13 +1,14 @@
-{ pluginDir
-, loadingIcon
-, font
-, colors
-, ...
+{
+  pluginDir,
+  loadingIcon,
+  font,
+  colors,
+  ...
 }: [
   {
     name = "github.label";
     type = "clone";
-    args = [ "label_template" ];
+    args = ["label_template"];
     settings = {
       associated_space = 1;
       label = "git";
@@ -17,7 +18,7 @@
   }
   {
     name = "github.bell";
-    args = [ "left" ];
+    args = ["left"];
     settings = {
       associated_space = 1;
       update_freq = 180;
@@ -30,8 +31,8 @@
   }
   {
     name = "github.commits";
-    args = [ "left" ];
-    events = [ "git_push" ];
+    args = ["left"];
+    events = ["git_push"];
     settings = {
       associated_space = 1;
       "icon.color" = colors.white;
@@ -46,8 +47,8 @@
   }
   {
     name = "packages";
-    args = [ "left" ];
-    events = [ "brew upgrade" "mouse.clicked" ];
+    args = ["left"];
+    events = ["brew upgrade" "mouse.clicked"];
     settings = {
       "associated_space" = 1;
       update_freq = 18000;
@@ -59,7 +60,7 @@
   {
     name = "github";
     type = "bracket";
-    args = [ "github.label" "github.bell" "github.commits" "packages" ];
+    args = ["github.label" "github.bell" "github.commits" "packages"];
     settings = {
       "background.drawing" = true;
     };

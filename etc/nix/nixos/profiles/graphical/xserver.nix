@@ -1,9 +1,10 @@
-{ pkgs
-, lib
-, ...
+{
+  pkgs,
+  lib,
+  ...
 }: {
   hardware = {
-    video.hidpi = { enable = true; };
+    video.hidpi = {enable = true;};
 
     opengl = {
       enable = true;
@@ -31,7 +32,7 @@
     enable = true;
     libinput.enable = true;
     displayManager = {
-      sddm = { enable = true; };
+      sddm = {enable = true;};
 
       autoLogin = {
         enable = true;

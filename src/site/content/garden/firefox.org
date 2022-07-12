@@ -1,0 +1,171 @@
+#+title: Firefox
+#+description: I've spend a good chunk of time using most browsers. Time to settle for Firefox as it moves me closer to my goal of basically
+#+slug: firefox
+#+tags[]: project software public
+#+type: garden
+#+lastmod: 2022-05-11 23:47:28.292600983 -0400 EDT
+* Hardening
+We can harden the Firefox config by using  [[https://github.com/arkenfox/user.js][arkenfox]], but I found the documentation awful. There are basically no straight forward instructions. Fox example, the overrides section gives setting numbers, which don't all appear in the ~user.js~ file. I have opted to use [[https://ffprofile.com][ffprofile.com]] instead since I can't figure out for the life of me how to make =arkenfox= work the way I want.
+
+** Installation
+1. Open ~about:support~, click "Show in Finder" in the "Profile Folder" section.
+2. Download ~user.js~ and move it into the profile folder.
+3. Restart Firefox.
+
+** FFProfile Preferences
+These are the settings I got after going through the FFProfile window. Most settings are default.
+
+#+BEGIN_SRC javascript
+user_pref("app.normandy.api_url", "");
+user_pref("app.normandy.enabled", false);
+user_pref("app.shield.optoutstudies.enabled", false);
+user_pref("app.update.auto", false);
+user_pref("beacon.enabled", false);
+user_pref("breakpad.reportURL", "");
+user_pref("browser.aboutConfig.showWarning", false);
+user_pref("browser.cache.offline.enable", false);
+user_pref("browser.crashReports.unsubmittedCheck.autoSubmit", false);
+user_pref("browser.crashReports.unsubmittedCheck.autoSubmit2", false);
+user_pref("browser.crashReports.unsubmittedCheck.enabled", false);
+user_pref("browser.disableResetPrompt", true);
+user_pref("browser.newtab.preload", false);
+user_pref("browser.newtabpage.activity-stream.section.highlights.includePocket", false);
+user_pref("browser.newtabpage.enhanced", false);
+user_pref("browser.newtabpage.introShown", true);
+user_pref("browser.safebrowsing.appRepURL", "");
+user_pref("browser.safebrowsing.blockedURIs.enabled", false);
+user_pref("browser.safebrowsing.downloads.enabled", false);
+user_pref("browser.safebrowsing.downloads.remote.enabled", false);
+user_pref("browser.safebrowsing.downloads.remote.url", "");
+user_pref("browser.safebrowsing.enabled", false);
+user_pref("browser.safebrowsing.malware.enabled", false);
+user_pref("browser.safebrowsing.phishing.enabled", false);
+user_pref("browser.selfsupport.url", "");
+user_pref("browser.send_pings", false);
+user_pref("browser.sessionstore.privacy_level", 2);
+user_pref("browser.shell.checkDefaultBrowser", false);
+user_pref("browser.startup.homepage_override.mstone", "ignore");
+user_pref("browser.tabs.crashReporting.sendReport", false);
+user_pref("browser.urlbar.groupLabels.enabled", false);
+user_pref("browser.urlbar.quicksuggest.enabled", false);
+user_pref("browser.urlbar.speculativeConnect.enabled", false);
+user_pref("browser.urlbar.trimURLs", false);
+user_pref("datareporting.healthreport.service.enabled", false);
+user_pref("datareporting.healthreport.uploadEnabled", false);
+user_pref("datareporting.policy.dataSubmissionEnabled", false);
+user_pref("device.sensors.ambientLight.enabled", false);
+user_pref("device.sensors.enabled", false);
+user_pref("device.sensors.motion.enabled", false);
+user_pref("device.sensors.orientation.enabled", false);
+user_pref("device.sensors.proximity.enabled", false);
+user_pref("dom.battery.enabled", false);
+user_pref("dom.event.clipboardevents.enabled", false);
+user_pref("dom.webaudio.enabled", false);
+user_pref("experiments.activeExperiment", false);
+user_pref("experiments.enabled", false);
+user_pref("experiments.manifest.uri", "");
+user_pref("experiments.supported", false);
+user_pref("extensions.CanvasBlocker@kkapsner.de.whiteList", "");
+user_pref("extensions.Decentraleyes@ThomasRientjes.whiteList", "");
+user_pref("extensions.FirefoxMulti-AccountContainers@mozilla.whiteList", "");
+user_pref("extensions.getAddons.cache.enabled", false);
+user_pref("extensions.getAddons.showPane", false);
+user_pref("extensions.greasemonkey.stats.optedin", false);
+user_pref("extensions.greasemonkey.stats.url", "");
+user_pref("extensions.pocket.enabled", false);
+user_pref("extensions.shield-recipe-client.api_url", "");
+user_pref("extensions.shield-recipe-client.enabled", false);
+user_pref("extensions.webservice.discoverURL", "");
+user_pref("media.autoplay.default", 0);
+user_pref("media.autoplay.enabled", true);
+user_pref("media.eme.enabled", false);
+user_pref("media.gmp-widevinecdm.enabled", false);
+user_pref("media.navigator.enabled", false);
+user_pref("media.peerconnection.enabled", false);
+user_pref("media.video_stats.enabled", false);
+user_pref("network.allow-experiments", false);
+user_pref("network.captive-portal-service.enabled", false);
+user_pref("network.cookie.cookieBehavior", 1);
+user_pref("network.dns.disablePrefetch", true);
+user_pref("network.dns.disablePrefetchFromHTTPS", true);
+user_pref("network.http.referer.spoofSource", true);
+user_pref("network.http.speculative-parallel-limit", 0);
+user_pref("network.predictor.enable-prefetch", false);
+user_pref("network.predictor.enabled", false);
+user_pref("network.prefetch-next", false);
+user_pref("network.trr.mode", 5);
+user_pref("privacy.donottrackheader.enabled", true);
+user_pref("privacy.donottrackheader.value", 1);
+user_pref("privacy.trackingprotection.cryptomining.enabled", true);
+user_pref("privacy.trackingprotection.enabled", true);
+user_pref("privacy.trackingprotection.fingerprinting.enabled", true);
+user_pref("privacy.trackingprotection.pbmode.enabled", true);
+user_pref("privacy.usercontext.about_newtab_segregation.enabled", true);
+user_pref("security.ssl.disable_session_identifiers", true);
+user_pref("services.sync.prefs.sync.browser.newtabpage.activity-stream.showSponsoredTopSite", false);
+user_pref("signon.autofillForms", false);
+user_pref("toolkit.telemetry.archive.enabled", false);
+user_pref("toolkit.telemetry.bhrPing.enabled", false);
+user_pref("toolkit.telemetry.cachedClientID", "");
+user_pref("toolkit.telemetry.enabled", false);
+user_pref("toolkit.telemetry.firstShutdownPing.enabled", false);
+user_pref("toolkit.telemetry.hybridContent.enabled", false);
+user_pref("toolkit.telemetry.newProfilePing.enabled", false);
+user_pref("toolkit.telemetry.prompted", 2);
+user_pref("toolkit.telemetry.rejected", true);
+user_pref("toolkit.telemetry.reportingpolicy.firstRun", false);
+user_pref("toolkit.telemetry.server", "");
+user_pref("toolkit.telemetry.shutdownPingSender.enabled", false);
+user_pref("toolkit.telemetry.unified", false);
+user_pref("toolkit.telemetry.unifiedIsOptIn", false);
+user_pref("toolkit.telemetry.updatePing.enabled", false);
+user_pref("webgl.disabled", true);
+user_pref("webgl.renderer-string-override", " ");
+user_pref("webgl.vendor-string-override", " ");
+#+END_SRC
+
+** Arkenfox Overrides
+Settings taken from the [[https://github.com/arkenfox/user.js/wiki/3.2-Overrides-%5BCommon%5D][provided list]] of common overrides.
+
+#+BEGIN_SRC javascript
+/* override recipe: enable session restore ***/
+user_pref("browser.startup.page", 3); // 0102
+  // user_pref("browser.privatebrowsing.autostart", false); // 0110 required if you had it set as true
+user_pref("places.history.enabled", true); // 0862 required if you had it set as false
+user_pref("browser.sessionstore.privacy_level", 0); // 1003 [to restore cookies/formdata if not sanitized]
+  // user_pref("network.cookie.lifetimePolicy", 0); // 2801 [DON'T: add cookie + site data exceptions instead]
+user_pref("privacy.clearOnShutdown.history", false); // 2811
+user_pref("privacy.clearOnShutdown.cookies", false); // 2811 optional: default false arkenfox v94
+user_pref("privacy.clearOnShutdown.formdata", false); // 2811 optional
+user_pref("privacy.cpd.history", false); // 2812 to match when you use Ctrl-Shift-Del
+  // user_pref("privacy.cpd.cookies", false); // 2812 optional: default false arkenfox v94
+  // user_pref("privacy.cpd.formdata", false); // 2812 optional
+
+/* override recipe: enable url bar search */
+user_pref("keyword.enabled", true); // 0801 required
+user_pref("browser.search.suggest.enabled", true); // 0804 optional
+user_pref("browser.urlbar.suggest.searches", true); // 0804 optional
+
+/* override recipe: don't delete history on close */
+user_pref("privacy.clearOnShutdown.cache", false);     // [DEFAULT: true]
+user_pref("privacy.clearOnShutdown.downloads", false); // [DEFAULT: true]
+user_pref("privacy.clearOnShutdown.formdata", true);  // [DEFAULT: true]
+user_pref("privacy.clearOnShutdown.history", false);   // [DEFAULT: true]
+user_pref("privacy.clearOnShutdown.sessions", false);  // [DEFAULT: true]
+user_pref("privacy.clearOnShutdown.offlineApps", false); // [DEFAULT: false]
+user_pref("privacy.clearOnShutdown.cookies", false);
+
+/* override recipe: disable RFP */
+user_pref("privacy.resistFingerprinting", false); // FF41
+#+END_SRC
+
+
+* Links
+-[[https://github.com/arkenfox/user.js][Arkenfox user.js]] :: A +gold standard+ ~user.js~ of sorts.
+* Links
+** [2022-05-11 Wed]                                                  :REFILE:
+[2022-05-11 Wed 23:45]
+
+Fart muncher incorporated
+
+

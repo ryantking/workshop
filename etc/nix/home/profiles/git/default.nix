@@ -1,12 +1,11 @@
-{ config
-, pkgs
-, lib
-, ...
-}:
-let
-  inherit (config) whoami;
-in
 {
+  config,
+  pkgs,
+  lib,
+  ...
+}: let
+  inherit (config) whoami;
+in {
   shell.env = {
     GITHUB_USER = whoami.usernames.github;
     GITHUB_NAME = whoami.name;
@@ -30,6 +29,7 @@ in
         pull.rebase = false;
         tag.sort = "version:refname";
         github.user = whoami.usernames.github;
+        merge.conflictStyle = "diff3";
       };
 
       aliases = {
@@ -117,7 +117,7 @@ in
       git-standup
     ];
 
-    sessionVariables = { DELTA_PAGER = "less -FR"; };
+    sessionVariables = {DELTA_PAGER = "less -FR";};
   };
 
   age.secrets."gh-hosts" = {

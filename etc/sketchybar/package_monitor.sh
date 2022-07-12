@@ -44,7 +44,7 @@ update() {
   if [[ -x "$(command -v npm)" ]] && [[ $USE == *"npm"* ]]; then
 
     npm update &
-    >/dev/null
+    > /dev/null
 
     # runs the outdated command and stores the output as a list variable.
     npmLIST=$(npm outdated)
@@ -79,7 +79,7 @@ update() {
   if [[ -x "$(command -v apm)" ]] && [[ $USE == *"apm"* ]]; then
 
     apm update &
-    >/dev/null
+    > /dev/null
 
     # runs the outdated command and stores the output as a list variable.
     apmLIST="$(apm outdated)"
@@ -150,10 +150,10 @@ mouse_clicked() {
 }
 
 case "$SENDER" in
-"mouse.clicked")
-  mouse_clicked
-  ;;
-*)
-  update
-  ;;
+  "mouse.clicked")
+    mouse_clicked
+    ;;
+  *)
+    update
+    ;;
 esac

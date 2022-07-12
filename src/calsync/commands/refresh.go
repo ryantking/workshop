@@ -1,19 +1,18 @@
 package commands
 
 import (
-	"github.com/ryantking/workshop/src/pkg/pprint"
-	"github.com/ryantking/workshop/src/projects/calsync"
 	"github.com/ryantking/workshop/src/calsync/google"
+	"github.com/ryantking/workshop/src/projects/calsync"
 	"github.com/spf13/cobra"
 )
 
 // NewRefreshCommand returns a new refersh command.
 func NewRefreshCommand() *cobra.Command {
 	rootCmd := cobra.Command{
-		Use: "refresh NAME",
-		Short: "Refresh an account",
+		Use:           "refresh NAME",
+		Short:         "Refresh an account",
 		SilenceErrors: true,
-		SilenceUsage: true,
+		SilenceUsage:  true,
 		Run: func(cmd *cobra.Command, args []string) {
 			ctx := calsync.NewContext()
 			names := args

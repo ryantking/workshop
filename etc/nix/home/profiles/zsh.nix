@@ -1,13 +1,12 @@
-{ config
-, lib
-, pkgs
-, ...
-}:
-let
-  inherit (config) workshop xdg;
-in
 {
-  imports = [ ./shell ];
+  config,
+  lib,
+  pkgs,
+  ...
+}: let
+  inherit (config) workshop xdg;
+in {
+  imports = [./shell];
 
   shell.env = {
     ZSH_CACHE = "${xdg.cacheHome}/zsh";
@@ -15,7 +14,7 @@ in
     ZINIT_HOME = "${workshop.dataHome}/zinit";
   };
 
-  home.packages = [ pkgs.zoxide ];
+  home.packages = [pkgs.zoxide];
 
   programs.zsh = {
     enable = true;
@@ -30,7 +29,7 @@ in
     '';
   };
 
-  home.activation.runZinitUpdate = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+  home.activation.runZinitUpdate = lib.hm.dag.entryAfter ["writeBoundary"] ''
     ZINIT_HOME="${workshop.dataHome}/zinit"
     ${pkgs.zsh}/bin/zsh -c "source "$ZINIT_HOME/zinit.zsh" && zinit self-update >/dev/null"
   '';

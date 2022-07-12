@@ -1,6 +1,15 @@
-[submodule "usr/share/doom-emacs"]
-	path = usr/share/doom-emacs
-	url = https://github.com/doomemacs/doomemacs.git
-[submodule "usr/share/zinit"]
-	path = usr/share/zinit
+[submodule "usr/zinit"]
+	path = usr/zinit
 	url = https://github.com/zdharma-continuum/zinit.git
+[submodule "src/site/themes/archie"]
+	path = src/site/themes/archie
+	url = https://github.com/ryantking/archie
+[submodule "src/site/themes/hugo-book"]
+	path = src/site/themes/hugo-book
+	url = https://github.com/alex-shpak/hugo-book.git
+[submodule "usr/site-lisp/project-x"]
+	path = usr/site-lisp/project-x
+	url = https://github.com/karthink/project-x.git
+[submodule "usr/site-lisp/rlist"]
+	path = usr/site-lisp/rlist
+	url = https://gitlab.com/mmemmew/rlist.git

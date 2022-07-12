@@ -1,12 +1,13 @@
-{ inputs
-, config
-, lib
-, pkgs
-, ...
+{
+  inputs,
+  config,
+  lib,
+  pkgs,
+  ...
 }: {
   colorscheme = inputs.colors.colorSchemes.nord;
 
-  shell.env.EMACS_THEME = "doom-nord";
+  shell.env.WORKSHOP_THEME = "nord";
 
   programs = {
     bat.config.theme = "Nord";

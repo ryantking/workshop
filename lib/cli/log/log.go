@@ -8,7 +8,7 @@ import (
 )
 
 func debug(ctx cli.Context) *pterm.PrefixPrinter {
-	debug := pterm.Warning.WithWriter(io.Discard).WithLineNumberOffset(1).WithShowLineNumber(true)
+	debug := pterm.Debug.WithWriter(io.Discard).WithLineNumberOffset(2).WithShowLineNumber(true)
 	if ctx.Debug() {
 		debug = debug.WithWriter(ctx.ErrOut())
 	}
@@ -37,7 +37,7 @@ func Debugfln(ctx cli.Context, format string, a ...interface{}) {
 }
 
 func info(ctx cli.Context) *pterm.PrefixPrinter {
-	info := pterm.Warning.WithWriter(ctx.Out()).WithLineNumberOffset(1)
+	info := pterm.Info.WithWriter(ctx.Out()).WithLineNumberOffset(2)
 	if ctx.Debug() {
 		info = info.WithShowLineNumber(true)
 	}
@@ -65,9 +65,8 @@ func Infofln(ctx cli.Context, format string, a ...interface{}) {
 	info(ctx).Printfln(format, a...)
 }
 
-
 func warn(ctx cli.Context) *pterm.PrefixPrinter {
-	warn := pterm.Warning.WithWriter(ctx.ErrOut()).WithLineNumberOffset(1)
+	warn := pterm.Warning.WithWriter(ctx.ErrOut()).WithLineNumberOffset(2)
 	if ctx.Debug() {
 		warn = warn.WithShowLineNumber(true)
 	}
@@ -96,7 +95,7 @@ func Warnfln(ctx cli.Context, format string, a ...interface{}) {
 }
 
 func error(ctx cli.Context) *pterm.PrefixPrinter {
-	error := pterm.Error.WithWriter(ctx.ErrOut()).WithLineNumberOffset(1)
+	error := pterm.Error.WithWriter(ctx.ErrOut()).WithLineNumberOffset(2)
 	if ctx.Debug() {
 		error = error.WithShowLineNumber(true)
 	}

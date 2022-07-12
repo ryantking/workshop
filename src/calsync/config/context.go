@@ -31,7 +31,7 @@ type context struct {
 
 // NewContext returns a new configuration context.
 func NewContext() Context {
-	return context{}
+	return context{afero.NewOsFs()}
 }
 
 // FS returns the configured filesystem.

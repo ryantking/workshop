@@ -1,9 +1,10 @@
-{ config
-, lib
-, pkgs
-, ...
+{
+  config,
+  lib,
+  pkgs,
+  ...
 }: {
-  imports = [ ./cachix.nix ./nix.nix ./shell.nix ];
+  imports = [./cachix.nix ./nix.nix ./shell.nix];
 
   environment = {
     variables = {
@@ -29,8 +30,7 @@
     };
 
     systemPackages = with pkgs; [
-      (python3.withPackages (ps: with ps; [ pip setuptools ]))
-      (ripgrep.override { withPCRE2 = true; })
+      (ripgrep.override {withPCRE2 = true;})
 
       bashInteractive
       cachix
@@ -44,7 +44,6 @@
       gnused
       grc
       less
-      lua
       manix
       more
       moreutils

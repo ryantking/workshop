@@ -1,14 +1,15 @@
-{ config
-, lib
-, pkgs
-, ...
+{
+  config,
+  lib,
+  pkgs,
+  ...
 }: {
   nix = lib.mkMerge [
     {
       package = pkgs.nix;
       useSandbox = lib.mkDefault true;
-      allowedUsers = [ "*" ];
-      trustedUsers = [ "root" "@wheel" "rking" ];
+      allowedUsers = ["*"];
+      trustedUsers = ["root" "@wheel" "rking"];
 
       linkInputs = true;
       generateRegistryFromInputs = true;

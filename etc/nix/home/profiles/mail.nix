@@ -1,9 +1,9 @@
-{ config
-, lib
-, pkgs
-, ...
-}:
-let
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}: let
   maildir = "${config.home.homeDirectory}/Mail";
 
   muIndex = pkgs.writeShellScript "mu-index" ''
@@ -66,12 +66,13 @@ let
     onNewMailPost = "${muIndex}";
   };
 
-  mkAccount = name: { username
-                    , flavor
-                    , domain ? "gmail.com"
-                    , extraChannels ? { }
-                    , ...
-                    } @ account:
+  mkAccount = name: {
+    username,
+    flavor,
+    domain ? "gmail.com",
+    extraChannels ? {},
+    ...
+  } @ account:
     rec {
       address = "${username}@${domain}";
       realName = config.whoami.name;
@@ -89,17 +90,17 @@ let
         expunge = "both";
         groups.${name}.channels =
           lib.mapAttrs
-            (_: v:
-              v
-              // {
-                extraConfig = {
-                  Create = "Near";
-                  CopyArrivalDate = "yes";
-                  Sync = "All";
-                  SyncState = "*";
-                };
-              })
-            ({
+          (_: v:
+            v
+            // {
+              extraConfig = {
+                Create = "Near";
+                CopyArrivalDate = "yes";
+                Sync = "All";
+                SyncState = "*";
+              };
+            })
+          ({
               inbox = {
                 farPattern = "";
                 nearPattern = "inbox";
@@ -109,9 +110,8 @@ let
             // extraChannels);
       };
     }
-    // (lib.filterAttrs (n: _: ! lib.elem n [ "username" "domain" "extraChannels" ]) account);
-in
-{
+    // (lib.filterAttrs (n: _: ! lib.elem n ["username" "domain" "extraChannels"]) account);
+in {
   accounts.email = {
     maildirBasePath = "${config.home.homeDirectory}/Mail";
     accounts = lib.mapAttrs mkAccount {

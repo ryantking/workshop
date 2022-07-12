@@ -1,11 +1,11 @@
-{ self
-, config
-, options
-, lib
-, pkgs
-, ...
-}:
-let
+{
+  self,
+  config,
+  options,
+  lib,
+  pkgs,
+  ...
+}: let
   inherit (config) workshop xdg;
 
   vtermPrintf = pkgs.writeShellScript "vterm_printf" ''
@@ -44,17 +44,17 @@ let
     emacsclient -t -a "" $@
   '';
 
-  emacsDir = "${workshop.dataHome}/doom-emacs";
-  doomDir = "${workshop.configHome}/doom";
-  doomDataDir = "${xdg.dataHome}/doom";
-in
-{
+  doom = {
+    emacsDir = "${workshop.dataHome}/doom-emacs";
+    configDir = "${workshop.configHome}/doom";
+    dataDir = "${xdg.dataHome}/emacs/doom";
+  };
+in {
   shell.env = {
     VISUAL = "ec";
-    PATH = [ "${emacsDir}/bin" "$PATH" ];
-
-    DOOMDIR = doomDir;
-    DOOMLOCALDIR = doomDataDir;
+    PATH = ["${doom.emacsDir}/bin" "$PATH"];
+    DOOMDIR = doom.configDir;
+    DOOMLOCALDIR = doom.dataDir;
     LSP_USE_PLISTS = "true";
   };
 
@@ -66,10 +66,11 @@ in
       };
 
       "chemacs/profiles.el".text = ''
-        (("default" . ((user-emacs-directory . "${emacsDir}"))))
+        (("vanilla" . ((user-emacs-directory . "${workshop.configHome}/emacs")))
+        ("doom" . ((user-emacs-directory . "${doom.emacsDir}"))))
       '';
 
-      "chemacs/profile".text = "default";
+      "chemacs/profile".text = "vanilla";
     };
 
     dataFile."emacs/site-lisp/mu4e" = {
@@ -78,84 +79,34 @@ in
     };
   };
 
-  programs.emacs = {
-    enable = pkgs.stdenv.isLinux;
-    package = pkgs.emacsPgtkGcc;
-  };
+  # programs.emacs = {
+  # enable = pkgs.stdenv.isLinux;
+  # package = pkgs.emacsNativeComp;
+  # };
 
   home.packages = with pkgs; [
-    ## Custom Client Command
     emacsclient
 
-    ## Doom Dependencies
-    (ripgrep.override { withPCRE2 = true; })
-    (python3.withPackages
-      (ps: with ps; [ pip black setuptools pylint grip ]))
-    gnutls
+    (aspellWithDicts (dicts: with dicts; [en en-computers en-science]))
 
-    ## Fonts
-    emacs-all-the-icons-fonts
-    julia-mono
-    alegreya
-    alegreya-sans
-    merriweather
-
-    ## Optional Dependencies
-    fd
     imagemagick
     pinentry_emacs
+    graphviz
+    sqlite
     zstd
 
-    ## Module dependencies
-    # :checkers spell
-    (aspellWithDicts (ds: with ds; [ en en-computers en-science ]))
-
-    # :checkers grammar
-    languagetool
-
-    # :term vterm
-    cmake
-
-    # :tools docker
-    nodePackages.dockerfile-language-server-nodejs
-
-    # :tools lookup
-    # & :lang org +roam
-    sqlite
-
-    # :lang json
-    nodePackages.vscode-json-languageserver
-
-    # :lang markdown
-    pandoc
-
-    # :lang nix
-    nixpkgs-fmt
-    rnix-lsp
-
-    # :lang org
-    graphviz
-
-    # :lang go
+    ## Linters
     gopls
     gotools
-    gore
-    godef
-    gocode
-    gomodifytags
-    gofumpt
     golangci-lint
+    proselint
 
-    # :lang python
-    python39Packages.python-lsp-server
-
-    # :lang sh
+    ## LSP
+    (python3.withPackages (ps: with ps; [epc python-lsp-server]))
+    nodePackages.dockerfile-language-server-nodejs
+    nodePackages.vscode-json-languageserver
     nodePackages.bash-language-server
-
-    # :lang toml
-    taplo-lsp
-
-    # :lang yaml
     nodePackages.yaml-language-server
+    rnix-lsp
   ];
 }

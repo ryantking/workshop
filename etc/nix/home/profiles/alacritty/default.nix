@@ -1,7 +1,8 @@
-{ config
-, lib
-, pkgs
-, ...
+{
+  config,
+  lib,
+  pkgs,
+  ...
 }: {
   programs.alacritty = lib.mkMerge [
     {
@@ -34,18 +35,16 @@
           inherit (config.colorscheme) colors;
         };
 
-        font =
-          let
-            font = config.fonts.monospace;
-          in
-          {
-            inherit (font) size;
+        font = let
+          font = config.fonts.monospace;
+        in {
+          inherit (font) size;
 
-            normal = {
-              inherit (font) style;
-              family = "${builtins.replaceStrings [" "] [""] font.family} Nerd Font";
-            };
+          normal = {
+            inherit (font) style;
+            family = "${builtins.replaceStrings [" "] [""] font.family} Nerd Font";
           };
+        };
       };
     }
     (lib.optionalAttrs pkgs.stdenv.isDarwin {

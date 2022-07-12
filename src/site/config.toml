@@ -1,0 +1,50 @@
+baseURL = 'https://ryanking.com/'
+languageCode = 'en-us'
+title = 'Ryan King'
+paginate = 10
+copyright = "© Ryan King"
+
+# theme = "organized"
+[module]
+
+[[module.imports]]
+path = 'github.com/ryantking/organized'
+
+[params]
+customcss = ["css/syntax.css"] # "css/nord.css" "css/org.css"]
+mode = "light"
+subtitle = "My personal blog and digital garden."
+
+[[params.social]]
+name = "GitHub"
+icon = "github"
+url = "https://github.com/ryantking"
+
+[[params.social]]
+name = "Twitter"
+icon = "twitter"
+url = "https://twitter.com/RyanVasilias"
+
+[[menu.main]]
+name = "Home"
+url = "/"
+weight = 1
+
+[[menu.main]]
+name = "Garden"
+url = "/garden"
+weight = 3
+
+[[menu.main]]
+name = "Tags"
+url = "/tags"
+weight = 4
+
+[markup]
+
+[markup.highlight]
+noClasses = false
+# [taxonomies]
+# category = 'categories'
+# tag = 'tags'
+# garden = 'garden'

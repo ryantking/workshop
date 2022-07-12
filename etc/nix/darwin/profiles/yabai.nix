@@ -1,16 +1,15 @@
-{ config
-, pkgs
-, ...
-}:
-let
+{
+  config,
+  pkgs,
+  ...
+}: let
   inherit (config.colorscheme) colors;
 
   commonRules = {
     manage = false;
     sticky = true;
   };
-in
-{
+in {
   services.yabai = {
     enable = true;
     package = pkgs.yabai;
@@ -46,14 +45,14 @@ in
       window_gap = 18;
     };
 
-    spaces = [ "code" "web1" "term" "work" "chat" "misc" "media" "web2" "misc2" ];
+    spaces = ["code" "web1" "term" "work" "chat" "misc" "media" "web2" "misc2"];
 
     rules = [
-      (commonRules // { app = "1Password"; })
-      (commonRules // { app = "Alfred Preferences"; })
-      (commonRules // { app = "Fantastical Helper"; })
-      (commonRules // { app = "^System Preferences$"; })
-      (commonRules // { app = "SentinelOne"; })
+      (commonRules // {app = "1Password";})
+      (commonRules // {app = "Alfred Preferences";})
+      (commonRules // {app = "Fantastical Helper";})
+      (commonRules // {app = "^System Preferences$";})
+      (commonRules // {app = "SentinelOne";})
       {
         app = "zoom.us";
         opacity = "1.0";

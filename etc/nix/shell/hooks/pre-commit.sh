@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if git rev-parse --verify HEAD >/dev/null 2>&1; then
+if git rev-parse --verify HEAD > /dev/null 2>&1; then
   against=HEAD
 else
   # Initial commit: diff against an empty tree object
@@ -13,10 +13,8 @@ nix_files=($($diff -- '*.nix'))
 all_files=($($diff))
 
 # Format staged nix files.
-if [[ -n ${nix_files[@]} ]]; then
-  nixpkgs-fmt "${nix_files[@]}" &&
-    git add "${nix_files[@]}"
-fi
+treefmt
+git add "${all_files[@]}"
 
 # check editorconfig
 editorconfig-checker -- "${all_files[@]}"

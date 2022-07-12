@@ -4,6 +4,7 @@ package config
 
 import (
 	json "encoding/json"
+
 	easyjson "github.com/mailru/easyjson"
 	jlexer "github.com/mailru/easyjson/jlexer"
 	jwriter "github.com/mailru/easyjson/jwriter"
@@ -73,6 +74,7 @@ func easyjson6615c02eDecodeGithubComRyantkingWorkshopSrcProjectsCalsyncConfig(in
 		in.Consumed()
 	}
 }
+
 func easyjson6615c02eEncodeGithubComRyantkingWorkshopSrcProjectsCalsyncConfig(out *jwriter.Writer, in Global) {
 	out.RawByte('{')
 	first := true
@@ -129,6 +131,7 @@ func (v *Global) UnmarshalJSON(data []byte) error {
 func (v *Global) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjson6615c02eDecodeGithubComRyantkingWorkshopSrcProjectsCalsyncConfig(l, v)
 }
+
 func easyjson6615c02eDecodeGithubComRyantkingWorkshopSrcProjectsCalsyncConfig1(in *jlexer.Lexer, out *Calendar) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
@@ -162,6 +165,7 @@ func easyjson6615c02eDecodeGithubComRyantkingWorkshopSrcProjectsCalsyncConfig1(i
 		in.Consumed()
 	}
 }
+
 func easyjson6615c02eEncodeGithubComRyantkingWorkshopSrcProjectsCalsyncConfig1(out *jwriter.Writer, in Calendar) {
 	out.RawByte('{')
 	first := true
@@ -202,6 +206,7 @@ func (v *Calendar) UnmarshalJSON(data []byte) error {
 func (v *Calendar) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjson6615c02eDecodeGithubComRyantkingWorkshopSrcProjectsCalsyncConfig1(l, v)
 }
+
 func easyjson6615c02eDecodeGithubComRyantkingWorkshopSrcProjectsCalsyncConfig2(in *jlexer.Lexer, out *Account) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
@@ -278,6 +283,7 @@ func easyjson6615c02eDecodeGithubComRyantkingWorkshopSrcProjectsCalsyncConfig2(i
 		in.Consumed()
 	}
 }
+
 func easyjson6615c02eEncodeGithubComRyantkingWorkshopSrcProjectsCalsyncConfig2(out *jwriter.Writer, in Account) {
 	out.RawByte('{')
 	first := true

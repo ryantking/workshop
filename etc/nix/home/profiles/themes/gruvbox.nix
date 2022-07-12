@@ -1,8 +1,9 @@
-{ inputs
-, config
-, lib
-, pkgs
-, ...
+{
+  inputs,
+  config,
+  lib,
+  pkgs,
+  ...
 }: {
   colorscheme = inputs.colors.colorSchemes.gruvbox-dark-soft;
 

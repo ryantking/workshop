@@ -1,10 +1,11 @@
-{ pluginDir
-, font
-, ...
+{
+  pluginDir,
+  font,
+  ...
 }: [
   {
     name = "mailIndicator";
-    args = [ "right" ];
+    args = ["right"];
     settings = {
       update_freq = 30;
       script = ''"${pluginDir}/mailIndicator.sh"'';
@@ -18,7 +19,7 @@
   {
     name = "MeetingBar";
     type = "alias";
-    args = [ "right" ];
+    args = ["right"];
     settings = {
       update_freq = 60;
       "background.padding_right" = -8;
@@ -27,7 +28,7 @@
   }
   {
     name = "calendar.time";
-    args = [ "right" ];
+    args = ["right"];
     settings = {
       update_freq = 2;
       "icon.drawing" = false;
@@ -36,7 +37,7 @@
   }
   {
     name = "calendar.date";
-    args = [ "right" ];
+    args = ["right"];
     settings = {
       update_freq = 60;
       position = "right";
@@ -49,7 +50,7 @@
   {
     name = "calendar";
     type = "bracket";
-    args = [ "mailIndicator" "MeetingBar" "calendar.time" "calendar.date" ];
+    args = ["mailIndicator" "MeetingBar" "calendar.time" "calendar.date"];
     settings = {
       "background.drawing" = true;
     };

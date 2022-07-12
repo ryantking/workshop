@@ -1,6 +1,8 @@
 package garden
 
 import (
+	"os"
+
 	"github.com/ryantking/workshop/src/trowel/roam"
 	"github.com/spf13/viper"
 )
@@ -24,5 +26,5 @@ func NewContext() Context {
 
 // GardenDir satisfies the Context interface.
 func (ctx context) GardenDir() string {
-	return viper.GetString("garden-dir")
+	return os.ExpandEnv(viper.GetString("garden-dir"))
 }

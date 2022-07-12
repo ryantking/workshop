@@ -1,22 +1,21 @@
-{ config
-, lib
-, pkgs
-, ...
+{
+  config,
+  lib,
+  pkgs,
+  ...
 }: {
-  imports = [ ./fzf.nix ./starship.nix ];
+  imports = [./fzf.nix ./starship.nix];
 
   programs = {
-    zsh.envExtra =
-      let
-        vars = lib.concatStringsSep "\n" (lib.mapAttrsToList (n: v: ''export ${n}="${v}"'') config.shell.env);
-      in
-      ''
-        has() {
-          type "$1" >/dev/null 2>&1
-        }
+    zsh.envExtra = let
+      vars = lib.concatStringsSep "\n" (lib.mapAttrsToList (n: v: ''export ${n}="${v}"'') config.shell.env);
+    in ''
+      has() {
+        type "$1" >/dev/null 2>&1
+      }
 
-        ${vars}
-      '';
+      ${vars}
+    '';
 
     dircolors.enable = true;
   };
@@ -25,7 +24,7 @@
 
   shell = {
     env = with config.xdg; {
-      PATH = [ "$XDG_BIN_HOME" "$PATH" ];
+      PATH = ["$XDG_BIN_HOME" "$PATH"];
       CARGO_HOME = "$XDG_DATA_HOME/cargo";
       RUSTUP_HOME = "$XDG_DATA_HOME/rustup";
     };

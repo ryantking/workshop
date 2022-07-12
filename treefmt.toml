@@ -1,42 +1,38 @@
 [global]
-excludes = [ "etc/emacs/**" ]
+excludes = [
+  "usr/**",
+  "src/site/themes/archie/**",
+  "src/site/themes/hugo-book/**"
+]
 
 [formatter.nix]
-command = "nixpkgs-fmt"
-includes = [ "*.nix" ]
+command = "alejandra"
+includes = ["*.nix"]
 
 [formatter.go]
-command = "gofmt"
+command = "goimports"
 options = ["-w"]
-includes = [ "*.go" ]
+includes = ["*.go"]
 
 [formatter.prettier]
 command = "prettier"
 options = ["--write"]
 includes = [
-    "*.css",
-    "*.html",
-    "*.js",
-    "*.json",
-    "*.jsx",
-    "*.md",
-    "*.mdx",
-    "*.scss",
-    "*.ts",
-    "*.yaml",
+  "*.css",
+  "*.html",
+  "*.js",
+  "*.json",
+  "*.jsx",
+  "*.md",
+  "*.mdx",
+  "*.scss",
+  "*.toml",
+  "*.ts",
+  "*.yaml"
 ]
 excludes = ["CHANGELOG.md"]
 
 [formatter.shell]
-command = "/bin/sh"
-options = [
-    "-euc",
-    """
-# First lint all the scripts
-# shellcheck "$@"
-# Then format them
-shfmt -i 2 -s -w "$@"
-    """,
-    "--",
-]
-includes = ["*.sh"]
+command = "prettier"
+options = ["--write", "--parser", "sh"]
+includes = ["Dckerfile", ".gitignore", ".envrc", "*.sh"]

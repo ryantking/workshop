@@ -7,4 +7,4 @@
 /_/...|_.__/|_|_|.|_|
 #+end_src
 
-Custom executables.
+Custom executables. Also can be go main files because this is my config.

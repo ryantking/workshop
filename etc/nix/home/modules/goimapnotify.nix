@@ -1,21 +1,22 @@
-{ config
-, options
-, lib
-, pkgs
-, ...
-}:
-let
+{
+  config,
+  options,
+  lib,
+  pkgs,
+  ...
+}: let
   inherit (lib) types;
   inherit (pkgs.lib.our) mkOpt;
 
   accounts = lib.filterAttrs (_: a: a.goimapnotify.enable) config.accounts.email.accounts;
 
-  mkConfigEntry = _: { userName
-                     , flavor
-                     , imap
-                     , goimapnotify
-                     , ...
-                     }:
+  mkConfigEntry = _: {
+    userName,
+    flavor,
+    imap,
+    goimapnotify,
+    ...
+  }:
     {
       inherit (goimapnotify) onNewMail onNewMailPost boxes;
       username = userName;
@@ -35,8 +36,7 @@ let
     );
 
   cfg = config.services.goimapnotify;
-in
-{
+in {
   options = {
     accounts.email.accounts = lib.mkOption {
       type = types.attrsOf (types.submodule {
@@ -44,7 +44,7 @@ in
           enable = lib.mkEnableOption "goimapnotify";
           onNewMail = mkOpt types.str "${pkgs.isync}/bin/mbsync %s";
           onNewMailPost = mkOpt types.str "${pkgs.mu} index --lazy-check";
-          boxes = mkOpt (types.listOf types.attrs) [{ mailbox = "inbox"; }];
+          boxes = mkOpt (types.listOf types.attrs) [{mailbox = "inbox";}];
         };
       });
     };
@@ -68,7 +68,7 @@ in
         goimapnotify = lib.optionalAttrs cfg.enable {
           enable = true;
           config = {
-            ProgramArguments = [ "${cfg.package}/bin/goimapnotify" "-conf" "${config.xdg.configHome}/goimapnotify.conf" ];
+            ProgramArguments = ["${cfg.package}/bin/goimapnotify" "-conf" "${config.xdg.configHome}/goimapnotify.conf"];
             ProcessType = "Adaptive";
             RunAtLoad = true;
             KeepAlive = true;

@@ -1,9 +1,6 @@
 package trowel
 
 import (
-	"os"
-	"path/filepath"
-
 	"github.com/ryantking/workshop/lib/cli/log"
 	"github.com/ryantking/workshop/lib/funcy"
 	"github.com/ryantking/workshop/src/trowel/garden"
@@ -44,10 +41,7 @@ func Execute() {
 	}
 
 	rootCmd.PersistentFlags().BoolP("debug", "x", false, "Enable debug printing")
-	rootCmd.PersistentFlags().String(
-		"garden-dir", filepath.Join(os.Getenv("WORKSHOP_DIR"), "share/website"),
-		"The directory to write garden files to",
-	)
+	rootCmd.PersistentFlags().String("garden-dir", "$WORKSHOP_DIR/src/site", "The directory to write garden files to")
 	viper.BindPFlag("debug", rootCmd.PersistentFlags().Lookup("debug"))
 	viper.BindPFlag("garden-dir", rootCmd.PersistentFlags().Lookup("garden-dir"))
 

@@ -1,15 +1,14 @@
-{ self
-, config
-, lib
-, pkgs
-, ...
-}:
-let
+{
+  self,
+  config,
+  lib,
+  pkgs,
+  ...
+}: let
   inherit (lib) optionals;
   inherit (pkgs.stdenv) isLinux;
   inherit (lib) concatStrings;
-in
-{
+in {
   programs.starship = {
     enable = true;
     settings = config.shell.prompt.starship;

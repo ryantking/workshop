@@ -1,15 +1,14 @@
-{ config
-, lib
-, pkgs
-, options
-, inputs
-, ...
-}:
-let
+{
+  config,
+  lib,
+  pkgs,
+  options,
+  inputs,
+  ...
+}: let
   inherit (config.colorscheme) colors;
   font = config.fonts.monospace;
-in
-{
+in {
   programs.kitty = {
     enable = true;
     font.name = "${builtins.replaceStrings [" "] [""] font.family} Nerd Font";

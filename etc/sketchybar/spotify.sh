@@ -67,34 +67,34 @@ update() {
 
 mouse_clicked() {
   case "$NAME" in
-  "spotify.next")
-    next
-    ;;
-  "spotify.back")
-    back
-    ;;
-  "spotify.play_pause")
-    play_pause
-    ;;
-  "spotify.shuffle")
-    shuffle
-    ;;
-  "spotify.repeat")
-    repeat
-    ;;
-  *) ;;
+    "spotify.next")
+      next
+      ;;
+    "spotify.back")
+      back
+      ;;
+    "spotify.play_pause")
+      play_pause
+      ;;
+    "spotify.shuffle")
+      shuffle
+      ;;
+    "spotify.repeat")
+      repeat
+      ;;
+    *) ;;
 
   esac
 }
 
 case "$SENDER" in
-"mouse.clicked")
-  mouse_clicked
-  ;;
-"forced")
-  exit
-  ;;
-*)
-  update
-  ;;
+  "mouse.clicked")
+    mouse_clicked
+    ;;
+  "forced")
+    exit
+    ;;
+  *)
+    update
+    ;;
 esac

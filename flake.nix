@@ -67,7 +67,7 @@
     };
 
     # Development Tools
-    emacs.url = "github:nix-community/emacs-overlay";
+    # emacs.url = "github:nix-community/emacs-overlay";
     treefmt.url = "github:numtide/treefmt";
     rnix-lsp = {
       url = "github:nix-community/rnix-lsp";

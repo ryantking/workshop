@@ -1,4 +1,4 @@
-{ pkgs }:
+{pkgs}:
 with pkgs; [
   alejandra
   agenix-cli
@@ -24,7 +24,7 @@ with pkgs; [
   pandoc
   podman
   procs
-  (ripgrep.override { withPCRE2 = true; })
+  (ripgrep.override {withPCRE2 = true;})
   ripgrep-all
   sd
   shellcheck

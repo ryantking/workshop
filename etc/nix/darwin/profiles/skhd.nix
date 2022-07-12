@@ -1,14 +1,14 @@
-{ lib
-, pkgs
-, ...
-}:
-let
+{
+  lib,
+  pkgs,
+  ...
+}: let
   mkKey = mods: key: "${lib.concatStringsSep " + " mods} - ${key}";
 
   numKeys = n:
     if n <= 0
-    then { }
-    else let n' = toString n; in { "${n'}" = "${n'}"; } // numKeys (n - 1);
+    then {}
+    else let n' = toString n; in {"${n'}" = "${n'}";} // numKeys (n - 1);
 
   commonKeys = {
     "z" = "prev";
@@ -23,17 +23,17 @@ let
     "down" = "south";
   };
 
-  spaceKeys = (numKeys 9) // { "0" = "10"; } // commonKeys;
+  spaceKeys = (numKeys 9) // {"0" = "10";} // commonKeys;
 
   displayKeys = (numKeys 2) // commonKeys;
 
   mkBindings = mods: mkCmd: keys:
     lib.mapAttrs'
-      (key: value: {
-        name = "${mkKey mods key}";
-        value = "${mkCmd value}";
-      })
-      keys;
+    (key: value: {
+      name = "${mkKey mods key}";
+      value = "${mkCmd value}";
+    })
+    keys;
 
   mkFocusSpace = space: "yabai -m space --focus ${space}";
 
@@ -48,8 +48,7 @@ let
   mkMoveWindowDisplay = display: "yabai -m window --display ${display}; ${mkFocusDisplay display}";
 
   mkSwapWindow = dir: "yabai -m window --swap ${dir} || (${mkMoveWindowDisplay dir})";
-in
-{
+in {
   services.skhd = {
     enable = true;
     package = pkgs.skhd;
@@ -65,11 +64,11 @@ in
         "cmd + alt - w" = "yabai -m space --destroy";
         "hyper - t" = ''yabai -m window --toggle float; yabai -m window --grid 4:4:1:1:2:2'';
       }
-      // (mkBindings [ "cmd" "alt" ] mkFocusWindowOrDisplay dirKeys)
-      // (mkBindings [ "cmd" "alt" "shift" ] mkSwapWindow dirKeys)
-      // (mkBindings [ "cmd" "alt" ] mkFocusSpace spaceKeys)
-      // (mkBindings [ "cmd" "alt" "shift" ] mkMoveWindowSpace spaceKeys)
-      // (mkBindings [ "cmd" "ctrl" ] mkFocusDisplay displayKeys)
-      // (mkBindings [ "cmd" "ctrl" "shift" ] mkMoveWindowDisplay displayKeys);
+      // (mkBindings ["cmd" "alt"] mkFocusWindowOrDisplay dirKeys)
+      // (mkBindings ["cmd" "alt" "shift"] mkSwapWindow dirKeys)
+      // (mkBindings ["cmd" "alt"] mkFocusSpace spaceKeys)
+      // (mkBindings ["cmd" "alt" "shift"] mkMoveWindowSpace spaceKeys)
+      // (mkBindings ["cmd" "ctrl"] mkFocusDisplay displayKeys)
+      // (mkBindings ["cmd" "ctrl" "shift"] mkMoveWindowDisplay displayKeys);
   };
 }

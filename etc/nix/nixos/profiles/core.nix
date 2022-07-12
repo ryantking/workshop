@@ -1,9 +1,10 @@
-{ config
-, lib
-, pkgs
-, ...
+{
+  config,
+  lib,
+  pkgs,
+  ...
 }: {
-  nix.nixPath = [ "nixos-config=${../../lib/compat/nixos}" ];
+  nix.nixPath = ["nixos-config=${../../lib/compat/nixos}"];
 
   i18n.defaultLocale = "en_US.UTF-8";
 
@@ -17,9 +18,9 @@
   ];
 
   services = {
-    earlyoom = { enable = true; };
+    earlyoom = {enable = true;};
 
-    tailscale = { enable = true; };
+    tailscale = {enable = true;};
 
     openssh = {
       enable = true;

@@ -1,18 +1,17 @@
-{ config
-, lib
-, pkgs
-, ...
-}:
-let
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}: let
   inherit (lib) types;
   inherit (pkgs.lib.our) mkOpt;
 
   workshopDir = "${config.home.homeDirectory}/Workshop";
-in
-{
+in {
   options.workshop = {
     home = mkOpt types.path workshopDir;
     configHome = mkOpt types.path "${workshopDir}/etc";
-    dataHome = mkOpt types.path "${workshopDir}/usr/share";
+    dataHome = mkOpt types.path "${workshopDir}/usr";
   };
 }

@@ -1,12 +1,13 @@
-{ pluginDir
-, colors
-, padding
-, ...
+{
+  pluginDir,
+  colors,
+  padding,
+  ...
 }: [
   {
     name = "spotify.name";
     type = "clone";
-    args = [ "label_template" ];
+    args = ["label_template"];
     settings = {
       "position" = "right";
       "click_script" = ''"sketchybar -m --set \$NAME popup.drawing=toggle"'';
@@ -19,8 +20,8 @@
   }
   {
     name = "spotify.back";
-    args = [ "popup.spotify.name" ];
-    events = [ "mouse.clicked" ];
+    args = ["popup.spotify.name"];
+    events = ["mouse.clicked"];
     settings = {
       "icon" = "􀊎";
       "script" = ''"${pluginDir}/spotify.sh"'';
@@ -29,8 +30,8 @@
   }
   {
     name = "spotify.play_pause";
-    args = [ "popup.spotify.name" ];
-    events = [ "mouse.clicked" "spotify_change" ];
+    args = ["popup.spotify.name"];
+    events = ["mouse.clicked" "spotify_change"];
     settings = {
       "icon" = "􀊔";
       "script" = ''"${pluginDir}/spotify.sh"'';
@@ -39,8 +40,8 @@
   }
   {
     name = "spotify.next";
-    args = [ "popup.spotify.name" ];
-    events = [ "mouse.clicked" ];
+    args = ["popup.spotify.name"];
+    events = ["mouse.clicked"];
     settings = {
       "icon" = "􀊐";
       "script" = ''"${pluginDir}/spotify.sh"'';
@@ -50,8 +51,8 @@
   }
   {
     name = "spotify.shuffle";
-    args = [ "popup.spotify.name" ];
-    events = [ "mouse.clicked" ];
+    args = ["popup.spotify.name"];
+    events = ["mouse.clicked"];
     settings = {
       "icon" = "􀊝";
       "script" = ''"${pluginDir}/spotify.sh"'';
@@ -61,8 +62,8 @@
   }
   {
     name = "spotify.repeat";
-    args = [ "popup.spotify.name" ];
-    events = [ "mouse.clicked" ];
+    args = ["popup.spotify.name"];
+    events = ["mouse.clicked"];
     settings = {
       "icon" = "􀊞";
       "script" = ''"${pluginDir}/spotify.sh"'';

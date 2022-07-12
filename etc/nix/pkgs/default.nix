@@ -1,3 +1,3 @@
 final: prev: {
-  sources = prev.callPackage (import ./_sources/generated.nix) { };
+  sources = prev.callPackage (import ./generated.nix) {};
 }

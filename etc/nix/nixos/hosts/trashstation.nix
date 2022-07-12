@@ -1,11 +1,10 @@
-{ lib
-, suites
-, modulesPath
-, ...
-}:
-
 {
-  imports = suites.base ++ suites.gui ++ suites.devel ++ [ (modulesPath + "/profiles/qemu-guest.nix") ];
+  lib,
+  suites,
+  modulesPath,
+  ...
+}: {
+  imports = suites.base ++ suites.gui ++ suites.devel ++ [(modulesPath + "/profiles/qemu-guest.nix")];
 
   whoami.keys.pgp.machine = "0x7B9DDE8739045EF3"; # TODO: Replace with actual one
 
@@ -25,12 +24,12 @@
 
   boot = {
     cleanTmpDir = true;
-    kernelModules = [ "kvm-intel" ];
-    extraModulePackages = [ ];
+    kernelModules = ["kvm-intel"];
+    extraModulePackages = [];
 
     initrd = {
-      availableKernelModules = [ "xhci_pci" "ahci" "virtio_pci" "usbhid" "sr_mod" "virtio_blk" ];
-      kernelModules = [ ];
+      availableKernelModules = ["xhci_pci" "ahci" "virtio_pci" "usbhid" "sr_mod" "virtio_blk"];
+      kernelModules = [];
     };
 
     loader = {
@@ -47,7 +46,7 @@
     "/" = {
       device = "/dev/disk/by-uuid/c9d75e76-ddff-4998-ba20-247b8b186164";
       fsType = "btrfs";
-      options = [ "subvol=root" "compress=zstd" ];
+      options = ["subvol=root" "compress=zstd"];
     };
 
     "/boot" = {
@@ -58,23 +57,23 @@
     "/home" = {
       device = "/dev/disk/by-uuid/c9d75e76-ddff-4998-ba20-247b8b186164";
       fsType = "btrfs";
-      options = [ "subvol=home" "compress=zstd" ];
+      options = ["subvol=home" "compress=zstd"];
     };
 
     "/nix" = {
       device = "/dev/disk/by-uuid/c9d75e76-ddff-4998-ba20-247b8b186164";
       fsType = "btrfs";
-      options = [ "subvol=nix" "compress=zstd" "noatime" ];
+      options = ["subvol=nix" "compress=zstd" "noatime"];
     };
 
     "/swap" = {
       device = "/dev/disk/by-uuid/c9d75e76-ddff-4998-ba20-247b8b186164";
       fsType = "btrfs";
-      options = [ "subvol=swap" "noatime" ];
+      options = ["subvol=swap" "noatime"];
     };
   };
 
-  swapDevices = [ { device = "/swap/swapfile"; } ];
+  swapDevices = [{device = "/swap/swapfile";}];
 
   hardware.cpu.intel.updateMicrocode = true;
 

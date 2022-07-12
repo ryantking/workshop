@@ -1,20 +1,21 @@
-{ config
-, lib
-, pkgs
-, ...
+{
+  config,
+  lib,
+  pkgs,
+  ...
 }: {
   nixpkgs.system = "x86_64-darwin";
 
   nix = {
-    nixPath = [ "darwin=/etc/nix/inputs/darwin" ];
-    trustedUsers = [ "@admin" ];
+    nixPath = ["darwin=/etc/nix/inputs/darwin"];
+    trustedUsers = ["@admin"];
     useSandbox = false;
   };
 
   environment = {
     darwinConfig = "$WORKSHOP_DIR/lib/compat/darwin";
-    variables.PATH = [ "/usr/local/sbin" "$PATH" ];
-    systemPackages = with pkgs; [ m-cli mas terminal-notifier ];
+    variables.PATH = ["/usr/local/sbin" "$PATH"];
+    systemPackages = with pkgs; [m-cli mas terminal-notifier];
   };
 
   services = {
@@ -38,6 +39,6 @@
       noLock = true;
     };
 
-    taps = [ "homebrew/bundle" "homebrew/core" "homebrew/services" ];
+    taps = ["homebrew/bundle" "homebrew/core" "homebrew/services"];
   };
 }

@@ -1,4 +1,4 @@
-{ suites, ... }: {
+{suites, ...}: {
   imports = suites.base ++ suites.gui ++ suites.devel;
 
   networking.hostName = "trashbook";

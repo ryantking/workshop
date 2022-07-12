@@ -1,15 +1,13 @@
-{ config
-, options
-, lib
-, pkgs
-, ...
-}:
-
-let
+{
+  config,
+  options,
+  lib,
+  pkgs,
+  ...
+}: let
   gnupgHome = "${config.xdg.dataHome}/gnupg";
   key = config.whoami.keys.pgp.primary;
-in
-{
+in {
   programs.gpg = {
     enable = true;
     homedir = gnupgHome;
@@ -100,9 +98,14 @@ in
     # https://github.com/drduh/config/blob/master/gpg-agent.conf
     # https://www.gnupg.org/documentation/manuals/gnupg/Agent-Options.html
     enable-ssh-support
+    allow-emacs-pinentry
     ttyname $GPG_TTY
     default-cache-ttl 60
     max-cache-ttl 120
-    pinentry-program ${if pkgs.stdenv.isDarwin then "/usr/local/bin/pinentry-mac" else "/usr/bin/pinentry-curses"}
+    pinentry-program ${
+      if pkgs.stdenv.isDarwin
+      then "/usr/local/bin/pinentry-mac"
+      else "/usr/bin/pinentry-curses"
+    }
   '';
 }

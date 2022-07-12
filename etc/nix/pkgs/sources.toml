@@ -1,18 +1,31 @@
 [yabai]
 src.github = "koekeishiya/yabai"
 fetch.github = "koekeishiya/yabai"
+
 [chemacs]
 src.git = "https://github.com/plexus/chemacs2.git"
-fetch.github = "plexus/chemacs2"
+fetch.git = "https://github.com/plexus/chemacs2.git"
+
 [goimapnotify]
 src.git = "https://gitlab.com/shackra/goimapnotify.git"
 fetch.git = "https://gitlab.com/shackra/goimapnotify.git"
+
 [nord-dircolors]
 src.git = "https://github.com/arcticicestudio/nord-dircolors.git"
-fetch.github = "arcticicestudio/nord-dircolors"
+fetch.git = "https://github.com/arcticicestudio/nord-dircolors.git"
+
+[alejandra]
+src.git = "https://github.com/kamadorueda/alejandra.git"
+fetch.git = "https://github.com/kamadorueda/alejandra.git"
+
 [gofumpt]
 src.git = "https://github.com/mvdan/gofumpt"
-fetch.github = "mvdan/gofumpt"
+fetch.git = "https://github.com/mvdan/gofumpt"
+
 [gotools]
 src.git = "https://go.googlesource.com/tools"
 fetch.git = "https://go.googlesource.com/tools"
+
+[fennel]
+src.git = "https://github.com/bakpakin/Fennel.git"
+fetch.git = "https://github.com/bakpakin/Fennel.git"

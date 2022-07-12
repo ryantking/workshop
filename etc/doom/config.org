@@ -314,14 +314,13 @@ Make it so tangling the literate configuration does not require answering a prom
 
 #+begin_src emacs-lisp :tangle "cli.el"
 ;;; cli.el -*- lexical-binding: t; -*-
-(setq org-confirm-babel-evaluate nil)
-
 (defun doom-shut-up-a (orig-fn &rest args)
   (quiet! (apply orig-fn args)))
 
+(setq org-id-locations-file (expand-file-name "org-id-locations" doom-cache-dir)
+      org-confirm-babel-evaluate nil)
 (advice-add 'org-babel-execute-src-block :around #'doom-shut-up-a)
-
-(setq org-id-locations-file (expand-file-name "org-id-locations" doom-cache-dir))
+(advice-add #'native-compile-async :override #'ignore)
 #+end_src
 
 *** Buffers
@@ -410,7 +409,8 @@ Now that the [[https://github.com/railwaycat/homebrew-emacsmacport][Famous Emacs
 
 #+begin_src emacs-lisp
 (when 'native-comp-compiler-options
-  (setq native-comp-compiler-options '("-O3")))
+  (setq native-comp-deferred-compilation t
+        native-comp-compiler-options '("-O3")))
 #+end_src
 
 
@@ -475,8 +475,6 @@ everywhere
 (rss +org)
 ;; twitter
 #+end_src
-
-*** Calendar
 
 
 *** RSS
@@ -692,10 +690,19 @@ snippets
 #+end_src
 
 *** Format
-Use the latest format-all plugin.
+Use prettier for more all web and shell languages:
 
-#+begin_src emacs-lisp :tangle packages.el
-(unpin! format-all)
+#+begin_src emacs-lisp
+(setq-default format-all-formatters '(("Dockerfile" prettier)
+                                      ("HTML" prettier)
+                                      ;; ("Shell" prettier)
+                                      ))
+#+end_src
+
+Use alejandra for nix files:
+
+#+begin_src emacs-lisp
+(set-formatter! 'alejandra "alejandra --quiet" :modes '(nix-mode))
 #+end_src
 
 *** Evil
@@ -975,7 +982,15 @@ nix
 (rust +lsp)
 (sh +lsp)
 solidity
+(web +lsp)
 (yaml +lsp)
+#+end_src
+
+*** Emacs Lisp
+Don't treat ~init.el~ as a package.
+
+#+begin_src emacs-lisp
+(setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc))
 #+end_src
 
 *** Markdown
@@ -1012,7 +1027,6 @@ Use the fantastic [[https://github.com/d12frosted/vulpea][Vulpea]] for a unified
 
 #+begin_src emacs-lisp
 (use-package! vulpea
-  :ensure t
   :hook ((before-save . vulpea-pre-save-hook)
          (org-roam-db-autosync-mode . vulpea-db-autosync-enable))
   :init

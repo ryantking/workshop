@@ -1,9 +1,10 @@
-{ font
-, colors
-, padding
-, segment
-, shadow
-, ...
+{
+  font,
+  colors,
+  padding,
+  segment,
+  shadow,
+  ...
 }: {
   bar = {
     height = 32;

@@ -1,14 +1,13 @@
-{ self
-, config
-, lib
-, pkgs
-, ...
-}:
-let
-  fmt = pkgs.formats.toml { };
-  starshipSettings = fmt.generate "starship.toml" config.shell.prompt.starship;
-in
 {
+  self,
+  config,
+  lib,
+  pkgs,
+  ...
+}: let
+  fmt = pkgs.formats.toml {};
+  starshipSettings = fmt.generate "starship.toml" config.shell.prompt.starship;
+in {
   environment = {
     shellAliases =
       if pkgs.stdenv.isDarwin
@@ -19,7 +18,7 @@ in
         nixos-option = "nixos-option -I nixpkgs=${self}/lib/compat";
       };
 
-    shells = with pkgs; [ bashInteractive dash zsh ];
+    shells = with pkgs; [bashInteractive dash zsh];
   };
 
   programs = {

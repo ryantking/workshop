@@ -1,8 +1,7 @@
-{ ... }: {
+{...}: {
   homebrew = {
-    taps = [ "railwaycat/emacsmacport" ];
-
-    brews = [ "pngpaste" ];
+    taps = ["railwaycat/emacsmacport"];
+    brews = ["pngpaste"];
 
     casks = [
       "1password-beta"
@@ -10,6 +9,7 @@
       "adobe-creative-cloud"
       "alacritty"
       "alfred"
+      "dash"
       "displaperture"
       "docker"
       "dropbox"
@@ -19,6 +19,7 @@
       "logseq"
       "jetbrains-toolbox"
       "kitty"
+      "mactex-no-gui"
       "meetingbar"
       "pictogram"
       "protonvpn"
@@ -45,8 +46,10 @@
 
     extraConfig = ''
       brew "emacs-mac", args: [
-        "with-nativ-comp", "with-mac-metal", "with-xwidgets", "with-imagemagick", "with-rsvg",
+        "with-native-comp", "with-mac-metal", "with-xwidgets", "with-imagemagick", "with-rsvg",
         "with-natural-title-bar", "with-emacs-big-sur-icon", "with-starter"
       ]'';
   };
+
+  shell.env.PATH = ["/Library/TeX/Distributions/Programs/texbin"];
 }

@@ -11,7 +11,7 @@ func init() {
 	frontMatterTmpl = template.Must(template.New("front-matter").Parse(`#+title: {{ .Title }}
 #+description: {{ .Description }}
 #+slug: {{ .Slug }}
-#+tags: {{ .Tags }}
+#+tags[]: {{ .Tags }}
 #+type: garden
 #+lastmod: {{ .LastMod }}
 `))
