@@ -288,7 +288,8 @@ Emacs supports pinentry so use it.
   ;;; Emacs pinentry mode (pinentry)
   (vftc-emacs-elpa-package 'pinentry
     (setq package-gnupghome-dir (getenv "GNUPGHOME")
-	  epa-pinentry-mode 'loopback)
+	  epg-gpg-home-directory (getenv "GNUPGHOME")
+	  epg-pinentry-mode 'loopback)
     (pinentry-start))
 #+end_src
 
@@ -1808,6 +1809,14 @@ My system configuration is in ~nix~.
     (add-hook 'nix-mode-hook #'eglot-ensure))
 #+end_src
 
+*** Caddyfile (~caddyfile-mode~)
+Caddy is my reverse proxy of choice. This major mode adds in some syntax
+highlighting to make editing the config files a bit more fun.
+
+#+begin_src emacs-lisp
+  ;;; Caddyfile (caddy-mode)
+  (vftc-emacs-elpa-package 'caddyfile-mode)
+#+end_src
 
 ** Code and text linting (~flymake~)
 Since version 26, Emacs has had a builtin linting feature called ~flymake~. It replaces the longstanding ~flycheck~ package that has long been the default for syntax checking. With a diagnostic GUI and additional linters, ~flymake~ is a great replacement.

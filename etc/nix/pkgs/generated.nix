@@ -6,38 +6,38 @@
 }: {
   alejandra = {
     pname = "alejandra";
-    version = "58bcdf252e9e50639583864e6e821c6053ca8212";
+    version = "8ac598442fa4a6087ec926d1becf8ad67b6c3e0a";
     src = fetchgit {
       url = "https://github.com/kamadorueda/alejandra.git";
-      rev = "58bcdf252e9e50639583864e6e821c6053ca8212";
+      rev = "8ac598442fa4a6087ec926d1becf8ad67b6c3e0a";
       fetchSubmodules = false;
       deepClone = false;
       leaveDotGit = false;
-      sha256 = "sha256-2edwC0zaITWgm+uh1RVI5r/PRYoGot3GYmDRj9iEhpk=";
+      sha256 = "sha256-gqBsQ3mqyA82nvJJDnIB4bG+EMc8EnQP3iUx7OMJk+g=";
     };
   };
   chemacs = {
     pname = "chemacs";
-    version = "868388321169eddf6dcb99f9b0d3ce734897b3de";
+    version = "d722459287566e8c91ae077bf3d65966ebece190";
     src = fetchgit {
       url = "https://github.com/plexus/chemacs2.git";
-      rev = "868388321169eddf6dcb99f9b0d3ce734897b3de";
+      rev = "d722459287566e8c91ae077bf3d65966ebece190";
       fetchSubmodules = false;
       deepClone = false;
       leaveDotGit = false;
-      sha256 = "sha256-XsJ2hHoQGoDbM7J+VvO1u0+f+jJCQqcUqQjzvTlnnG0=";
+      sha256 = "sha256-YD5GncKB2n0ybMNE1NHfjnIYe/Je3wdI0AgI2pcmxgQ=";
     };
   };
   fennel = {
     pname = "fennel";
-    version = "78b9a7f1db3549c22232d8b313ebfb156b9b7b8b";
+    version = "eb8e2d00c9846a9d78114966e0dfdb1c11981199";
     src = fetchgit {
       url = "https://github.com/bakpakin/Fennel.git";
-      rev = "78b9a7f1db3549c22232d8b313ebfb156b9b7b8b";
+      rev = "eb8e2d00c9846a9d78114966e0dfdb1c11981199";
       fetchSubmodules = false;
       deepClone = false;
       leaveDotGit = false;
-      sha256 = "sha256-pmQPrV4pzLnvWOUO/wT5iWC6k3AhNQK1huxkLCDh3ic=";
+      sha256 = "sha256-cE5cl/LGgdjEgzTp9+T+ogLeXeQ/ISbu1VtRU/Vs0sc=";
     };
   };
   gofumpt = {
@@ -66,14 +66,14 @@
   };
   gotools = {
     pname = "gotools";
-    version = "b6e495100ec74eb3127d0b0af75ec441e2979077";
+    version = "dcb576d3b6e02adc9dadcbaafedf16b67034edda";
     src = fetchgit {
       url = "https://go.googlesource.com/tools";
-      rev = "b6e495100ec74eb3127d0b0af75ec441e2979077";
+      rev = "dcb576d3b6e02adc9dadcbaafedf16b67034edda";
       fetchSubmodules = false;
       deepClone = false;
       leaveDotGit = false;
-      sha256 = "sha256-pNoDtydAFAss4hjmk3Px07FJZC/GQiXNeOOAdG9g98w=";
+      sha256 = "sha256-pcWOxxAmN0tyVjZfmFiwtW/aZcDA1AHIXqYiehj+GeM=";
     };
   };
   nord-dircolors = {

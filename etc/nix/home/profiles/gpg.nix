@@ -98,7 +98,7 @@ in {
     # https://github.com/drduh/config/blob/master/gpg-agent.conf
     # https://www.gnupg.org/documentation/manuals/gnupg/Agent-Options.html
     enable-ssh-support
-    allow-emacs-pinentry
+    allow-loopback-pinentry
     ttyname $GPG_TTY
     default-cache-ttl 60
     max-cache-ttl 120
