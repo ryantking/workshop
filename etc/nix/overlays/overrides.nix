@@ -5,7 +5,7 @@ channels: final: prev: rec {
     alejandra
     cachix
     gopls
-    go_1_18
+    go
     nix
     nix-direnv
     prettier
@@ -36,4 +36,12 @@ channels: final: prev: rec {
       inherit (prev.sources.fennel) version src;
       buildInputs = [channels.latest.lua5_4];
     });
+
+  wlopm = prev.stdenv.mkDerivation {
+    inherit (prev.sources.wlopm) pname version src;
+
+    installPhase = "make install PREFIX=$out";
+    nativeBuildInputs = with prev; [gnumake wayland wayland-scanner];
+    buildInputs = [prev.wayland];
+  };
 }

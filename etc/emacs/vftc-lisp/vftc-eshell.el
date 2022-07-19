@@ -28,7 +28,6 @@
 
 ;;; Code:
 
-(require 'vc)
 (require 'magit)
 
 (defun vftc-eshell--prompt-path ()
@@ -41,12 +40,14 @@
 
 (defun vftc-eshell-prompt ()
   "A custom prompt for eshell that more closely replicates a modern prompt such as starship."
-  (let ((current-branch (car (vc-git-branches))))
+  (let ((current-branch (magit-get-current-branch)))
     (concat
      "\n"
      (propertize (vftc-eshell--prompt-path) 'face `(:foreground ,(face-foreground 'vftc-face-blue) :weight bold))
-     (when current-branch (propertize (concat " " current-branch) 'face 'vftc-face-base-4))
-     (when (length> (magit-changed-files "HEAD") 0) (propertize "*" 'face 'vftc-face-magenta))
+     (when current-branch
+       (propertize (concat " " current-branch) 'face 'vftc-face-base-4))
+     (when (and current-branch (length> (magit-changed-files "HEAD") 0))
+       (propertize "*" 'face 'vftc-face-magenta))
      "\n"
      (if (= (user-uid) 0) (propertize "#" 'face 'vftc-face-red) (propertize "λ" 'face 'vftc-face-green))
      (propertize " " 'face 'vftc-face-fg))))

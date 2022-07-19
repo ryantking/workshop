@@ -120,8 +120,8 @@ in {
     sessionVariables = {DELTA_PAGER = "less -FR";};
   };
 
-  age.secrets."gh-hosts" = {
-    file = ./hosts.yml.age;
-    path = "${config.xdg.configHome}/gh/hosts.yml";
-  };
+  #age.secrets."gh-hosts" = {
+  #file = ./hosts.yml.age;
+  #path = "${config.xdg.configHome}/gh/hosts.yml";
+  #};
 }

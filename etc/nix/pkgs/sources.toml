@@ -29,3 +29,7 @@ fetch.git = "https://go.googlesource.com/tools"
 [fennel]
 src.git = "https://github.com/bakpakin/Fennel.git"
 fetch.git = "https://github.com/bakpakin/Fennel.git"
+
+[wlopm]
+src.git = "https://git.sr.ht/~leon_plickat/wlopm"
+fetch.git = "https://git.sr.ht/~leon_plickat/wlopm"

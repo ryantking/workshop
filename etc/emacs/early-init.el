@@ -59,4 +59,7 @@
 (setq gc-cons-threshold most-positive-fixnum)
 (add-hook 'after-init-hook #'(lambda () (setq gc-cons-threshold (* 8 1024 1024))))
 
+;; Move elpa
+(setq package-user-dir (expand-file-name "emacs/elpa" (getenv "XDG_DATA_HOME")))
+
 ;;; early-init.el ends here

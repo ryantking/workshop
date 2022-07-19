@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/ryantking/workshop/lib/cli"
-	"github.com/ryantking/workshop/lib/cli/log"
+	"github.com/ryantking/lib/cli"
+	"github.com/ryantking/lib/cli/log"
 )
 
 // ForString prompts the user for a string.

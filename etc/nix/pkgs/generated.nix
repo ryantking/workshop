@@ -6,14 +6,14 @@
 }: {
   alejandra = {
     pname = "alejandra";
-    version = "8ac598442fa4a6087ec926d1becf8ad67b6c3e0a";
+    version = "25cbef035e1ebf79fdf08f64ca6348ab4807b757";
     src = fetchgit {
       url = "https://github.com/kamadorueda/alejandra.git";
-      rev = "8ac598442fa4a6087ec926d1becf8ad67b6c3e0a";
+      rev = "25cbef035e1ebf79fdf08f64ca6348ab4807b757";
       fetchSubmodules = false;
       deepClone = false;
       leaveDotGit = false;
-      sha256 = "sha256-gqBsQ3mqyA82nvJJDnIB4bG+EMc8EnQP3iUx7OMJk+g=";
+      sha256 = "sha256-imWi48JxT7l/1toc7NElP1/CBEbChTQ3n0gjBz6L7so=";
     };
   };
   chemacs = {
@@ -66,14 +66,14 @@
   };
   gotools = {
     pname = "gotools";
-    version = "dcb576d3b6e02adc9dadcbaafedf16b67034edda";
+    version = "ce6ce766265714553035d328a9be4f313c63e5fd";
     src = fetchgit {
       url = "https://go.googlesource.com/tools";
-      rev = "dcb576d3b6e02adc9dadcbaafedf16b67034edda";
+      rev = "ce6ce766265714553035d328a9be4f313c63e5fd";
       fetchSubmodules = false;
       deepClone = false;
       leaveDotGit = false;
-      sha256 = "sha256-pcWOxxAmN0tyVjZfmFiwtW/aZcDA1AHIXqYiehj+GeM=";
+      sha256 = "sha256-0+0kfJmIs5O2NbNZFsH2txSEHSUnmqFHiKgaCMwq4yI=";
     };
   };
   nord-dircolors = {
@@ -86,6 +86,18 @@
       deepClone = false;
       leaveDotGit = false;
       sha256 = "sha256-6A3h1R1+kZbCwouUshvRpUL3fVkkDuHCD+bz8Jbq4M0=";
+    };
+  };
+  wlopm = {
+    pname = "wlopm";
+    version = "24307414ca6881466f6e45d0ab8f196edde10a40";
+    src = fetchgit {
+      url = "https://git.sr.ht/~leon_plickat/wlopm";
+      rev = "24307414ca6881466f6e45d0ab8f196edde10a40";
+      fetchSubmodules = false;
+      deepClone = false;
+      leaveDotGit = false;
+      sha256 = "sha256-kcUJVB5jP2qZ1YgJDEBsyn5AgwhRxQmzOrk0gKj1MeM=";
     };
   };
   yabai = {

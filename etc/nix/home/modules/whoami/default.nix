@@ -1,4 +1,5 @@
 {
+  self,
   config,
   lib,
   pkgs,
@@ -6,7 +7,13 @@
 }: let
   inherit (lib) types;
   inherit (config.home) homeDirectory;
+  inherit (config.workshop) configHome;
   inherit (pkgs.lib.our) mkOpt;
+
+  hostName = "trashstation"; # TODO: un-hardcode
+  hosts = builtins.fromTOML (builtins.readFile "${self}/etc/hosts.toml");
+  hostCfg = hosts.${hostName};
+  peerKeys = lib.filterAttrs (n: _: n != hostName);
 in {
   options.whoami = {
     name = mkOpt types.str "Ryan King";
@@ -23,14 +30,22 @@ in {
     };
 
     keys = {
+      age = mkOpt types.str hostCfg.keys.age;
+
       pgp = {
         primary = mkOpt types.str "0xD718BA353C298BB2";
-        machine = mkOpt (types.nullOr types.str) null;
+        machine = mkOpt types.str hostCfg.keys.pgp;
       };
 
       ssh = {
         primary = mkOpt types.str (import ./ssh-key.nix);
-        identities = mkOpt (types.listOf types.str) (import ./ssh-identities.nix);
+        identities = mkOpt (types.listOf types.str) hostCfg.keys.ssh;
+      };
+
+      peers = {
+        age = mkOpt (types.listOf types.str) (builtins.mapAttrs (_: v: v.age) peerKeys);
+        pgp = mkOpt (types.listOf types.str) (builtins.mapAttrs (_: v: v.pgp) peerKeys);
+        ssh = mkOpt (types.listOf types.str) (builtins.concatLists (builtins.mapAttrs (_: v: v.ssh) peerKeys));
       };
     };
 

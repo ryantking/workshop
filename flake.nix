@@ -5,9 +5,9 @@
 
   inputs = {
     # Channels
-    nixos.url = "github:nixos/nixpkgs/nixos-21.11";
+    nixos.url = "github:nixos/nixpkgs/nixos-22.05";
     latest.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    nixpkgs-darwin.url = "github:nixos/nixpkgs/nixpkgs-21.11-darwin";
+    nixpkgs-darwin.url = "github:nixos/nixpkgs/nixpkgs-22.05-darwin";
     nixpkgs.follows = "nixos";
 
     # Configuration Layers
@@ -17,12 +17,12 @@
     };
     home = {
       url = "github:ryantking/home-manager/mbsync-launchd";
-      inputs.nixpkgs.follows = "nixos";
+      inputs.nixpkgs.follows = "nixpkgs-darwin";
     };
 
     # Flake Utilities
     digga = {
-      url = "github:divnix/digga";
+      url = "github:divnix/digga/home-manager-22.11";
       inputs = {
         nixpkgs.follows = "nixos";
         nixlib.follows = "nixos";
@@ -57,17 +57,13 @@
     };
 
     # Secrets Management
-    agenix = {
-      url = "github:ryantm/agenix";
-      inputs.nixpkgs.follows = "nixos";
-    };
-    agenix-cli = {
-      url = "github:cole-h/agenix-cli";
+    ragenix = {
+      url = "github:yaxitech/ragenix";
       inputs.nixpkgs.follows = "nixos";
     };
 
     # Development Tools
-    # emacs.url = "github:nix-community/emacs-overlay";
+    emacs.url = "github:nix-community/emacs-overlay";
     treefmt.url = "github:numtide/treefmt";
     rnix-lsp = {
       url = "github:nix-community/rnix-lsp";

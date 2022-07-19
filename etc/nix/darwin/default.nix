@@ -3,7 +3,7 @@
   common,
   home,
   digga,
-  agenix,
+  ragenix,
   ...
 }: {
   hostDefaults = {
@@ -17,7 +17,7 @@
       {lib.our = self.lib;}
       digga.darwinModules.nixConfig
       home.darwinModules.home-manager
-      agenix.nixosModules.age
+      ragenix.nixosModules.age
     ];
   };
 

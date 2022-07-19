@@ -37,44 +37,44 @@
 
   cfg = config.services.goimapnotify;
 in {
-  options = {
-    accounts.email.accounts = lib.mkOption {
-      type = types.attrsOf (types.submodule {
-        options.goimapnotify = {
-          enable = lib.mkEnableOption "goimapnotify";
-          onNewMail = mkOpt types.str "${pkgs.isync}/bin/mbsync %s";
-          onNewMailPost = mkOpt types.str "${pkgs.mu} index --lazy-check";
-          boxes = mkOpt (types.listOf types.attrs) [{mailbox = "inbox";}];
-        };
-      });
-    };
-
-    services.goimapnotify = {
-      enable = lib.mkEnableOption "goimapnotify";
-      package = mkOpt types.package pkgs.goimapnotify;
-    };
-  };
-
-  config = lib.mkMerge [
-    {
-      home.packages = lib.optional cfg.enable cfg.package;
-
-      xdg.configFile."goimapnotify.conf" = lib.optionalAttrs cfg.enable {
-        text = builtins.toJSON (lib.mapAttrsToList mkConfigEntry accounts);
-      };
-    }
-    (lib.optionalAttrs (lib.hasAttr "launchd" options) {
-      launchd.agents = {
-        goimapnotify = lib.optionalAttrs cfg.enable {
-          enable = true;
-          config = {
-            ProgramArguments = ["${cfg.package}/bin/goimapnotify" "-conf" "${config.xdg.configHome}/goimapnotify.conf"];
-            ProcessType = "Adaptive";
-            RunAtLoad = true;
-            KeepAlive = true;
-          };
-        };
-      };
-    })
-  ];
+  # options = {
+  #   accounts.email.accounts = lib.mkOption {
+  #     type = types.attrsOf (types.submodule {
+  #       options.goimapnotify = {
+  #         enable = lib.mkEnableOption "goimapnotify";
+  #         onNewMail = mkOpt types.str "${pkgs.isync}/bin/mbsync %s";
+  #         onNewMailPost = mkOpt types.str "${pkgs.mu} index --lazy-check";
+  #         boxes = mkOpt (types.listOf types.attrs) [{mailbox = "inbox";}];
+  #       };
+  #     });
+  #   };
+  #
+  #   services.goimapnotify = {
+  #     enable = lib.mkEnableOption "goimapnotify";
+  #     package = mkOpt types.package pkgs.goimapnotify;
+  #   };
+  # };
+  #
+  # config = lib.mkMerge [
+  #   {
+  #     home.packages = lib.optional cfg.enable cfg.package;
+  #
+  #     xdg.configFile."goimapnotify.conf" = lib.optionalAttrs cfg.enable {
+  #       text = builtins.toJSON (lib.mapAttrsToList mkConfigEntry accounts);
+  #     };
+  #   }
+  #   (lib.optionalAttrs (lib.hasAttr "launchd" options) {
+  #     launchd.agents = {
+  #       goimapnotify = lib.optionalAttrs cfg.enable {
+  #         enable = true;
+  #         config = {
+  #           ProgramArguments = ["${cfg.package}/bin/goimapnotify" "-conf" "${config.xdg.configHome}/goimapnotify.conf"];
+  #           ProcessType = "Adaptive";
+  #           RunAtLoad = true;
+  #           KeepAlive = true;
+  #         };
+  #       };
+  #     };
+  #   })
+  # ];
 }

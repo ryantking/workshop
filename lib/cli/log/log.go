@@ -4,7 +4,7 @@ import (
 	"io"
 
 	"github.com/pterm/pterm"
-	"github.com/ryantking/workshop/lib/cli"
+	"github.com/ryantking/lib/cli"
 )
 
 func debug(ctx cli.Context) *pterm.PrefixPrinter {

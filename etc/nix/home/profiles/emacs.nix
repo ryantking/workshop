@@ -79,10 +79,10 @@ in {
     };
   };
 
-  # programs.emacs = {
-  # enable = pkgs.stdenv.isLinux;
-  # package = pkgs.emacsNativeComp;
-  # };
+  programs.emacs = {
+    enable = pkgs.stdenv.isLinux;
+    package = pkgs.emacsNativeComp;
+  };
 
   home.packages = with pkgs; [
     emacsclient

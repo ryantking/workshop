@@ -1,0 +1,11 @@
+[trashstation]
+address = "192.168.1.75"
+tailscale = "100.112.62.110"
+
+[trashstation.keys]
+pgp = "TODO"
+age = "age15khpycddvy4n8qg3ynx8zssx7sq5e7fdhkw0pxvh47tzjk5sp5ts9pg8nw"
+ssh = [
+     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPHhyWY6inRdbr+og3gYMM/tRQeVsDsdgaghWcZRQhLa rking@trashstation",
+     "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDshTJoa3tXD5+gEkkg+//60Y7hAS0FJfbQcco3KIRVCZbR8T1YLCHwpL1npTBIrgm+IG4I5isI3oAjkTYNaHpNK3pU67GSbbjVODTC2vBa3Mbxc2izkQaegckp09Eg6x6i5mSswVMRGMYTe0xlewdNI7E7SMYJKup67baHC1qCq0CCzTY0C0YZCEp3WkjGiXXgXnVEeTTcidBx+jsBSa2FcFB5AnNh0ile+pXppKMwGfIk5STTUMWNnb/ilhvotNoOJrkECDPCZikyh40q04MK9rEnXmBjis+kZP3kNJK+DBgeTyYcnR+paALRn+CrtBC281Z8HBdGBo3aDkjuOUviYGhEfFNLCRqT6VSDuchm8ONqiB/WeiQMPj4kQ6r9tltxRdsfxSgvbvKb6cE5T4il5p0kyX65MKGNpnD5gtbH2fsI3nN/RRqWccEvqybYezuV+88Hs75kWTgF0vkqonu+VRjzILz+OJpaiu9RGXkNyXs/gyQQSP6PWpowpSHpYVd9CDTmxdj5co7ymhDGAr0SVSUAvNmMzGazzUtXh4YuivPoYGiA1rPVRXE5EqjHCwWCGToHypuzZj48ep95+HG5m2zqxT5/WGPAWMlHnq0rK5wEpYA7GXwmOQIV5EMJ234CAzReL7nnE9cOGGQCMU4zYOLm5C7XVlcH11cvO0vJOw== rking@trashstation"
+]

@@ -1,7 +1,7 @@
 # ############
 # Workshop
 
-all: update switch
+all: switch
 
 .PHONY: help
 help: ## Show this help screen.
@@ -16,9 +16,9 @@ switch: switch-$(UNAME) ## Switch to the new configuration
 switch-darwin:
 	darwin-rebuild switch --flake .
 switch-linux: /etc/nixos/flake.nix
-	nixos-rebuild switch --flake
+	sudo nixos-rebuild switch
 /etc/nixos/flake.nix:
-	ln -s flake.nix $@
+	sudo ln -s flake.nix $@
 
 ##@ Flake Management
 

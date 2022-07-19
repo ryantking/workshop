@@ -114,7 +114,9 @@ Different Emacs GUIs do different things with the login shell. In order to ensur
 
 #+begin_src emacs-lisp
   (vftc-emacs-elpa-package 'exec-path-from-shell
-    (setq exec-path-from-shell-variables '("PATH" "SSH_AUTH_SOCK" "COLORSCHEME"))
+    (setq exec-path-from-shell-variables
+	  '("PATH" "PGPKEYID" "SSH_AUTH_SOCK" "GNUPGHOME" "COLORSCHEME"))
+  
     (exec-path-from-shell-initialize))
 #+end_src
 
@@ -137,6 +139,8 @@ Setup the frame geometry.
 I want my Emacs colorscheme to sync with my workshop theme. I define a function that reads the environment and the loads the corresponding doom theme.
 
 #+begin_src emacs-lisp
+  (vftc-emacs-elpa-package 'dash)
+
   (defun vftc-load-theme ()
     (require 'dash)
     (-> (getenv "COLORSCHEME")
@@ -148,7 +152,8 @@ I want my Emacs colorscheme to sync with my workshop theme. I define a function 
     (doom-themes-visual-bell-config)
     (doom-themes-org-config))
 
-  (vftc-load-theme)
+  (vftc-emacs-elpa-package 'doom-themes
+    (vftc-load-theme))
 #+end_src
 
 *** Custom faces (~vftc-faces.el~)
@@ -639,7 +644,7 @@ This section of configuration adds completion as I type text into a buffer. This
 The completion prompt is handled by Corfu.
 
 #+begin_src emacs-lisp
-    ;;; Corfu (in-buffer completion popup)
+  ;;; Corfu (in-buffer completion popup)
   (vftc-emacs-elpa-package 'corfu
     ;; Builtin completion settings
     (setq completion-cycle-threshold 3
@@ -649,19 +654,21 @@ The completion prompt is handled by Corfu.
     ;; corfu settings
     (setq corfu-cycle t
 	  corfu-auto t
-	  corfu-auto-delay 0.1
+	  corfu-auto-delay 0.3
+	  corfu-quit-at-boundary t
 	  corfu-quit-no-match t)
+
     (global-corfu-mode 1)
+
     (define-key corfu-map (kbd "<tab>") #'corfu-complete)
 
-    ;; Adapted from Corfu's manual.
-    (defun contrib/corfu-enable-always-in-minibuffer ()
-      "Enable Corfu in the minibuffer if Vertico is not active.
-  Useful for prompts such as `eval-expression' and `shell-command'."
-      (unless (bound-and-true-p vertico--input)
-	(corfu-mode 1)))
+    (add-hook 'eshell-mode-hook
+	      (lambda () (setq-local corfu-auto nil)))
 
-    (add-hook 'minibuffer-setup-hook #'contrib/corfu-enable-always-in-minibuffer 1))
+    (add-hook 'minibuffer-setup-hook
+	      (lambda ()
+		(unless (bound-and-true-p vertico--input)
+		  (setq-local corfu-auto nil) (corfu-mode 1)))))
 #+end_src
 
 *** Extra completion-at-point backends (~cape.el~)
@@ -671,10 +678,25 @@ Since Corfu uses the bulitin in CAPE, it cannot have extra backends easily plugg
   ;;; CAPE (extra completion-at-point backends)
   (vftc-emacs-elpa-package 'cape
     (require 'cape-keyword)
-    
+
     (setq cape-dabbrev-min-length 3)
+
+    (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-silent)
+    (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-purify)
+
     (dolist (backend '(cape-symbol cape-keyword cape-file cape-dabbrev))
       (add-to-list 'completion-at-point-functions backend)))
+#+end_src
+
+*** Completion menu icons (~kind-icon~)
+Corfu supports adding icons via external packages. The one that I will
+be using, ~kind-icon~ provides nice SVG icons.
+
+#+begin_src emacs-lisp
+  ;;; Completion menu icons (kind-icon)
+  (vftc-emacs-elpa-package 'kind-icon
+    (setq kind-icon-default-face 'corfu-default)
+    (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
 #+end_src
 
 *** Better command prompt completion (~pcmpl-args~)
@@ -689,15 +711,15 @@ Emacs has a builtin bit of functionality called ~dabbrev~ that completes text ba
 
 #+begin_src emacs-lisp
   ;;; Dabbrev (dynamic word completion)
-  (vftc-emacs-builtin-package 'dabbrev
-    (setq dabbrev-abbrev-char-regexp "\\W\\|\\s_"
-	  dabbrev-abbrev-skip-leading-regexp "[$*/=~’]"
-	  dabbrev-backward-only nil
-	  dabbrev-case-distinction 'case-replace
-	  dabbrev-upcase-means-case-search t)
-    (let ((map global-map))
-      (define-key map (kbd "M-/") #'dabbrev-expand)
-      (define-key map (kbd "C-x M-/") #'dabbrev-completion)))
+  ;; (vftc-emacs-builtin-package 'dabbrev
+  ;;   (setq dabbrev-abbrev-char-regexp "\\W\\|\\s_"
+  ;; 	dabbrev-abbrev-skip-leading-regexp "[$*/=~’]"
+  ;; 	dabbrev-backward-only nil
+  ;; 	dabbrev-case-distinction 'case-replace
+  ;; 	dabbrev-upcase-means-case-search t)
+  ;;   (let ((map global-map))
+  ;;     (define-key map (kbd "M-/") #'dabbrev-expand)
+  ;;     (define-key map (kbd "C-x M-/") #'dabbrev-completion)))
 #+end_src
 
 *** Abbreviations (~abbrev.el~)
@@ -705,15 +727,15 @@ Abbreviations provide an easy way to expand text. I haven’t played around with
 
 #+begin_src emacs-lisp
   ;;; Abbreviations (abbrev.el)
-  (vftc-emacs-builtin-package 'abbrev
-    (setq abbrev-file-name (locate-user-emacs-file "abbrevs"))
-
-    (let ((map global-map))
-      (define-key map (kbd "C-x a e") #'expand-abbrev)
-      (define-key map (kbd "C-x a u") #'unexpand-abbrev))
-
-    (dolist (hook '(text-mode-hook))
-      (add-hook hook #'abbrev-mode)))
+  ;; (vftc-emacs-builtin-package 'abbrev
+  ;;   (setq abbrev-file-name (locate-user-emacs-file "abbrevs"))
+  ;;
+  ;;   (let ((map global-map))
+  ;;     (define-key map (kbd "C-x a e") #'expand-abbrev)
+  ;;     (define-key map (kbd "C-x a u") #'unexpand-abbrev))
+  ;;
+  ;;   (dolist (hook '(text-mode-hook))
+  ;;     (add-hook hook #'abbrev-mode)))
 #+end_src
 
 ** Builtin search commands
@@ -1290,6 +1312,7 @@ These are the ~eshell~ related bindings that I set and/or use:
 #+begin_src emacs-lisp
   ;;; Pop-up shell (shell-pop)
   (setq shell-pop-shell-type '("eshell" "*eshell*" #'eshell)
+	shell-pop-autocd-to-working-dir nil
 	shell-pop-universal-key "C-M-'")
 
   (vftc-emacs-elpa-package 'shell-pop
@@ -1314,7 +1337,7 @@ This package improves Emacs color output by adding support for the full 256 ANSI
     (add-hook 'eshell-pre-command-hook (lambda () (setenv "TERM" "xterm-256color")))
     (add-hook 'eshell-post-command-hook (lambda () (setenv "TERM" "dumb")))
 
-    ;;; Compilation buffers  
+    ;;; Compilation buffers
     (setq compilation-environment '("TERM=xterm-256color"))
     (advice-add
      'compilation-filter
@@ -1735,21 +1758,21 @@ From the [[https://tree-sitter.github.io/tree-sitter][Tree-sitter website]]:
 Tree-sitter is a parser generator tool and an incremental parsing library. It can build a concrete syntax tree for a source file and efficiently update the syntax tree as the source file is edited.
 #+end_quote
 
-Most editors do syntax highlighting (or font-locking as Emacs calls it) with regular expressions. Tree-sitter aims to be a generic parser that provides highlighting based on the actual syntax. I believe that it is fair to say that tree-sitter is the direction that editors are going in for parsing syntax the same way LSP unified language intelligence features. 
+Most editors do syntax highlighting (or font-locking as Emacs calls it) with regular expressions. Tree-sitter aims to be a generic parser that provides highlighting based on the actual syntax. I believe that it is fair to say that tree-sitter is the direction that editors are going in for parsing syntax the same way LSP unified language intelligence features.
 
 #+begin_src emacs-lisp
   ;;; Syntax parsing (tree-sitter)
   (vftc-emacs-elpa-package 'tree-sitter
     (vftc-emacs-elpa-package 'tree-sitter-langs)
-  
+
     (set-face-attribute 'tree-sitter-hl-face:property nil
   		      :foreground (doom-color 'magenta)
   		      :slant 'normal)
-  
+
     (set-face-attribute 'tree-sitter-hl-face:method.call nil
   		      :foreground (doom-color 'dark-blue)
   		      :slant 'normal)
-  
+
     (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
     (global-tree-sitter-mode 1))
 #+end_src
@@ -1879,7 +1902,7 @@ We can teach ~flymake~ how to run additional linters pretty easily by adding in 
 ** Formatting files automatically (~apheleia~)
 I want every file to be formatted automatically on save. I’ve previously used ~format-all~ for this, but ~apheleia~ has some really cool sounding performance optimizations. I also setup a few custom formatters:
 
-+ alejandra :: A better ~nix~ formatter that does some cool shit under the hood 
++ alejandra :: A better ~nix~ formatter that does some cool shit under the hood
 
 I just add a single binding to run the formatter on demand:
 

@@ -11,9 +11,9 @@
   importables = rec {
     profiles = digga.lib.rakeLeaves ./profiles;
     suites = with profiles; rec {
-      base = [git gpg secrets ssh themes.nord zsh];
-      gui = [alacritty kitty];
-      devel = [bat direnv emacs languages.go mail tealdeer];
+      base = [git gpg ssh themes.nord zsh yubikey];
+      gui = [kitty];
+      devel = [bat direnv emacs languages.go tealdeer];
     };
   };
 
