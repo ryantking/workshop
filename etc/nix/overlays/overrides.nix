@@ -13,6 +13,8 @@ channels: final: prev: rec {
     starship
     ;
 
+  buildGo18Module = channels.latest.buildGoModule;
+
   gofumpt = channels.latest.gofumpt.overrideAttrs (o: {
     inherit (channels.latest.gofumpt) src;
     runVend = true;

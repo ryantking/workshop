@@ -1,7 +1,6 @@
 {pkgs}:
 with pkgs; [
   alejandra
-  bottom
   bandwhich
   exa
   fd
@@ -16,9 +15,6 @@ with pkgs; [
   krew
   lnav
   most
-  neovim
-  nixpkgs-fmt
-  nnn
   page
   pandoc
   podman
@@ -32,7 +28,6 @@ with pkgs; [
   shfmt
   tealdeer
   treefmt
-  universal-ctags
   wally-cli
   yamllint
   yq

@@ -47,6 +47,7 @@
 
     systemPackages = with pkgs; [
       dosfstools
+      dnsutils
       efibootmgr
       gptfdisk
       inetutils

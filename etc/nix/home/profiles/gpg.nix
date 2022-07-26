@@ -32,11 +32,11 @@ in {
     SSH_AUTH_SOCK = "$(${pkgs.gnupg}/bin/gpgconf --list-dirs agent-ssh-socket)";
   };
 
-  services.gpg-agent = {
-    enable = true;
-    enableSshSupport = true;
-    sshKeys = [config.whoami.keys.pgp.primary];
-  };
+  # services.gpg-agent = {
+  #   enable = true;
+  #   enableSshSupport = true;
+  #   sshKeys = [config.whoami.keys.pgp.primary];
+  # };
 
   programs.gpg = {
     enable = true;
@@ -46,4 +46,11 @@ in {
 
     settings.keyserver = "hkps://keys.openpgp.org";
   };
+
+  xdg.dataFile."gnupg/gpg-agent.conf".text = ''
+    pinentry-program ${pkgs.pinentry-emacs}/bin/pinentry-emacs
+    enable-ssh-support
+    allow-emacs-pinentry
+    allow-loopback-pinentry
+  '';
 }

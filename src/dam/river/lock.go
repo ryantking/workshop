@@ -4,7 +4,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/ryantking/lib/color"
+	"github.com/ryantking/workshop/lib/color"
 )
 
 // Lock locks the current river session.

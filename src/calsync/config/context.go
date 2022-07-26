@@ -1,6 +1,7 @@
 package config
 
 import (
+	libcontext "context"
 	"os"
 
 	"github.com/spf13/afero"
@@ -9,6 +10,8 @@ import (
 
 // Context represents all the values stored in the configuration.
 type Context interface {
+	libcontext.Context
+
 	// FS returns the underlying filesystem to read/write from.
 	FS() afero.Fs
 
@@ -26,12 +29,13 @@ type Context interface {
 }
 
 type context struct {
+	libcontext.Context
 	fs afero.Fs
 }
 
 // NewContext returns a new configuration context.
 func NewContext() Context {
-	return context{afero.NewOsFs()}
+	return context{libcontext.Background(), afero.NewOsFs()}
 }
 
 // FS returns the configured filesystem.

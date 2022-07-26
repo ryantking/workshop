@@ -187,20 +187,20 @@ Prot’s =fontaine= package is fantastic. It lets you define a bunch of face con
 	  `((small
 	     :default-height 120)
 	    (regular
-	     :default-height 160)
+	     :default-height 220)
 	    (large
 	     :default-height 240)
 	    (presentation
 	     :default-weight light
 	     :default-height 360)
 	    (t
-	     :default-family ,(getenv "FONT_MONOSPACE")
+	     :default-family "Iosevka Custom"
 	     :default-weight regular
 	     :default-height 160
 	     :fixed-pitch-family nil
 	     :fixed-pitch-weight nil
 	     :fixed-pitch-height 1.0
-	     :variable-pitch-family ,(getenv "FONT_SANS")
+	     :variable-pitch-family "Iosevka Etoile Custom"
 	     :variable-pitch-weight nil
 	     :variable-pitch-height 1.0
 	     :bold-family nil

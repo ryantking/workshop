@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/nightlyone/lockfile"
-	"github.com/ryantking/dam/river"
+	"github.com/ryantking/workshop/src/dam/river"
 	"github.com/zerodha/logf"
 )
 

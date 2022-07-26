@@ -11,14 +11,11 @@ in {
   ];
 
   fonts = {
-    fontDir.enable = true;
+    fontDir.enable = lib.mkDefault true;
 
     fonts = with pkgs;
       [
-        emacs-all-the-icons-fonts
-        ibm-plex
         inter
-        iosevka
       ]
       ++ (lib.optionals isLinux [
         corefonts

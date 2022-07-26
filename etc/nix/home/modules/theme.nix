@@ -32,9 +32,21 @@ in {
       pkg = pkgs.ibm-plex;
     };
     monospace = mkOpt fontModule {
-      family = "Victor Mono";
-      style = "Light";
-      pkg = pkgs.victor-mono;
+      family = "Iosevka Custom";
+      style = "Regular";
+      pkg = pkgs.iosevka.override {
+        set = "custom";
+        privateBuildPlan = ''
+          [buildPlans.iosevka-custom]
+          family = "Iosevka Custom"
+          spacing = "normal"
+          serifs = "sans"
+          no-cv-ss = true
+
+            [buildPlans.iosevka-custom.variants]
+            inherits = "ss08"
+        '';
+      };
     };
     unicode = mkOpt fontModule {
       family = "Julia Mono";
@@ -48,9 +60,7 @@ in {
     home.packages = builtins.concatLists [
       [
         pkgs.fontconfig
-        (pkgs.nerdfonts.override {
-          fonts = [(builtins.replaceStrings [" "] [""] cfg.monospace.family)];
-        })
+        (pkgs.nerdfonts.override {fonts = ["FiraCode"];})
       ]
       (optionalFont cfg.serif)
       (optionalFont cfg.sans)

@@ -66,3 +66,5 @@ setopt NOTIFY         # Report status of background jobs immediately.
 unsetopt BG_NICE      # Don't run all background jobs at a lower priority.
 unsetopt CHECK_JOBS   # Don't report on jobs when shell exit.
 unsetopt HUP          # Don't kill jobs on shell exit.
+
+eval "$(/opt/homebrew/bin/brew shellenv)"

@@ -1,8 +1,8 @@
 package commands
 
 import (
+	"github.com/ryantking/workshop/src/calsync"
 	"github.com/ryantking/workshop/src/calsync/google"
-	"github.com/ryantking/workshop/src/projects/calsync"
 	"github.com/spf13/cobra"
 )
 

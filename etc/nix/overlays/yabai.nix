@@ -3,7 +3,7 @@ final: prev: {
     inherit (prev.sources.yabai) pname version src;
     buildSymlinks = prev.runCommand "build-symlinks" {} ''
       mkdir -p $out/bin
-      ln -s /usr/bin/xcrun /usr/bin/xcodebuild /usr/bin/tiffutil /usr/bin/qlmanage $out/bin
+      ln -s /usr/bin/xcrun /usr/bin/xxd /usr/bin/xcodebuild /usr/bin/tiffutil /usr/bin/qlmanage $out/bin
     '';
 
     nativeBuildInputs = [buildSymlinks];

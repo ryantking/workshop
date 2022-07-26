@@ -8,6 +8,8 @@ import (
 	"github.com/ryantking/workshop/lib/cli"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
+
+	libcontext "context"
 )
 
 // Context contains the necessary values to manage org documents.
@@ -17,12 +19,13 @@ type Context interface {
 }
 
 type context struct {
+	libcontext.Context
 	fs afero.Fs
 }
 
 // NewContext returns a new roam context.
 func NewContext() Context {
-	return context{afero.NewOsFs()}
+	return context{libcontext.Background(), afero.NewOsFs()}
 }
 
 // Debug satisfies the Context interface.

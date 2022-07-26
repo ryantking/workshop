@@ -87,6 +87,21 @@ in {
   home.packages = with pkgs; [
     emacsclient
 
+    emacs-all-the-icons-fonts
+    (iosevka.override {
+      set = "etoile-custom";
+      privateBuildPlan = ''
+        [buildPlans.iosevka-etoile-custom]
+        family = "Iosevka Etoile Custom"
+        spacing = "quasi-proportional"
+        serifs = "slab"
+        no-cv-ss = true
+
+          [buildPlans.iosevka-etoile-custom.variants]
+          inherits = "ss08"
+      '';
+    })
+
     (aspellWithDicts (dicts: with dicts; [en en-computers en-science]))
 
     imagemagick

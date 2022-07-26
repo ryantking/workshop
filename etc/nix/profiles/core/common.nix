@@ -81,7 +81,6 @@
       coreutils
       curl
       dash
-      dnsutils
       findutils
       gawk
       gnumake
