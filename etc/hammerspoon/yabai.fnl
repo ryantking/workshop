@@ -22,85 +22,74 @@
 
 ;;; Commentary:
 
-;; This file sets up functions for interacting with yabai from Hammerspoon then
-;; creates a series of hotkeys based on the StumpWM binding scheme. I choose
-;; StumpWM's binding scheme because it was designed with Emacs in mind. Instead
-;; of using a few dozen bindings using modifier chords, it puts everything in a
-;; modal binding behind `C-t` so it doesn't conflict with any system or Emacs
-;; bindings. Also if I setup StumpWM on a Linux box, I'll have the same
-;; exact bindings, which will make switching back and forth easy.
+;; This file defines some functions for interfacing with Yabai.
+;; They currently shell out to the yabai CLI with the fast Hammerpsoon
+;; task API.
 
 ;;; Code:
 
-(local {: map
-        : split} (require :hs.fnutils))
-
-(local log (hs.logger.new "\tyabai.fnl\t" "debug"))
+(local log (hs.logger.new "\tlib.yabai.fnl\t" "debug"))
 
 (local yabai-path (string.gsub (hs.execute "which yabai" true) "%s+" ""))
 
-(fn yabai
-  [args on-success on-error]
-  (var yabai_out "")
-  (var yabai_err "")
-  
-  (fn capture-output
-    [task stdout stderr]
-    (when stdout (set yabai_out (.. yabai_out stdout)))
-    (when stderr (set yabai_err (.. yabai_err stderr )))
+(fn exec
+  [args callback]
+  "Pass arguments to the yabai CLI with an optional callback."
+  (var stdout "")
+  (var stderr "")
+
+  (fn save-output
+    [_ new-stdout new-stderr]
+    (set stdout (.. stdout new-stdout))
+    (set stderr (.. stderr new-stderr))
     true)
-
-  (fn callback
-    [stdout stderr]
-    (when (> (length stdout) 0) (log.df "out: %s" stdout))
-    (if (= (length stderr) 0)
-        (when on-success (on-success))
-        (do
-          (log.df "err: %s" stderr)
-          (when on-error (on-error)))))
-
-  (log.df "yabai %s" args)
-  (let [task (hs.task.new yabai-path #(print) capture-output (split args "%s"))]
-    (task:setCallback #(callback yabai_out yabai_err))
+  
+  (let [task (hs.task.new yabai-path save-output save-output args)]
+    (when (= (type callback) :function)
+      (task:setCallback
+       #(do
+          (save-output nil $2 $3)
+          (callback $1 stdout stderr))))
     (task:start)))
 
-(fn focus-display
-  [sel]
-  (yabai (.. "-m display --focus " sel)))
+(fn on-focused-window
+  [callback]
+  (exec
+   ["-m" "query" "--windows" "--window"]
+   #(do (when (and (= $1 0) $2 (> (length $2) 0))
+          (callback (hs.json.decode $2))))))
 
-(fn swap-display
-  [sel]
-  (yabai (.. "-m window --display " sel)
-         (partial focus-display sel)))
+;; Left and right style navigation loosely inspired by paper
 
-(fn focus-window
+(fn dwim-focus-window
+  [dir last-window]
+  (exec
+   ["-m" "window" "--focus" dir]
+   (fn [code]
+     (when (> code 0)
+       (exec
+        ["-m" "display" "--focus" dir]
+        (fn [code]
+          (when (= code 0)
+            (exec ["-m" "window" "--focus" (if last-window "last" "first")]))))))))
+
+(fn dwim-swap-window
   [dir]
-  (yabai (.. "-m window --focus " dir)
-         nil
-         (partial focus-display dir)))
+  (exec
+   ["-m" "window" "--swap" dir]
+   (fn [code]
+     (when (> code 0)
+       (on-focused-window
+        (fn [window]
+          (exec
+          ["-m" "window" "--display" dir]
+          (fn [code]
+            (when (= code 0)
+              (exec ["-m" "window" "--focus" window.id]))))))))))
 
-(fn swap-window
-  [dir]
-  (yabai (.. "-m window --swap " dir) nil
-         (partial swap-display dir)))
+{: exec
+ : on-focused-window
+ : dwim-focus-window
+ : dwim-swap-window}
 
-(fn warp-window
-  [dir]
-  (yabai (.. "-m window --warp " dir) nil
-         (partial swap-display dir)))
-
-(fn focus-space
-  [sel]
-  (yabai (.. "-m space --focus " sel)
-         (partial focus-window "first")))
-
-(fn swap-space
-  [sel]
-  (yabai (.. "-m window --space " sel)
-         (partial focus-space sel)))
-
-{: focus-window
- : swap-window
- : warp-window
- : focus-space
- : swap-space}
+;;; yabai.fnl ends here

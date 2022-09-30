@@ -35,7 +35,7 @@ in {
       active_window_opacity = 1.0;
       normal_window_opacity = 0.98;
 
-      window_border = "off";
+      window_border = "on";
       active_window_border_color = "0xFF${colors.base0C}";
       normal_window_border_color = "0x00${colors.base00}";
       insert_feedback_color = "0xFF${colors.base0B}";
@@ -53,16 +53,15 @@ in {
       (commonRules // {app = "Alfred Preferences";})
       (commonRules // {app = "^System Preferences$";})
       {
-        app = "zoom.us";
-        opacity = "1.0";
+        app = "Hammerspoon";
+        title = "";
+        manage = true;
+        sticky = true;
+        layer = "above";
       }
       {
-        app = "Emacs";
-        title = "doom-capture";
-        manage = false;
-        border = false;
-        grid = "3:3:1:1:1:1";
-        label = "[Emacs]: Float and center the doom capture window";
+        app = "Hammerspoon Console";
+        action = "yabai -m window \$(yabai -m query --windows | jq '.[] | select(.app==\"Hammerspoon\" and .name==\"Hammerspoon Console\") | .id') --minimize";
       }
       {
         app = "Emacs";
@@ -85,22 +84,6 @@ in {
       {
         event = "dock_did_restart";
         action = "sudo yabai --load-sa";
-      }
-      {
-        event = "window_focused";
-        action = "sketchybar --trigger window_focus";
-      }
-      {
-        event = "window_focused";
-        action = "hs -c \"hooks.windowFocused(\`printenv YABAI_WINDOW_ID\`)\"";
-      }
-      {
-        event = "window_resized";
-        action = "hs -c \"hooks.windowResized(\`printenv YABAI_WINDOW_ID\`)\"";
-      }
-      {
-        event = "window_moved";
-        action = "hs -c \"hooks.windowMoved(\`printenv YABAI_WINDOW_ID\`)\"";
       }
       {
         event = "window_destroyed";

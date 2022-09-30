@@ -5,43 +5,30 @@ ITEM_DIR="$CONFIG_DIR/items"
 PLUGIN_DIR="$CONFIG_DIR/plugins"
 
 FONT="SF Pro"
-PADDING=3
+PADDING=4
 
 source "$CONFIG_DIR/colors.sh"
 source "$CONFIG_DIR/icons.sh"
 
 sketchybar --bar \
-    height=32 \
-    corner_radius=0 \
-    border_width=0 \
-    margin=0 \
-    blur_radius=6 \
+    height=42 \
+    blur_radius=100 \
     position=top \
     padding_left=10 \
     padding_right=10 \
     color=$BAR_COLOR \
-    topmost=off \
-    font_smoothing=off \
-    y_offset=0 \
     shadow=on \
     --default \
     drawing=on \
     update=when_shown \
-    label.font="$FONT:Semibold:13.0" \
-    icon.font="$FONT:Bold:14.0" \
+    label.font="$FONT:Light:14.0" \
+    icon.font="$FONT:Regular:14.0" \
     icon.color=$FG \
     label.color=$FG \
     icon.padding_left=$PADDING \
     icon.padding_right=$PADDING \
     label.padding_left=$PADDING \
-    label.padding_right=$PADDING \
-    background.padding_left=$PADDING \
-    background.padding_right=$PADDING \
-    popup.background.border_width=2 \
-    popup.background.corner_radius=11 \
-    popup.background.border_color=0x00000000 \
-    popup.background.color=$BAR_COLOR \
-    popup.background.shadow.drawing=on
+    label.padding_right=$PADDING
 
 source "$ITEM_DIR/apple.sh"
 source "$ITEM_DIR/spaces.sh"

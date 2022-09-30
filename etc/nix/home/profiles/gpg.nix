@@ -48,7 +48,11 @@ in {
   };
 
   xdg.dataFile."gnupg/gpg-agent.conf".text = ''
-    pinentry-program ${pkgs.pinentry-emacs}/bin/pinentry-emacs
+    pinentry-program ${
+      if pkgs.stdenv.isDarwin
+      then "${pkgs.pinentry_mac}/Applications/pinentry-mac.app/Contents/MacOS/pinentry-mac"
+      else "${pkgs.pinentry-qt}/bin/pinentry-qt"
+    }
     enable-ssh-support
     allow-emacs-pinentry
     allow-loopback-pinentry

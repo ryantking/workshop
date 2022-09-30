@@ -33,3 +33,7 @@ fetch.git = "https://github.com/bakpakin/Fennel.git"
 [wlopm]
 src.git = "https://git.sr.ht/~leon_plickat/wlopm"
 fetch.git = "https://git.sr.ht/~leon_plickat/wlopm"
+
+[stackline]
+src.git = "https://github.com/AdamWagner/stackline.git"
+fetch.git = "https://github.com/AdamWagner/stackline.git"

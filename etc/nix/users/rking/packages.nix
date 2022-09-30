@@ -1,34 +1,30 @@
 {pkgs}:
 with pkgs; [
   alejandra
-  bandwhich
-  exa
+  awscli2
+  dasel
   fd
-  getopt
   gnugrep
   gdb
   grc
   hugo
   jq
   kind
+  kubectl
   kubectx
   krew
-  lnav
   most
+  nixos-generators
   page
-  pandoc
-  podman
+  postgresql
   procs
   rage
   ragenix
   (ripgrep.override {withPCRE2 = true;})
   ripgrep-all
   sd
-  shellcheck
-  shfmt
-  tealdeer
+  terraform
   treefmt
   wally-cli
-  yamllint
   yq
 ]

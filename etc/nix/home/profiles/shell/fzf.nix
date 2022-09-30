@@ -26,16 +26,14 @@
       });
 
   fdCmd = "${pkgs.fd}/bin/fd --follow --hidden --exclude .git 2>/dev/null";
-  fzfOpts = ''--no-bold --prompt='/ ' --pointer='➜' --marker='·' --color=\"${fzfTheme}\"'';
+  fzfOpts = ["--no-bold" "--prompt='/ '" "--pointer='➜'" "--marker='·'" ''--color=\"${fzfTheme}\"''];
 in {
-  home.packages = [pkgs.fzf];
-
-  shell.env = {
-    FZF_DEFAULT_COMMAND = "${fdCmd}";
-    FZF_DEFAULT_OPTS = "${fzfOpts}";
-    FZF_CTRL_T_COMMAND = "${fdCmd}";
-    FZF_CTRL_T_OPTS = "${fzfOpts} --preview 'bat --color=always --plain {}'";
-    FZF_ALT_C_COMMAND = "${fdCmd} --type d";
-    FZF_ALT_C_OPTS = "${fzfOpts} --preview 'exa -l --tree --level=2 --color=always {}'";
+  programs.fzf = {
+    enable = true;
+    defaultCommand = fdCmd;
+    defaultOptions = fzfOpts;
+    fileWidgetOptions = fzfOpts ++ ["--preview 'bat --color=always --plain {}'"];
+    changeDirWidgetCommand = "${fdCmd} --type d";
+    changeDirWidgetOptions = fzfOpts ++ ["--preview 'exa -l --tree --level=2 --color=always {}'"];
   };
 }

@@ -73,7 +73,7 @@ in {
         ".netrwhist"
         "tags"
         "[._]*.un~"
-        ".envrc"
+        "*.tmp"
       ];
 
       delta = {

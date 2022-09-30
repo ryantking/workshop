@@ -66,7 +66,7 @@ var done = func() {
 
 func attach(name string, args ...string) error {
 	logDir := filepath.Join(os.TempDir(), "dam")
-	if err := os.MkdirAll(logDir, 0755); err != nil {
+	if err := os.MkdirAll(logDir, 0o755); err != nil {
 		return err
 	}
 	logFile := filepath.Join(logDir, filepath.Base(name)+".log")

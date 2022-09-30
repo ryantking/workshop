@@ -1,5 +1,7 @@
-# ############
-# Workshop
+NIX_SOURCES := $(shell find -name "*.nix")
+MARKUP_SOURCES := $(shell find -name "*.yaml" -or -name "*.json" -or -name "*.toml")
+SH_SOURCES := $(shell find -name "*.sh")
+GO_SOURCES := $(shell find -name "*.go")
 
 all: switch
 
@@ -26,6 +28,25 @@ switch-linux: /etc/nixos/flake.nix
 update: ## Update flake dependencies
 	nvfetcher -o etc/nix/pkgs -c etc/nix/pkgs/sources.toml
 	nix flake update
+
+##@ Formatting
+
+.PHONY: format format-nix format-markup format-sh format-go
+
+format: ## Format all files in the repository.
+format: format-nix format-markup format-sh format-go
+
+format-nix: ## Format Nix files with Alejandra.
+	alejandra $(NIX_SOURCES)
+
+format-prettier: ## Format markup language files with Prettier.
+	yarn run prettier --write $(MARKUP_SOURCES)
+
+format-sh: ## Format shell fines with shfmt.
+	shfmt -w -i 4 $(SH_SOURCES)
+
+format-go: ## Format go files with gofumt.
+	gofumpt -w $(GO_SOURCES)
 
 ##@ Website
 

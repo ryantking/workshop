@@ -29,7 +29,7 @@ channels: final: prev: rec {
   goimapnotify = channels.latest.goimapnotify.overrideAttrs (o: rec {
     inherit (prev.sources.goimapnotify) src;
     vendorSha256 = "sha256-DphGe9jbKo1aIfpF5kRYNSn/uIYHaRMrygda5t46svw=";
-    meta.platforms = ["x86_64-linux" "x86_64-darwin"];
+    meta.platforms = ["x86_64-linux" "x86_64-darwin" "aarch64-darwin"];
   });
 
   fennel =

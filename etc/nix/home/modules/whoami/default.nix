@@ -10,7 +10,7 @@
   inherit (config.workshop) configHome;
   inherit (pkgs.lib.our) mkOpt;
 
-  hostName = "trashstation"; # TODO: un-hardcode
+  hostName = "shoyobook"; # TODO: un-hardcode
   hosts = builtins.fromTOML (builtins.readFile "${self}/etc/hosts.toml");
   hostCfg = hosts.${hostName};
   peerKeys = lib.filterAttrs (n: _: n != hostName);

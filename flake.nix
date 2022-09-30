@@ -32,10 +32,6 @@
         devshell.follows = "devshell";
       };
     };
-    flake-compat = {
-      url = "github:edolstra/flake-compat";
-      flake = false;
-    };
     deploy = {
       url = "github:serokell/deploy-rs";
       inputs.nixpkgs.follows = "nixos";
@@ -45,6 +41,7 @@
       inputs.nixpkgs.follows = "nixos";
     };
     colors.url = "github:misterio77/nix-colors";
+    nixos-generators.url = "github:nix-community/nixos-generators";
 
     # Source Management
     nvfetcher = {

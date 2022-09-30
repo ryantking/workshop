@@ -30,15 +30,11 @@
 
 ;;; Code:
 
-(require-macros :macros)
-
 (local {: contains
-        : map
-        : reduce
         : some
         : split} hs.fnutils)
 
-(local yabai (require :lib.yabai))
+(local yabai (require :yabai))
 
 (local log (hs.logger.new "\tcore.fnl\t" "debug"))
 
@@ -115,196 +111,30 @@
 (global config-files-watcher (watch-files configdir))
 
 ;;
-;;; Window Borders
+;;; Modules
 
-(local border-canvas (hs.canvas.new {:x 0 :y 0 :w 100 :h 100}))
+;; Keybindings
+(require :bindings)
 
-(fn border-color
-  [win space]
-  (if
-   (or win.is-floating (= space.type "float")) {:hex "#A3BE8C" :alpha 1}
-   win.has-fullscreen-zoom {:hex "#B48EAD" :alpha 1}
-   true {:hex "#88C0D0" :alpha 1}))
-
-(fn draw-border
-  [win]
-  (yabai.exec
-   ["-m" "query" "--spaces" "--space"]
-   (fn [code stdout]
-     (when (= code 0)
-       (let [space (hs.json.decode stdout)]
-         (when (and win border-canvas)
-           (border-canvas:topLeft {:x win.frame.x :y (- win.frame.y 2)})
-           (border-canvas:size {:w (+ win.frame.w 4) :h (+ win.frame.h 4)})
-           (border-canvas:replaceElements
-            {:type "rectangle"
-             :action "stroke"
-             :strokeColor (border-color win space)
-             :strokeWidth 4
-             :roundedRectRadii {:xRadius 10 :yRadius 10}
-             :padding 2})
-           (border-canvas:show)))))))
-
-(fn clear-border
-  [win]
-  (border-canvas:hide))
-
-;;
-;;; Bindings
-
-(local super "cmd-alt")
-(local shift-super "cmd-alt-shift")
-
-(fn on-window
-  [])
-
-(fn on-focused-window
-  [callback]
-  (yabai.exec
-   ["-m" "query" "--windows" "--window"]
-   #(do (when (and (= $1 0) $2 (> (length $2) 0))
-          (callback (hs.json.decode $2))))))
-
-(macro bind
-  [mods key action]
-  `(hs.hotkey.bind ,mods (. hs.keycodes.map ,key) ,action))
-
-;; Left and right style navigation loosely inspired by paper
-
-(fn dwim-focus-window
-  [dir last-window]
-  (yabai.exec
-   ["-m" "window" "--focus" dir]
-   (fn [code]
-     (when (> code 0)
-       (yabai.exec
-        ["-m" "display" "--focus" dir]
-        (fn [code]
-          (when (= code 0)
-            (yabai.exec ["-m" "window" "--focus" (if last-window "last" "first")]))))))))
-
-(fn dwim-swap-window
-  [dir]
-  (yabai.exec
-   ["-m" "window" "--swap" dir]
-   (fn [code]
-     (when (> code 0)
-       (on-focused-window
-        (fn [window]
-          (yabai.exec
-          ["-m" "window" "--display" dir]
-          (fn [code]
-            (when (= code 0)
-              (yabai.exec ["-m" "window" "--focus" window.id]))))))))))
-
-
-(bind super "o" #(dwim-focus-window "next"))
-(bind super "n" #(dwim-focus-window "prev" true))
-(bind super "e" #(yabai.exec ["-m" "window" "--ratio" "rel:0.05"]))
-(bind super "i" #(yabai.exec ["-m" "window" "--ratio" "rel:-0.05"]))
-
-(bind shift-super "o" #(dwim-swap-window "next"))
-(bind shift-super "n" #(dwim-swap-window "prev"))
-(bind shift-super "e" #(yabai.exec ["-m" "window" "--ratio" "rel:-0.1"]))
-(bind shift-super "i" #(yabai.exec ["-m" "window" "--ratio" "rel:0.1"]))
-
-;; Floating movement
-(bind super "/" #(yabai.exec ["-m" "window" "--toggle" "float"]))
-
-(bind super "left" #(yabai.exec ["-m" "window" "--move" "rel:-64:0"]))
-(bind super "up" #(yabai.exec ["-m" "window" "--move" "rel:0:-64"]))
-(bind super "down" #(yabai.exec ["-m" "window" "--move" "rel:0:64"]))
-(bind super "right" #(yabai.exec ["-m" "window" "--move" "rel:64:0"]))
-
-;; TODO: These should maybe make a little more sense on tiled windows (or be disapled)
-(bind shift-super "left" #(yabai.exec ["-m" "window" "--resize" "right:-64:0"]))
-(bind shift-super "up" #(yabai.exec ["-m" "window" "--resize" "bottom:0:-64"]))
-(bind shift-super "down" #(yabai.exec ["-m" "window" "--resize" "bottom:0:64"]))
-(bind shift-super "right" #(yabai.exec ["-m" "window" "--resize" "right:64:0"]))
-
-;; Stacking
-(bind super "t" #(yabai.exec ["-m" "window" "--focus" "stack.next"]))
-(bind super "g" #(yabai.exec ["-m" "window" "--focus" "stack.prev"]))
-
-;; Space management
-(for [n 1 9]
-  (bind
-   super
-   (tostring n)
-   #(yabai.exec
-     ["-m" "space" "--focus" (tostring n)]
-     (fn [code]
-       (when (= 0 code)
-         (yabai.exec ["-m" "window" "--focus" "first"])))))
-  
-  (bind
-   shift-super
-   (tostring n)
-   #(on-focused-window 
-     (fn [window]
-       (yabai.exec
-        ["-m" "window" "--space" (tostring n)]
-        (fn [code]
-          (when (= code 0)
-            (yabai.exec
-             ["-m" "space" "--focus" (tostring n)]
-             (fn [code]
-               (when (= code 0)
-                 (yabai.exec ["-m" "window" "--focus" (tostring window.id)])))))))))))
-
-;; Layout management
-(bind super "b" #(yabai.exec ["-m" "space" "mouse" "--layout" "bsp"]))
-(bind super "s" #(yabai.exec ["-m" "space" "mouse" "--layout" "stack"]))
-(bind super "f" #(yabai.exec ["-m" "space" "mouse" "--layout" "float"]))
-
-;; Rotate windows
-(bind super "." #(yabai.exec ["-m" "space" "--rotate" "270"]))
-(bind super "," #(yabai.exec ["-m" "space" "--rotate" "90"]))
-
-;; Fullscreen
-(bind super "m" #(yabai.exec ["-m" "window" "--toggle" "zoom-fullscreen"]))
+;; Stackline
+(local stackline (require :stackline))
+  (stackline:init)
+  (stackline.config:toggle :appearance.showIcons)
 
 ;;
 ;;; Hooks
 
 (global hooks {})
 
-(var current-focus nil)
-
-(fn hooks.windowFocused
-  [id]
-  (on-focused-window
-   (fn [win]
-     (if win
-         (when (or (= current-focus nil) (not= current-focus.id win.id))
-           (set current-focus win)
-           (draw-border win))
-         (do
-           (set current-focus nil)
-           (clear-border))))))
-
-(fn hooks.windowResized
-  [id]
-  (when (and current-focus (= current-focus.id id))
-    (on-focused-window
-     (fn [win]
-       (draw-border win)))))
-
-(fn hooks.windowMoved
-  [id]
-  (when (and current-focus (= current-focus.id id))
-    (on-focused-window
-     (fn [win]
-       (draw-border win)))))
-
-(fn hooks.applicationActivated
-  [id]
-  (hooks.windowFocused id))
+(fn hooks.displayFocused
+  []
+  (stackline.manager:update {:forceRedraw true}))
 
 (fn hooks.windowDestroyed
   []
-  (yabai.exec ["-m" "window" "--focus" "first"]))
-
-(hooks.windowFocused nil)
+  (yabai.on-focused-window
+   (fn [win]
+     (when (= win.app "Finder")
+       (yabai.exec ["-m" "window" "--focus" "recent"])))))
 
 (hs.alert.show "Hammerspoon Config Reloaded")

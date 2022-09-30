@@ -73,10 +73,11 @@ in
       hostDefaults = {
         system = "x86_64-linux";
         channelName = "nixos";
-        imports = [(digga.lib.importExportableModules ./modules)];
+        imports = [(digga.lib.importExportableModules ./modules/common)];
         modules = [
           {lib.our = self.lib;}
           digga.nixosModules.nixConfig
+          digga.nixosModules.bootstrapIso
           home.nixosModules.home-manager
           ragenix.nixosModules.age
         ];
@@ -128,7 +129,11 @@ in
 
         channelName = "nixpkgs-darwin";
 
-        imports = [common.modules (digga.lib.importExportableModules ./modules)];
+        imports = [
+          common.modules
+          (digga.lib.importExportableModules ./modules/common)
+          (digga.lib.importExportableModules ./modules/darwin)
+        ];
 
         modules = [
           {lib.our = self.lib;}

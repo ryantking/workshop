@@ -37,8 +37,8 @@
     openssh = {
       enable = lib.mkDefault true;
       openFirewall = true;
-      passwordAuthentication = false;
-      permitRootLogin = "prohibit-password";
+      passwordAuthentication = lib.mkDefault false;
+      permitRootLogin = lib.mkDefault "prohibit-password";
     };
   };
 

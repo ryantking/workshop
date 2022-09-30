@@ -36,15 +36,15 @@ One requirement that I have is portability. Since I want to be able to clone my 
 #+end_src
 
 #+RESULTS:
-: GNU Emacs 28.1 (build 1, x86_64-apple-darwin21.4.0, Carbon Version 165 AppKit 2113.4)
-:  of 2022-05-25
+: GNU Emacs 28.1 (build 1, aarch64-apple-darwin21.6.0, Carbon Version 165 AppKit 2113.6)
+:  of 2022-07-21
 
 #+begin_src emacs-lisp :tangle no :exports both
   system-configuration-options
 #+end_src
 
 #+RESULTS:
-: --enable-locallisppath=/usr/local/share/emacs/site-lisp --infodir=/usr/local/Cellar/emacs-mac/emacs-28.1-mac-9.0/share/info/emacs --prefix=/usr/local/Cellar/emacs-mac/emacs-28.1-mac-9.0 --with-mac --enable-mac-app=/usr/local/Cellar/emacs-mac/emacs-28.1-mac-9.0 --with-gnutls --with-modules --with-rsvg --with-mac-metal --with-native-compilation --with-xwidgets 'CFLAGS=-I/usr/local/opt/gcc/include -I/usr/local/opt/libgccjit/include' 'LDFLAGS=-L/usr/local/lib/gcc/11 -I/usr/local/opt/gcc/include -I/usr/local/opt/libgccjit/include'
+: --enable-locallisppath=/opt/homebrew/share/emacs/site-lisp --infodir=/opt/homebrew/Cellar/emacs-mac/emacs-28.1-mac-9.0/share/info/emacs --prefix=/opt/homebrew/Cellar/emacs-mac/emacs-28.1-mac-9.0 --with-mac --enable-mac-app=/opt/homebrew/Cellar/emacs-mac/emacs-28.1-mac-9.0 --with-gnutls --with-modules --with-rsvg --with-mac-metal --with-native-compilation --with-xwidgets 'CFLAGS=-I/opt/homebrew/opt/gcc/include -I/opt/homebrew/opt/libgccjit/include' 'LDFLAGS=-L/opt/homebrew/lib/gcc/11 -I/opt/homebrew/opt/gcc/include -I/opt/homebrew/opt/libgccjit/include'
 
 ** The init file
 The ~init.el~ file defines some core package management macros.
@@ -63,6 +63,26 @@ The ~early-init.el~ allows for more fine grained control. Most notably, it execu
 #+INCLUDE: ealy-init.el src emacs-lisp :tangle no
 
 * Core settings
+** Correct meta key on macOS
+By default, the command key is used as ~meta~ on macOS. This is no
+good. Let’s set fix that.
+
+#+begin_src emacs-lisp
+  ;;; Meta key
+  (setq mac-option-modifier 'meta
+	mac-command-modifier 'hyper)
+#+end_src
+
+** Common packages
+A few packages that are used by many plugins.
+
+#+begin_src emacs-lisp
+;;; Common utilities
+(vftc-emacs-elpa-package 'alert)
+(vftc-emacs-elpa-package 'persist)
+(vftc-emacs-elpa-package 'request-deferred)
+#+end_src
+
 ** Utility functions (~vftc-common.el~)
 Utility functions that are used in multiple places are stored here. We load it here to make it available for the remainder of this configuration.
 
@@ -77,6 +97,7 @@ Utility functions that are used in multiple places are stored here. We load it h
 Here I add bindings for a few simple functions that are more or less core functionality such as yanking or the help menu. I have a few additional functions defined in ~vftc-simple.el~
 
 #+begin_src emacs-lisp
+  ;;; Simple utility functions (vftc-simple.el)
   (vftc-emacs-builtin-package 'vftc-simple
     (setq help-window-select t)
 
@@ -116,7 +137,7 @@ Different Emacs GUIs do different things with the login shell. In order to ensur
   (vftc-emacs-elpa-package 'exec-path-from-shell
     (setq exec-path-from-shell-variables
 	  '("PATH" "PGPKEYID" "SSH_AUTH_SOCK" "GNUPGHOME" "COLORSCHEME"))
-  
+
     (exec-path-from-shell-initialize))
 #+end_src
 
@@ -143,7 +164,7 @@ I want my Emacs colorscheme to sync with my workshop theme. I define a function 
 
   (defun vftc-load-theme ()
     (require 'dash)
-    (-> (getenv "COLORSCHEME")
+    (-> "nord" ;(getenv "COLORSCHEME")
 	(downcase)
 	(->> (concat "doom-"))
 	(intern)
@@ -215,6 +236,31 @@ Prot’s =fontaine= package is fantastic. It lets you define a bunch of face con
     (define-key global-map (kbd "C-c f") #'fontaine-set-preset)
     (define-key global-map (kbd "C-c F") #'fontaine-set-face-font))
 #+END_SRC
+
+*** Ligeratures Support
+Ligeratures make programming a little nicer. This plugin should just
+work.
+
+#+begin_src emacs-lisp
+;;; Ligature support (~ligature~)
+(vftc-emacs-manual-package 'ligature
+  (ligature-set-ligatures 't '("www"))
+  (ligature-set-ligatures 'eww-mode '("ff" "fi" "ffi"))
+  (ligature-set-ligatures 'prog-mode '("|||>" "<|||" "<==>" "<!--" "####" "~~>" "***" "||=" "||>"
+                                       ":::" "::=" "=:=" "===" "==>" "=!=" "=>>" "=<<" "=/=" "!=="
+                                       "!!." ">=>" ">>=" ">>>" ">>-" ">->" "->>" "-->" "---" "-<<"
+                                       "<~~" "<~>" "<*>" "<||" "<|>" "<$>" "<==" "<=>" "<=<" "<->"
+                                       "<--" "<-<" "<<=" "<<-" "<<<" "<+>" "</>" "###" "#_(" "..<"
+                                       "..." "+++" "/==" "///" "_|_" "www" "&&" "^=" "~~" "~@" "~="
+                                       "~>" "~-" "**" "*>" "*/" "||" "|}" "|]" "|=" "|>" "|-" "{|"
+                                       "[|" "]#" "::" ":=" ":>" ":<" "$>" "==" "=>" "!=" "!!" ">:"
+                                       ">=" ">>" ">-" "-~" "-|" "->" "--" "-<" "<~" "<*" "<|" "<:"
+                                       "<$" "<=" "<>" "<-" "<<" "<+" "</" "#{" "#[" "#:" "#=" "#!"
+                                       "##" "#(" "#?" "#_" "%%" ".=" ".-" ".." ".?" "+>" "++" "?:"
+                                       "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
+                                       "\\\\" "://"))
+  (global-ligature-mode t))
+#+end_src
 
 ** Highlight the current line on demand
 Another fantastic simple Prot package in =pulsar.el=. I’m going to also create custom faces for it that use the theme colors.
@@ -298,6 +344,20 @@ Emacs supports pinentry so use it.
     (pinentry-start))
 #+end_src
 
+** Respect envrc files
+I use direnv in a lot of projects.
+
+#+begin_src emacs-lisp
+;;; Respect envrc (envrc)
+(vftc-emacs-elpa-package 'envrc
+  (envrc-global-mode 1)
+
+  (let ((map envrc-mode-map))
+    (define-key map (kbd "C-c e e") #'envrc-allow)
+    (define-key map (kbd "C-c e d") #'envrc-deny)
+    (define-key map (kbd "C-c e r") #'envrc-reload)
+    (define-key map (kbd "C-c e R") #'envrc-reload-all)))
+#+end_src
 * Selection and search
 ** Completion framework
 After editing text, the primary function of Emacs is picking which text to display on the screen. The completion framework is the way you decide what to load into a buffer. It can be files, directories, interactive apps among other things. The functions that enable the quick selection of which of those to put into a buffer is what is referred to as the completion framework.
@@ -822,7 +882,7 @@ Dired is the builtin Emacs file manager.
   (vftc-emacs-builtin-package 'dired
     (setq dired-recursive-copies 'always
 	  dired-recursive-deletes 'always
-	  delete-by-moving-to-trash t
+	  delete-by-moving-to-trash nil
 	  dired-listing-switches "-AGFhlv --group-directories-first --time-style=long-iso"
 	  dired-dwim-target t
 	  dired-auto-revert-buffer #'dired-directory-changed-p)
@@ -1079,6 +1139,84 @@ A plugin that creates an Ibuffer-like interface for bookmarks.
     (define-key global-map (kbd "C-x r l") #'blist-list-bookmarks))
 #+end_src
 
+** Note taking (~denote~)
+Instead of a more involved system like ~org-roam~, I am opting to use
+Prot’s ~denote~ as my note taking solution. What attracted me to this is
+the fact that its completely decoupled from ~org-mode~. It is a text
+organization system. Prot uses this to take a lot of plain text notes. I
+still intend to use ~org~ files for notes, but I can also intermingle any
+PDFs I have. The end goal is instead of managing my documents with a
+folder hierarchy, I’ll use be able to use a single flat directory with
+tags.
+
+#+begin_src emacs-lisp
+;;; Simple note-taking (denote)
+(vftc-emacs-elpa-package 'denote
+  (setq denote-directory (expand-file-name "~/Nextcloud/Documents/notes/")
+	denote-known-keywords '("emacs" "flipside"))
+
+  (add-hook 'dired-mode-hook #'denote-dired-mode)
+
+  (let ((map global-map))
+    (define-key map (kbd "C-c n n") #'denote)
+    (define-key map (kbd "C-c n N") #'denote-type)
+    (define-key map (kbd "C-c n d") #'denote-date)
+    (define-key map (kbd "C-c n s") #'denote-subdirectory)
+    (define-key map (kbd "C-c n i") #'denote-link)
+    (define-key map (kbd "C-c n I") #'denote-link-add-links)
+    (define-key map (kbd "C-c n l") #'denote-link-find-file)
+    (define-key map (kbd "C-c n b") #'denote-link-backlints)
+    (define-key map (kbd "C-c n r") #'denote-dired-rename-file))
+
+  (with-eval-after-load 'org-capture
+    (add-to-list 'org-capture-templates
+		 '("n" "New note (with denote.el)" plain
+		   (file denote-last-path)
+		   #'denote-org-capture
+		   :no-save t
+		   :immediate-finish nil
+		   :kill-buffer t
+		   :jump-to-captured t))))
+#+end_src
+** Calendar and Diary
+** Email (~notmuch~)
+Email is one of the more annoying things to configure since it requires
+the orchestration of multiple different tools. The setup I use contains:
+
+- The ~mbsync~ programs uses IMAP to sync email from my various email
+  accounts. Its run on demand and a timer.
+- The ~notmuch~ package with the mail indexer and several front ends. The
+  Emacs one will be integrated into this configuration.
+- The ~afew~ utility to tag messages indexed by
+  ~notmuch~.
+
+*** General
+These are some core settings that don’t belong to any particular email client.
+
+#+begin_src emacs-lisp
+;;; General settings
+(vftc-emacs-builtin-package 'auth-source
+  (setq user-full-name "Ryan King"
+	user-mail-addrss "ryantking@protonmail.com"))
+
+(vftc-emacs-builtin-package 'message
+  (setq mail-header-separator (purecopy "*****")
+	message-elide-ellipsis "\n> [... %l lines elided]\n"
+	compose-mail-user-agent-warnings nil
+	message-mail-user-agent t
+	mail-signature "- Ryan"
+	message-signature "- Ryan"
+	message-kill-buffer-on-exit t
+	message-wide-reply-confirm-recipients t)
+
+  (add-to-list 'mm-body-charset-encoding-alist '(utf-8 . base64))
+  (add-hook 'message-setup-hook #'message-sort-headers))
+
+(vftc-emacs-builtin-package 'gnus-dired
+  (add-hook 'dired-mode-hook #'gnus-dired-mode))
+
+
+#+end_src
 ** Focus mode (~logos~)
 Use a focus mode based on ~logos~.
 
@@ -1300,6 +1438,20 @@ The only binding I really need is to open an ~eshell~ for the current project:
 	  eshell-prompt-regexp "^λ "))
 #+end_src
 
+*** Unix Shell
+When figuring out bash scripts with pipes and what not its good to have
+access to a normal shell.
+
+**** Builtin Shell
+The builtin shell integrates with Emacs better so its my first choice.
+
+#+begin_src emacs-lisp
+;;; Unix shell (shell)
+(vftc-emacs-builtin-package 'shell
+  (setq shell-file-name (concat "/etc/profiles/per-user/" user-login-name "/bin/zsh")
+	shell-command-prompt-show-cwd t))
+#+end_src
+
 *** Pop-up shell (~pop-shell~)
 My use-case for the shell in Emacs is somewhat complex. I need both an IDE-style pop-up terminal for quick CLI actions and full-window terminals for more complex shell work. The plugin that I’m adding to handle the pop-up portion is ~pop-shell~. That way I can still create new ~eshell~ instances at will with commands like ~eshell~ and ~project-eshell~.
 
@@ -1347,41 +1499,240 @@ This package improves Emacs color output by adding support for the full 256 ANSI
 #+end_src
 
 ** Org
+At its core, ~org~ is a markup language like Markdown. You can annotate
+text with symbols to give semantic meeting to different pieces. But that
+is just the core.
+
+Around the core, there exists a rich ecosystem that enables users to
+build a super-powered workflow by combining modular pieces.
+
 #+begin_src emacs-lisp
-  (vftc-emacs-builtin-package 'org
-    (define-key org-mode-map (kbd "C-c SPC") #'consult-org-heading)
-    )
+;;; Information manager (org-mode)
+(vftc-emacs-builtin-package 'org
+  (setq org-directory (expand-file-name "~/Nextcloud/Documents/org")
+	org-imenu-depth 7
+	org-special-ctrl-a/e t
+	org-special-ctrl-k t
+	org-M-RET-may-split-line '((default . nil))
+	org-hide-emphasis-markers t
+	org-pretty-entities t
+	org-hide-leading-stars t
+	org-startup-folded 'content
+	org-structure-template-alist
+	'(("s" . "src")
+	  ("E" . "src emacs-lisp")
+	  ("e" . "example")
+	  ("q" . "quote")
+	  ("v" . "verse")
+	  ("V" . "verbatim")
+	  ("c" . "center")
+	  ("comment" . "comment"))
+	org-catch-invisible-edits 'show
+	org-loop-over-headlines-in-active-region 'start-level
+	org-modules '(org-crypt org-eshell)
+	org-use-sub-superscripts '{}
+	org-insert-heading-respect-content t)
 
-  (vftc-emacs-elpa-package 'org-contrib
-    (require 'ox-extra)
-    (ox-extras-activate '(latex-header-blocks ignore-headlines))
+    ;;; todo and refile
+  (setq org-capture-templates
+	'(("i" "Inbox" entry (file "inbox.org") "* TODO %?\n%U\n\n  %i")
+	  ("l" "Link" entry (file "inbox.org") "* TODO %?\n%U\n\n  %i\n  %a")
+	  ("p" "Project" entry (file "projects.org") "* %? [/]")
+	  ("m" "Meeting" entry (file+headline "agenda.org" "Future") "* %? :meeting:\n%^T")
+	  ("n" "Note" entry (file "notes.org") "* Note (%a)\n%U\n\n%?"))
+	org-refile-targets
+	'(("projects.org" . (:maxlevel . 2))
+	  ("agenda.org" . (:maxlevel . 2))
+	  ("someday.org" . (:level . 1)))
+	org-refile-use-outline-path 'file
+	org-outline-path-complete-in-steps nil
+	org-refile-allow-creating-parent-nodes 'confirm
+	org-refile-use-cache t
+	org-todo-keywords
+	'((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
+	  (sequence "HOLD(h)" "|" "CNCL(c)")
+	  (sequence "MEETING(m)" "|" "APPOINTMENT(a)"))
+	org-todo-keyword-faces
+	`(("NEXT" . ,(doom-color 'cyan))
+	  ("HOLD" . ,(doom-color 'yellow))
+	  ("CNCL" . ,(doom-color 'base4))
+	  ("MEETING" . ,(doom-color 'blue))
+	  ("APPOINTMENT" . ,(doom-color 'blue)))
+	org-use-fast-tag-selection 'expert
+	org-priority-faces
+	'((?A . '(bold org-priority))
+	  (?B . org-priority)
+	  (?C . '(shadow org-priority)))
+	org-fontify-quote-and-verse-blocks t
+	org-fontify-whole-block-delimiter-line t
+	org-enforce-todo-dependencies t
+	org-enforce-todo-checkbox-dependencies t
+	org-track-ordered-property-with-tag t
+	org-highest-priority ?A
+	org-lowest-priority ?C
+	org-default-priority ?A)
 
-    (require 'ox-latex)
-    (setq org-latex-pdf-process
-	  '("pdflatex -interaction nonstopmode -output-directory %o %f"
-	    "bibtex %b"
-	    "pdflatex -interaction nonstopmode -output-directory %o %f"
-	    "pdflatex -interaction nonstopmode -output-directory %o %f")
-	  org-latex-with-hyperref nil)
+    ;;; tags
+  (setq org-tag-alist
+	'(("@home" . ?H)
+	  ("@work" . ?W)
+	  ("@computer" . ?C)
+	  ("@errand" . ?E)
+	  ("emacs" . ?e)
+	  ("nix" . ?n)
+	  ("unraid" . ?u)))
 
-    (setq org-latex-logfiles-extensions
-	  (quote ("lof" "lot" "tex~" "aux" "idx" "log" "out" "toc" "nav" "snm" "vrb" "dvi" "fdb_latexmk" "blg" "brf"
-		  "fls" "entoc" "ps" "spl" "bbl" "xmpi" "run.xml" "bcf" "acn" "acr" "alg" "glg" "gls" "ist"))))
+    ;;; log
+  (setq org-log-done 'time
+	org-log-into-drawer nil
+	org-read-date-prefer-future 'time)
+
+  (add-hook 'org-after-todo-state-change-hook
+	    (lambda (&rest ignore)
+	      (when (and (string= (org-get-todo-state) "NEXT")
+			 (not (org-entry-get nil "ACTIVATED")))
+		(org-entry-put nil "ACTIVATED" (format-time-string "[%Y-%m-%d]")))))
+
+    ;;; agenda
+  (setq org-default-notes-file (expand-file-name "notes.org" org-directory)
+	org-agenda-files `("inbox.org" "projects.org" "agenda.org" ,org-default-notes-file)
+	org-agenda-start-on-weekday 0
+	org-agenda-prefix-format
+	'((agenda . " %i %?-12t% s")
+	  (todo   . " %i")
+	  (tags   . " %i %-12:c")
+	  (search . " %i %-12:c"))
+	org-agenda-window-setup 'current-window
+	org-agenda-bulk-mark-char "#"
+	org-agenda-follow-indirect t
+	org-agenda-hide-tags-regexp "."
+	org-deadline-warning-days 5
+	org-agenda-skip-scheduled-if-deadline-is-shown t
+	org-agenda-skip-timestamp-if-deadline-is-shown t
+	org-agenda-skip-deadline-prewarning-if-scheduled 1
+	org-agenda-search-headline-for-time nil
+	org-scheduled-past-days 365
+	org-deadline-past-days 365
+	org-agenda-time-leading-zero t
+	org-agenda-time-grid
+	'((daily today require-timed)
+	  (0600 0700 800 0900 1000 1100
+		1200 1300 1400 1500 1600
+		1700 1800 1900 2000 2100)
+	  " ....." "-----------------")
+	org-agenda-todo-ignore-with-date t
+	org-agenda-todo-ignore-timestamp t
+	org-agenda-todo-ignore-scheduled t
+	org-agenda-todo-ignore-deadlines t
+	org-agenda-todo-ignore-time-comparison-use-seconds t
+
+	org-agenda-custom-commands
+	'(("d" "Dashboard"
+	   ((agenda "" ((org-agenda-span 1)
+			(org-deadline-warning-days 0)
+			(org-scheduled-past-days 0)
+			(org-agenda-format-date "%A %-e %B %Y")
+			(org-agenda-overriding-header "Today's agenda\n")))
+	    (agenda "" ((org-agenda-start-on-weekday nil)
+			(org-agenda-start-day "+1d")
+			(org-agenda-span 3)
+			(org-deadline-warning-days 0)
+			(org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+			(org-agenda-overriding-header "Next three days\n")))
+	    (agenda "" ((org-agenda-time-grid nil)
+			(org-agenda-start-on-weekday nil)
+			(org-agenda-start-day "+4d")
+			(org-agenda-span 15)
+			(org-agenda-show-all-dates nil)
+			(org-deadline-warning-days 0)
+			(org-agenda-entry-types '(:deadline))
+			(org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+			(org-agenda-overriding-header "Upcoming deadlines")))
+	    (todo "NEXT"
+		  ((org-agenda-max-todos nil)
+		   (org-agenda-overriding-header "Next Actions\n")))
+	    (todo "TODO"
+		  ((org-agenda-overriding-header "Inbox")
+		   (org-agenda-files '("inbox.org"))
+		   (org-agenda-text-search-extra-files nil)))))
+	  ("n" "Today and all next tasks"
+	   ((agenda "" ((org-agenda-span 1)
+			(org-deadline-warning-days 0)
+			(org-scheduled-past-days 0)
+			(org-agenda-format-date "%A %-e %B %Y")
+			(org-agenda-overriding-header "Today's agenda\n")))
+	    (todo "NEXT"
+		  ((org-agenda-overriding-header "Next Actions\n")))
+	    (todo "HOLD" ((org-agenda-todo-ignore-with-date)
+			  (org-agenda-overriding-header "Blocked items")))))))
+
+  (advice-add 'org-refile :after
+	      (lambda (&rest _)
+		(vftc-org-save-all)))
+
+  (vftc-emacs-builtin-package 'org-habit
+    (setq org-habit-graph-column 50
+	  org-habit-preceding-days 9))
+
+    ;;; source blocks
+  (setq org-confirm-babel-evaluate nil
+	org-src-window-setup 'current-window
+	org-edit-src-persistent-message nil
+	org-src-preserve-indentation t
+	org-edit-src-content-indentation 0)
+
+    ;;; exports
+  (setq org-export-headline-levels 8
+	org-export-backends '(html latex texinfo md))
+
+    ;;; IDs
+  (setq org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id)
+
+  (run-at-time (* 60 5) nil #'org-agenda-to-appt)
+
+  (dolist (hook '(org-agenda-after-show-hook org-follow-link-hook))
+    (add-hook hook #'pulsar-recenter-middle)
+    (add-hook hook #'pulsar-reveal-entry))
+
+  (let ((map global-map))
+    (define-key map (kbd "C-c a") #'org-agenda)
+    (define-key map (kbd "C-c c") #'org-capture)
+    (define-key map (kbd "C-c i") #'vftc-org-capture-inbox)
+    (define-key map (kbd "C-c l") #'org-store-link)
+    (define-key map (kbd "C-c o") #'org-open-at-point-global))
+
+  (let ((map org-mode-map))
+    (define-key map (kbd "C-'") nil)
+    (define-key map (kbd "C-,") nil)
+    (define-key map (kbd "C-c M-l") #'org-insert-last-stored-link)
+    (define-key map (kbd "C-c C-M-l") #'org-toggle-link-display)
+    (define-key map (kbd "C-c SPC") #'consult-org-heading)))
+
+(vftc-emacs-builtin-package 'vftc-org
+  (setq org-agenda-format-date #'vftc-org-agenda-format-date-aligned)
+
+  (define-key global-map (kbd "C-c A") (lambda () (interactive) (org-agenda nil "A"))))
 #+end_src
 
-*** Roam
+*** Task dependencies (~org-edna~)
+This package adds the ability to define dependencies between tasks. I
+primarily use it to advance sequential TODOs in projects, but I may end
+up finding additional uses for it.
+
 #+begin_src emacs-lisp
-  (vftc-emacs-builtin-package 'org
-    (setq org-directory (convert-standard-filename "~/Dropbox/org")
-	  org-imenu-depth 7
-	  org-adapt-indentation nil
-	  ))
+;;; Task dependencies (org-edna)
+(vftc-emacs-elpa-package 'org-edna
+  (setq org-edna-use-inheritance t)
+  (org-edna-mode 1))
+#+end_src
 
-  (vftc-emacs-elpa-package 'org-modern
-    (add-hook 'org-mode-hook #'org-modern-mode))
+*** Prettier Org (~org-modern~)
+This package makes org look a little nicer.
 
-  (vftc-emacs-elpa-package 'org-roam
-    (setq org-roam-directory (convert-standard-filename "~/Dropbox/org/roam")))
+#+begin_src emacs-lisp
+(vftc-emacs-elpa-package 'org-modern
+  (add-hook 'org-mode-hook #'org-modern-mode)
+  (add-hook 'org-agenda-finalize-hook #'org-modern-agenda))
 #+end_src
 
 ** Process monitor
@@ -1778,27 +2129,46 @@ Most editors do syntax highlighting (or font-locking as Emacs calls it) with reg
 #+end_src
 
 ** Additional major modes
-Emacs comes with a bunch of builtin major modes, but is still missing a lot of languages. The major modes are a little less significant with ~tree-sitter~ handling syntax highlighting and LSP providing intelligence features, but they still need to be present. Some do offer nice functionality that isn’t covered by LSP.
+Emacs comes with a bunch of builtin major modes, but is still missing a
+lot of languages. The major modes are a little less significant with
+~tree-sitter~ handling syntax highlighting and LSP providing intelligence
+features, but they still need to be present. Some do offer nice
+functionality that isn’t covered by LSP.
 
-*** Markdown
-The ~markdown-mode~ extension provides a few niceties on top of the basics. The most notable is the bindings that let you navigate Markdown files the same way you would an ~org-mode~ file. I also add in the ~edit-indirect~ plugin that lets you edit Markdown source blocks in a separate buffer as you can in ~org-mode~ with ~C-c '~.
-
-#+begin_src emacs-lisp
-  ;;; Markdown (markdown-mode)
-  (vftc-emacs-elpa-package 'markdown-mode
-    (setq markdown-fontify-code-blocks-natively t))
-
-  (vftc-emacs-elpa-package 'edit-indirect)
-#+end_src
-
-*** YAML (~yaml-mode~)
-This plugin adds basic YAML support.
+*** Beancount
+Tool for personal budgeting.
 
 #+begin_src emacs-lisp
-  ;;; YAML (yaml-mode)
-  (vftc-emacs-elpa-package 'yaml-mode)
+;;; Beancount support (beancount)
+(vftc-emacs-manual-package 'beancount)
 #+end_src
 
+*** C family
+Packages for when I occasionally have to edit C code.
+
+#+begin_src emacs-lisp
+;;; C family
+(vftc-emacs-elpa-package 'rtags)
+
+(vftc-emacs-elpa-package 'cmake-mode)
+
+(vftc-emacs-elpa-package 'demangle-mode)
+#+end_src
+
+*** Data languages (~csv-mode~)
+Modes for easier editing of data languages.
+
+#+begin_src emacs-lisp
+;;; Data (csv-mode)
+(vftc-emacs-elpa-package 'csv-mode
+  (let ((map csv-mode-map))
+    (define-key map (kbd "C-c a") #'csv-align-fields)
+    (define-key map (kbd "C-c u") #'csv-unalign-fields)
+    (define-key map (kbd "C-c s") #'csv-sort-fields)
+    (define-key map (kbd "C-c S") #'csv-sort-numeric-fields)
+    (define-key map (kbd "C-c k") #'csv-kill-fields)
+    (define-key map (kbd "C-c t") #'csv-transpose)))
+#+end_src
 *** Go (~go-mode~)
 On top of the essential major mode features, the ~go-mode~ plugin adds  some useful bindings for navigating around ~go~ files. I also hook ~go-mode~ into ~eglot~.
 
@@ -1816,12 +2186,69 @@ I will be sticking with the default bindings for now:
 | ~C-c C-a~   | ~go-add-import~           | Search for an available import and add it.                         |
 
 #+begin_src emacs-lisp
-  ;;; Go (go-mode)
-  (vftc-emacs-elpa-package 'go-mode
-    (add-hook 'go-mode-hook #'eglot-ensure))
+;;; Go (go-mode)
+(vftc-emacs-elpa-package 'go-mode
+  (add-hook 'go-mode-hook #'eglot-ensure)
+
+  (let ((map go-mode-map))
+    (define-key map (kbd "C-c b r") (lambda () (compile "go run .")))
+    (define-key map (kbd "C-c b b") (lambda () (compile "go build")))
+    (define-key map (kbd "C-c b c") (lambda () (compile "go clean")))))
+
+(vftc-emacs-builtin-package 'vftc-go
+  (let ((map go-mode-map))
+    (define-key map (kbd "C-c t t") #'vftc-go-test-rerun)
+    (define-key map (kbd "C-c t a") #'vftc-go-test-all)
+    (define-key map (kbd "C-c t s") #'vftc-go-test-single)
+    (define-key map (kbd "C-c t n") #'vftc-go-test-nested)
+    (define-key map (kbd "C-c t f") #'vftc-go-test-file)))
+#+end_src
+
+*** Makefile
+Run make targets interactively.
+
+#+begin_src emacs-lisp
+;;; Run make targets interactively (makefile-executor)
+(vftc-emacs-manual-package 'makefile-executor
+  (add-hook 'makefile-mode-hook #'makefile-executor-mode))
+#+end_src
+
+*** Markdown
+The ~markdown-mode~ extension provides a few niceties on top of the basics. The most notable is the bindings that let you navigate Markdown files the same way you would an ~org-mode~ file. I also add in the ~edit-indirect~ plugin that lets you edit Markdown source blocks in a separate buffer as you can in ~org-mode~ with ~C-c '~.
+
+#+begin_src emacs-lisp
+;;; Markdown (markdown-mode)
+(vftc-emacs-elpa-package 'markdown-mode
+  (setq markdown-fontify-code-blocks-natively t))
+
+(vftc-emacs-elpa-package 'edit-indirect)
+
+(vftc-emacs-manual-package 'flymake-markdownlint
+  (add-hook 'markdown-mode-hook #'flymake-markdownlint-setup))
+#+end_src
+
+*** YAML (~yaml-mode~)
+This plugin adds basic YAML support.
+
+#+begin_src emacs-lisp
+  ;;; YAML (yaml-mode)
+  (vftc-emacs-elpa-package 'yaml-mode)
 #+end_src
 
 **** Debugging with delve (~go-dlv~)
+**** Python (~python-mode~)
+Python can be fun sometimes.
+
+#+begin_src emacs-lisp
+;;; Python (python-mode)
+(vftc-emacs-elpa-package 'python-mode
+  
+  (add-hook 'python-mode-hook #'eglot-ensure)
+  (add-hook 'python-mode-hook #'eldoc-mode))
+
+(vftc-emacs-elpa-package 'anaconda-mode
+  (add-hook 'python-mode-hook #'anaconda-mode))
+#+end_src
 
 *** Nix (~nix-mode~)
 My system configuration is in ~nix~.
@@ -1841,6 +2268,31 @@ highlighting to make editing the config files a bit more fun.
   (vftc-emacs-elpa-package 'caddyfile-mode)
 #+end_src
 
+*** Earthfile
+Experimenting with a cool tool.
+
+#+begin_src emacs-lisp
+;;; Earthfile support (earthfile-mode)
+(vftc-emacs-elpa-package 'earthfile-mode)
+#+end_src
+
+*** Terraform
+The magical language for managing infrastructure and randomly tearing it
+down when you least expect it.
+
+#+begin_src emacs-lisp
+;;; Terraform (terraform-mode)
+(vftc-emacs-elpa-package 'terraform-mode)
+#+end_src
+
+*** Fennel
+The lisp language for making writing lua configurations harder.
+
+#+begin_src emacs-lisp
+;;; Fennel (fennel-mode)
+(vftc-emacs-elpa-package 'fennel-mode)
+#+end_src
+
 ** Code and text linting (~flymake~)
 Since version 26, Emacs has had a builtin linting feature called ~flymake~. It replaces the longstanding ~flycheck~ package that has long been the default for syntax checking. With a diagnostic GUI and additional linters, ~flymake~ is a great replacement.
 
@@ -1854,49 +2306,57 @@ The bindings make it easy to navigate around buffer errors:
 | ~C-c ! p~ | ~flymake-goto-prev-error~         | Go to the previous ~flymake~ error in the buffer. |
 
 #+begin_src emacs-lisp
-  ;;; Flymake
-  (vftc-emacs-builtin-package 'flymake
-    (setq flymake-suppress-zero-counters t
-	  flymake-mode-line-format
-	  '("" flymake-mode-line-exception flymake-mode-line-counters)
-	  flymake-mode-line-counter-format
-	  '(" " flymake-mode-line-error-counter
-	    flymake-mode-line-warning-counter
-	    flymake-mode-line-note-counter ""))
+;;; Flymake
+(vftc-emacs-builtin-package 'flymake
+  (setq flymake-suppress-zero-counters t
+	flymake-mode-line-format
+	'("" flymake-mode-line-exception flymake-mode-line-counters)
+	flymake-mode-line-counter-format
+	'(" " flymake-mode-line-error-counter
+	  flymake-mode-line-warning-counter
+	  flymake-mode-line-note-counter ""))
 
-    (let ((map flymake-mode-map))
-      (define-key map (kbd "C-c ! s") #'flymake-start)
-      (define-key map (kbd "C-c ! d") #'flymake-show-buffer-diagnostics)
-      (define-key map (kbd "C-c ! n") #'flymake-goto-next-error)
-      (define-key map (kbd "C-c ! p") #'flymake-goto-prev-error)))
+  (let ((map flymake-mode-map))
+    (define-key map (kbd "C-c ! s") #'flymake-start)
+    (define-key map (kbd "C-c ! d") #'flymake-show-buffer-diagnostics)
+    (define-key map (kbd "C-c ! n") #'flymake-goto-next-error)
+    (define-key map (kbd "C-c ! p") #'flymake-goto-prev-error)))
 
-  (vftc-emacs-elpa-package 'flymake-diagnostic-at-point
-    (setq flymake-diagnostic-at-point-display-diagnostic-function
-	  'flymake-diagnostic-at-point-display-popup)
-    (add-hook 'flymake-mode-hook #'flymake-diagnostic-at-point-mode))
+(vftc-emacs-elpa-package 'flymake-diagnostic-at-point
+  (setq flymake-diagnostic-at-point-display-diagnostic-function
+	'flymake-diagnostic-at-point-display-popup)
+  (add-hook 'flymake-mode-hook #'flymake-diagnostic-at-point-mode))
 #+end_src
 
 **** Additional backends (~flymake-collection~)
 We can teach ~flymake~ how to run additional linters pretty easily by adding in the [[https://github.com/mohkale/flymake-collection][flymake-collection]] plugin. It adds a pretty exhaustive list of linters. I enable the ones that I anticipate using.
 
 #+begin_src emacs-lisp
-  ;;; Additional flymake linters (flymake-collection)
-  (vftc-emacs-elpa-package 'flymake-collection
-    (add-hook
-     'text-mode-hook
-     (lambda () (add-hook 'flymake-diagnostic-functions #'flymake-collection-proselint)))
+;;; Additional flymake linters (flymake-collection)
+(vftc-emacs-elpa-package 'flymake-collection
+  (add-hook
+   'shell-mode-hook
+   (lambda ()
+     (add-hook 'flymake-diagnostic-functions #'flymake-collection-shellcheck nil t)
+     (flymake-mode 1)))
 
-    (add-hook
-     'markdown-mode-hook
-     (lambda () (add-hook 'flymake-diagnostic-functions #'flymake-collection-markdownlint)))
+  (add-hook
+   'yaml-mode-hook
+   (lambda ()
+     (add-hook 'flymake-diagnostic-functions #'flymake-collection-yamllint nil t)
+     (flymake-mode 1))))
+#+end_src
 
-    (add-hook
-     'shell-mode-hook
-     (lambda () (add-hook 'flymake-diagnostic-functions #'flymake-collection-shellcheck)))
+**** Prose linting (~flymake-vale~)
+Add in a powerful prose linter.
 
-    (add-hook
-     'yaml-mode-hook
-     (lambda () (add-hook 'flymake-diagnostic-functions #'flymake-collection-yamllint))))
+#+begin_src emacs-lisp
+;;; Prose linting (flymake-vale)
+(vftc-emacs-manual-package 'flymake-vale
+  (add-hook 'text-mode-hook #'flymake-vale-load)
+  (add-hook 'markdown-mode-hook #'flymake-vale-load)
+  (add-hook 'org-mode-hook #'flymake-vale-load)
+  (add-hook 'message-mode-hook #'flymake-vale-load))
 #+end_src
 
 ** Formatting files automatically (~apheleia~)
@@ -1959,7 +2419,6 @@ Another wonderful builtin package is ~electric.el~ that provides the ubiquitous 
   ;;; Electric behaviour (electric.el)
   (vftc-emacs-builtin-package 'electric
     (electric-pair-mode 1)
-    (add-hook 'text-mode-hook #'electric-quote-local-mode)
     (add-hook 'prog-mode-hook #'electric-indent-local-mode))
 #+end_src
 
@@ -2036,12 +2495,18 @@ Backups can't be co-located with the files.
 
 #+begin_src emacs-lisp
   ;;; Backups
-  (setq backup-directory-alist
+(let ((auto-save-directory (concat user-emacs-directory "auto-save/")))
+ (setq backup-directory-alist
 	`(("." . ,(concat user-emacs-directory "backup/")))
+	auto-save-file-name-transforms
+	`((".*" ,auto-save-directory t))
 	backup-by-copying t
 	version-control t
 	delete-old-versions t
 	kept-new-versions 6
 	kept-old-versions 2
 	create-lockfiles nil)
+
+ (unless (file-exists-p auto-save-directory)
+   (make-directory auto-save-directory)))
 #+end_src

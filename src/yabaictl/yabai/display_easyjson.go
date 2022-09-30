@@ -4,6 +4,7 @@ package yabai
 
 import (
 	json "encoding/json"
+
 	easyjson "github.com/mailru/easyjson"
 	jlexer "github.com/mailru/easyjson/jlexer"
 	jwriter "github.com/mailru/easyjson/jwriter"
@@ -71,6 +72,7 @@ func easyjson22a65230DecodeGithubComRyantkingYabaictlYabai(in *jlexer.Lexer, out
 		in.Consumed()
 	}
 }
+
 func easyjson22a65230EncodeGithubComRyantkingYabaictlYabai(out *jwriter.Writer, in Display) {
 	out.RawByte('{')
 	first := true

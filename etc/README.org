@@ -10,9 +10,7 @@
 All hand-written configuration files.
 
 * Directories
-- ~/doom~ :: Doom-emacs configuration.
 - ~/emacs~ :: Emacs configuration.
 - ~/hammerspoon~ :: Hammerspoon configuration.
 - ~/nix~ :: Nix flake configuration.
 - ~/sketchybar~ :: =Sketchybar= scripts. Not in ~/bin~ since only =Sketchybar= should be able to use these.
-- ~/zsh~ :: Zshell configuration files.

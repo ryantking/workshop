@@ -4,7 +4,10 @@
   pkgs,
   ...
 }: {
-  home.activation."ensureTealdeerCache" = "mkdir -p ${config.xdg.cacheHome}/tealdeer";
+  home = {
+    packages = [pkgs.tealdeer];
+    activation."ensureTealdeerCache" = "mkdir -p ${config.xdg.cacheHome}/tealdeer";
+  };
 
   shell.env = {
     TEALDEER_CONFIG_DIR = "$XDG_CONFIG_HOME/tealdeer";
@@ -18,6 +21,6 @@
     compact = false
     [updates]
     auto_update = true
-    auto_update_interval_hours = 24
+    auto_update_interval_hours = 168
   '';
 }

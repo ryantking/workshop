@@ -31,52 +31,32 @@
 
   emacsclient = pkgs.writeShellScriptBin "ec" ''
     if [[  $INSIDE_EMACS == "vterm" ]]; then
-       ${vtermCmd} find-file "$(readlink -f "''${@:-.}")"
+       ${vtermCmd} find-file-other-window "$(readlink -f "''${@:-.}")"
        exit 0
     fi
 
     if [[ $TERM == "xterm-kitty" ]]; then
       [[ -f "$HOME/.terminfo/78/xterm-emacs" ]] || \
-        /usr/bin/tic -x -o $HOME/.terminfo $WORKSHOP_DIR/etc/terminfo-custom.src
+        /usr/bin/tic -x -o $HOME/.terminfo $WORKSHOP_DIR/usr/share/terminfo-custom.src
       TERM=xterm-emacs
     fi
 
     emacsclient -t -a "" $@
   '';
-
-  doom = {
-    emacsDir = "${workshop.dataHome}/doom-emacs";
-    configDir = "${workshop.configHome}/doom";
-    dataDir = "${xdg.dataHome}/emacs/doom";
-  };
 in {
-  shell.env = {
-    VISUAL = "ec";
-    PATH = ["${doom.emacsDir}/bin" "$PATH"];
-    DOOMDIR = doom.configDir;
-    DOOMLOCALDIR = doom.dataDir;
-    LSP_USE_PLISTS = "true";
-  };
+  shell.env.VISUAL = "ec";
 
-  xdg = {
-    configFile = {
-      "emacs" = {
-        source = pkgs.sources.chemacs.src;
-        recursive = true;
-      };
-
-      "chemacs/profiles.el".text = ''
-        (("vanilla" . ((user-emacs-directory . "${workshop.configHome}/emacs")))
-        ("doom" . ((user-emacs-directory . "${doom.emacsDir}"))))
-      '';
-
-      "chemacs/profile".text = "vanilla";
-    };
-
-    dataFile."emacs/site-lisp/mu4e" = {
-      source = "${pkgs.mu}/share/emacs/site-lisp/mu4e";
+  xdg.configFile = {
+    "emacs" = {
+      source = pkgs.sources.chemacs.src;
       recursive = true;
     };
+
+    "chemacs/profiles.el".text = ''
+      (("vanilla" . ((user-emacs-directory . "${workshop.configHome}/emacs"))))
+    '';
+
+    "chemacs/profile".text = "vanilla";
   };
 
   programs.emacs = {
@@ -107,21 +87,35 @@ in {
     imagemagick
     pinentry_emacs
     graphviz
+    rtags
     sqlite
     zstd
 
     ## Linters
-    gopls
+    hadolint
     gotools
     golangci-lint
     proselint
+    shellcheck
+    yamllint
+
+    ## Formatters
+    nodePackages.prettier
+    shfmt
 
     ## LSP
+    gopls
     (python3.withPackages (ps: with ps; [epc python-lsp-server]))
     nodePackages.dockerfile-language-server-nodejs
     nodePackages.vscode-json-languageserver
     nodePackages.bash-language-server
     nodePackages.yaml-language-server
     rnix-lsp
+    terraform-ls
+
+    ## Other language tools
+    gotests
+    gotools
+    gore
   ];
 }

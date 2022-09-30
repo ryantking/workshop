@@ -13,5 +13,6 @@ in {
     home = mkOpt types.path workshopDir;
     configHome = mkOpt types.path "${workshopDir}/etc";
     dataHome = mkOpt types.path "${workshopDir}/usr";
+    stateHome = mkOpt types.path "${workshopDir}/var";
   };
 }

@@ -6,13 +6,11 @@
 }: let
   maildir = "${config.home.homeDirectory}/Mail";
 
-  muIndex = pkgs.writeShellScript "mu-index" ''
-    if ${pkgs.mu}/bin/mu index --lazy-check; then
-      test -f /tmp/mu_reindex_now && rm /tmp/mu_reindex_now
-    else
-      touch /tmp/mu_reindex_now
-    fi
-  '';
+  passEnv = {
+    PASSWORD_STORE_DIR = "${config.workshop.stateHome}/pass";
+    PASSWORD_STORE_KEY = "${config.whoami.keys.pgp.machine}";
+    GNUPGHOME = "${config.xdg.dataHome}/gnupg";
+  };
 
   protonmailExtraChannels = {
     trash = {
@@ -63,7 +61,6 @@
   mkGoImapNotifyConfig = name: {
     enable = true;
     onNewMail = "${pkgs.isync}/bin/mbsync ${name}-%s";
-    onNewMailPost = "${muIndex}";
   };
 
   mkAccount = name: {
@@ -79,7 +76,7 @@
       userName = address;
       passwordCommand = "${pkgs.pass}/bin/pass 'email/${address}'";
 
-      mu.enable = true;
+      notmuch.enable = true;
       msmtp.enable = true;
       goimapnotify = mkGoImapNotifyConfig name;
 
@@ -113,7 +110,7 @@
     // (lib.filterAttrs (n: _: ! lib.elem n ["username" "domain" "extraChannels"]) account);
 in {
   accounts.email = {
-    maildirBasePath = "${config.home.homeDirectory}/Mail";
+    maildirBasePath = maildir;
     accounts = lib.mapAttrs mkAccount {
       personal = {
         username = "ryantking";
@@ -138,8 +135,8 @@ in {
         extraChannels = gmailExtraChannels;
       };
       work = {
-        username = "ryking";
-        domain = "redhat.com";
+        username = "ryan.king";
+        domain = "flipsidecrypto.com";
         flavor = "gmail.com";
         extraChannels = gmailExtraChannels;
       };
@@ -147,9 +144,17 @@ in {
   };
 
   programs = {
-    mu.enable = true;
+    afew.enable = true;
     mbsync.enable = true;
-    msmtp.enable = true;
+    # msmtp.enable = true;
+
+    notmuch = {
+      enable = true;
+
+      hooks = {
+        postNew = "${pkgs.afew}/bin/afew --tag --new";
+      };
+    };
   };
 
   services = {
@@ -157,23 +162,36 @@ in {
     goimapnotify.enable = true;
   };
 
-  launchd.agents.mbsync.config = {
-    EnvironmentVariables = {
-      PASSWORD_STORE_DIR = "${config.xdg.dataHome}/pass";
-      GNUPGHOME = "${config.xdg.dataHome}/gnupg";
-      PASSWORD_STORE_GPG_OPTS = "-u 0x7B9DDE8739045EF3";
+  launchd.agents = {
+    mbsync.config = {
+      EnvironmentVariables = passEnv;
+      StandardOutPath = "${config.xdg.cacheHome}/logs/mbsync.log";
+      StandardErrorPath = "${config.xdg.cacheHome}/logs/mbsync.log";
     };
-    StandardOutPath = "${config.xdg.cacheHome}/logs/org.nixos/home/mbsync.out.log";
-    StandardErrorPath = "${config.xdg.cacheHome}/logs/org.nixos/home/mbsync.err.log";
-  };
 
-  launchd.agents.goimapnotify.config = {
-    EnvironmentVariables = {
-      PASSWORD_STORE_DIR = "${config.xdg.dataHome}/pass";
-      GNUPGHOME = "${config.xdg.dataHome}/gnupg";
-      PASSWORD_STORE_GPG_OPTS = "-u 0x7B9DDE8739045EF3";
+    notmuch = {
+      enable = true;
+      config = {
+        ProgramArguments = ["${pkgs.notmuch}/bin/notmuch" "new"];
+        EnvironmentVariables.NOTMUCH_CONFIG = "${config.xdg.configHome}/notmuch/default/config";
+        WorkingDirectory = maildir;
+        StartInterval = 60 * 2;
+        ProcessType = "Adaptive";
+        RunAtLoad = true;
+        KeepAlive = true;
+        StandardOutPath = "${config.xdg.cacheHome}/logs/notmuch.log";
+        StandardErrorPath = "${config.xdg.cacheHome}/logs/notmuch.log";
+      };
     };
-    StandardOutPath = "${config.xdg.cacheHome}/logs/org.nixos/home/goimapnotify.out.log";
-    StandardErrorPath = "${config.xdg.cacheHome}/logs/org.nixos/home/goimapnotify.err.log";
+
+    goimapnotify.config = {
+      EnvironmentVariables =
+        {
+          NOTMUCH_CONFIG = "${config.xdg.configHome}/notmuch/default/config";
+        }
+        // passEnv;
+      StandardOutPath = "${config.xdg.cacheHome}/logs/goimapnotify.log";
+      StandardErrorPath = "${config.xdg.cacheHome}/logs/goimapnotify.log";
+    };
   };
 }
