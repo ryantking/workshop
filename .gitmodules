@@ -19,3 +19,6 @@
 [submodule "usr/site-lisp/makefile-executor.el"]
 	path = usr/site-lisp/makefile-executor.el
 	url = https://github.com/jumper047/makefile-executor.el.git
+[submodule "src/dmenu"]
+	path = src/dmenu
+	url = git://git.suckless.org/dmenu
