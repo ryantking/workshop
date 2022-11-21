@@ -1,0 +1,50 @@
+[user]
+email = "ryantking@protonmail.com"
+name = "Ryan King"
+signingKey = "0xD718BA353C298BB2"
+
+[core]
+pager = "delta"
+
+[alias]
+fixbare = "config remote.origin.fetch \"+refs/heads/*:refs/remotes/origin/*\""
+ignore = "!gi() { curl -sL https://www.toptal.com/developers/gitignore/api/$@ ;}; gi"
+pristine = "!git resest --hard && git clean -dffx"
+whohas = "branch -a --contains"
+
+[commit]
+gpgSign = true
+
+[delta]
+features = "decorations"
+line-numbers = true
+syntax-theme = "Nord"
+
+[delta "decorations"]
+file-decoration-stlye = "none"
+file-style = "bold white ul"
+whitespace-error-style = "22 reverse"
+
+[github]
+user = "ryantking"
+
+[gpg]
+program = "gpg2"
+
+[init]
+defaultBranch = "master"
+
+[interactive]
+diffFilter = "delta --color-only"
+
+[merge]
+conflictStyle = "diff3"
+
+[pull]
+rebase = false
+
+[tag]
+sort = "version:refname"
+
+[url "git@github.com:"]
+insteadOf = https://github.com/

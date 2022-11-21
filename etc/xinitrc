@@ -1,0 +1,6 @@
+/usr/bin/gentoo-pipewire-launcher &
+
+xsetroot -cursor_name left_ptr
+# xscreensaver -no-splash &tr
+
+exec dbus-launch --sh-syntax --exit-with-session xmonad
