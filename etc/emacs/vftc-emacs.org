@@ -1,0 +1,2510 @@
+#+TITLE: Very Fun to Configure Emacs Manual and Configuration
+#+AUTHOR: Ryan King
+#+EMAIL: ryantking@protonmail.com
+#+MACRO: export-date (eval (format-time-string "%F %R %z" (current-time)))
+#+MACRO: count-words (eval (count-words (point-min) (point-max)))
+
++ Created :: 2022-05-27
++ Updated :: *{{{export-date}}}*
++ Word count :: *{{{count-words}}}*
+
+#+TOC: headlines 8
+
+* Introduction
+This document is both my Emacs configuration and manual. It started off as just a literate configuration, but slowly became a manual that explains both core Emacs features and the features this configuration adds. A lot of the information is very basic such as defining the point and basic movement, but I like the harmnoy that a complete manual gives.
+
+** What’s with the name?
+Very Fun to Configure, abbreviated =VFTC=, is a play on the Jiu-Jitsu gear brand Very Hard to Submit.
+
+** References
+This configuration is basically a Frankenstein of a bunch of other configurations and frameworks that I’ve stumbled upon in my travels.
+
++ [[https://www.spacemacs.org/][Spacemacs]] :: Even though I don't use anything from this configuration directly, without stumbling upon this in 2015 I would not have become the editor nerd that I am today.
++ [[https://github.com/doomemacs/doomemacs][Doom Emacs]] :: I used this for a few months after leaving Neovim for Emacs. It provided a great entrypoint, but I now want total control.
++ [[https://protesilaos.com/emacs/dotemacs][Protesilaos' configuration]] :: This is the inspiration for much of the config. Prot’s structure, configuration, and copy are insane. Most things in this config are lifted from his.
++ [[https://github.com/daviwil/dotfiles/blob/guix-home/Emacs.org][David Wilson's configuration]] :: This configuration has a fantastic ~eshell~ setup along with some code-focused configuration Prot’s is missing.
++ [[https://tecosaur.github.io/emacs-config/][Tecosaur's config]] :: Back when I was using Doom, my config was mostly Tecosaur's with other configs woven in.
++ [[https://www.mtsolitary.com/20210318221148-emacs-configuration/][Mt. Solitary]] :: The original inspiration for my =org-mode= and =org-roam= based workflow with a digital garden.
++ [[https://d12frosted.io/posts/2020-06-23-task-management-with-roam-vol1.html][d12frosted's workflow]] :: Where most of my =org-roam= usage comes from. Also the author of the [[https://github.com/d12frosted/vulpea][vulpea]] library.
+
+* Setup
+One requirement that I have is portability. Since I want to be able to clone my Nix flake, install it, and boot up Emacs, I did not want a complicated setup process. This is achieved by having the ~init.el~ and ~early-init.el~ files exist outside of this literate config. On first boot, Emacs will load the ~init.el~, which instructs it to tangle and byte-compile this configuration.
+
+** Emacs build information
+#+begin_src emacs-lisp :tangle no :exports both
+  (emacs-version)
+#+end_src
+
+#+RESULTS:
+: GNU Emacs 28.1 (build 1, aarch64-apple-darwin21.6.0, Carbon Version 165 AppKit 2113.6)
+:  of 2022-07-21
+
+#+begin_src emacs-lisp :tangle no :exports both
+  system-configuration-options
+#+end_src
+
+#+RESULTS:
+: --enable-locallisppath=/opt/homebrew/share/emacs/site-lisp --infodir=/opt/homebrew/Cellar/emacs-mac/emacs-28.1-mac-9.0/share/info/emacs --prefix=/opt/homebrew/Cellar/emacs-mac/emacs-28.1-mac-9.0 --with-mac --enable-mac-app=/opt/homebrew/Cellar/emacs-mac/emacs-28.1-mac-9.0 --with-gnutls --with-modules --with-rsvg --with-mac-metal --with-native-compilation --with-xwidgets 'CFLAGS=-I/opt/homebrew/opt/gcc/include -I/opt/homebrew/opt/libgccjit/include' 'LDFLAGS=-L/opt/homebrew/lib/gcc/11 -I/opt/homebrew/opt/gcc/include -I/opt/homebrew/opt/libgccjit/include'
+
+** The init file
+The ~init.el~ file defines some core package management macros.
+
+- ~vftc-emacs-builtin-package~ loads libraries that are part of core Emacs or my configuration. This macro requires the library that’s named then evaluates the body.
+- ~vftc-emacs-elpa-package~ loads libraries that are distributed an Emacs Lisp Package Archive such as MELPA or GNUA ELPA. This macro will install the package if its not already, require it, and then evaluate the body.
+- ~vftc-emacs-manual-package~ loads libraries that I have manually cloned from GitHub. I am considering adding a ~vftc-emacs-straight-package~ or ~vftc-emacs-git-package~ to install packages from straight instead of manually cloning, but I feel like the manual cloning keeps me from just grabbing every package that I come across.
+
+The ~init.el~ also sets up the tangling and compilation of my configuration.
+
+#+INCLUDE: init.el src emacs-lisp :tangle no
+
+** The "early-init" file
+The ~early-init.el~ allows for more fine grained control. Most notably, it executes before the package management system loads.
+
+#+INCLUDE: ealy-init.el src emacs-lisp :tangle no
+
+* Core settings
+** Correct meta key on macOS
+By default, the command key is used as ~meta~ on macOS. This is no
+good. Let’s set fix that.
+
+#+begin_src emacs-lisp
+  ;;; Meta key
+  (setq mac-option-modifier 'meta
+	mac-command-modifier 'hyper)
+#+end_src
+
+** Common packages
+A few packages that are used by many plugins.
+
+#+begin_src emacs-lisp
+;;; Common utilities
+(vftc-emacs-elpa-package 'alert)
+(vftc-emacs-elpa-package 'persist)
+(vftc-emacs-elpa-package 'request-deferred)
+#+end_src
+
+** Utility functions (~vftc-common.el~)
+Utility functions that are used in multiple places are stored here. We load it here to make it available for the remainder of this configuration.
+
+#+begin_src emacs-lisp
+  ;;; Common utility functions (vftc-common.el)
+  (vftc-emacs-builtin-package 'vftc-common)
+#+end_src
+
+#+INCLUDE: vftc-lisp/vftc-common.el src emacs-lisp :tangle no
+
+** Common functions (~vftc-simple.el~)
+Here I add bindings for a few simple functions that are more or less core functionality such as yanking or the help menu. I have a few additional functions defined in ~vftc-simple.el~
+
+#+begin_src emacs-lisp
+  ;;; Simple utility functions (vftc-simple.el)
+  (vftc-emacs-builtin-package 'vftc-simple
+    (setq help-window-select t)
+
+    (let ((map global-map))
+      (define-key map (kbd "C-h .") #'vftc-simple-describe-symbol)
+      (define-key map (kbd "C-h K") #'describe-keymap)
+      (define-key map (kbd "C-h c") #'describe-char)
+      (define-key map (kbd "C-S-w") #'vftc-simple-copy-line-or-region)
+      (define-key map (kbd "C-S-y") #'vftc-simple-yank-replace-line-or-region)
+      (define-key map (kbd "<C-return>") #'vftc-simple-new-line-below)
+      (define-key map (kbd "<C-S-return>") #'vftc-simple-new-line-above)
+      (define-key map (kbd "<C-M-backpace>") #'backward-kill-sexp)
+      (define-key map (kbd "M-@") #'vftc-simple-mark-word)
+      (define-key map (kbd "M-Q") #'vftc-simple-unfill-region-or-paragraph)
+      (define-key map (kbd "<C-f2>") #'vftc-simple-rename-file-and-buffer)
+      (define-key map (kbd "C-x K") #'vftc-simple-kill-buffer-current))
+
+    (define-key minibuffer-local-map (kbd "C-r") #'consult-history))
+#+end_src
+
+The custom functions are defined here:
+
+#+INCLUDE: vftc-lisp/vftc-simple.el src emacs-lisp :tangle no
+
+** Make the custom file disposable
+By default, Emacs modifies the ~init.el~ file when you make changes via the customization UI. I still want to be able to use the customization UI when I want to tweak settings and find the right values, but I don’t want those changes to persist across sessions. This snippet sets the custom file to a temporary file that will be cleared on reboot. Whenever a new Emacs instance starts, it will make a new custom file.
+
+#+begin_src emacs-lisp
+  (vftc-emacs-builtin-package 'cus-edit
+    (setq custom-file (make-temp-file "emacs-custom-")))
+#+end_src
+
+** Load the full shell environment
+Different Emacs GUIs do different things with the login shell. In order to ensure that the environment variables that the configuration relies on are set, I use ~exec-path-from-shell~ to manually bring in the ones I know that I need.
+
+#+begin_src emacs-lisp
+  (vftc-emacs-elpa-package 'exec-path-from-shell
+    (setq exec-path-from-shell-variables
+	  '("PATH" "PGPKEYID" "SSH_AUTH_SOCK" "GNUPGHOME" "COLORSCHEME"))
+
+    (exec-path-from-shell-initialize))
+#+end_src
+
+** Configure the frame
+Setup the frame geometry.
+
+#+begin_src emacs-lisp
+  ;;; Frame geometry (~frame.el~)
+  (vftc-emacs-builtin-package 'frame
+    (setq default-frame-alist
+	  '((min-height . 1) '(height . 45)
+	    (min-width . 1) '(width . 81)
+	    (vertical-scroll-bars . nil)
+	    (internal-border-width . 6)
+	    (tool-bar-lines . 0))
+	  initial-frame-alist default-frame-alist))
+#+end_src
+
+** Setting theme from the Workshop configuration
+I want my Emacs colorscheme to sync with my workshop theme. I define a function that reads the environment and the loads the corresponding doom theme.
+
+#+begin_src emacs-lisp
+  (vftc-emacs-elpa-package 'dash)
+
+  (defun vftc-load-theme ()
+    (require 'dash)
+    (-> "nord-aurora" ;(getenv "COLORSCHEME")
+	(downcase)
+	(->> (concat "doom-"))
+	(intern)
+	(load-theme t))
+
+    (doom-themes-visual-bell-config)
+    (doom-themes-org-config))
+
+  (vftc-emacs-elpa-package 'doom-themes
+    (vftc-load-theme))
+#+end_src
+
+*** Custom faces (~vftc-faces.el~)
+In order to style other UI components consistently with the theme, I configure a few faces based off of the doom colors. This will allow me to change the Doom theme and have the rest of the UI update. The face system is ripped from the Nano Emacs visual style since that’s what I use for the modeline.
+
+#+begin_src emacs-lisp
+  (vftc-emacs-builtin-package 'vftc-faces
+    (vftc-faces-set-from-theme))
+#+end_src
+
+#+INCLUDE: vftc-lisp/vftc-faces.el src emacs-lisp :tangle no
+
+** Key cheatsheet (~which-key~)
+Use the ~which-key~ plugin because key bindings are hard.
+
+#+begin_src emacs-lisp
+  ;;; Keybinding cheatcheet (which-key)
+  (vftc-emacs-elpa-package 'which-key
+    (which-key-mode 1))
+#+end_src
+
+** Typeface configuration
+Prot’s =fontaine= package is fantastic. It lets you define a bunch of face configurations that inherit one another. This is particularly helpful for me since I’m back and forth between large 4k monitors and a small laptop screen so the ease of switching font size makes this package essential for me now. I also load fonts from the environment here so that way they stay in sync with my Workshop configuration.
+
+#+begin_src emacs-lisp
+  (vftc-emacs-elpa-package 'fontaine
+    (setq x-underline-at-descent-line t)
+    (setq-default text-scale-remap-header-line t)
+    (setq fontaine-latest-state-file (locate-user-emacs-file "fontaine-latest-state.eld")
+	  fontaine-presets
+	  `((small
+	     :default-height 120)
+	    (regular
+	     :default-height 220)
+	    (large
+	     :default-height 240)
+	    (presentation
+	     :default-weight light
+	     :default-height 360)
+	    (t
+	     :default-family "Iosevka Custom"
+	     :default-weight regular
+	     :default-height 160
+	     :fixed-pitch-family nil
+	     :fixed-pitch-weight nil
+	     :fixed-pitch-height 1.0
+	     :variable-pitch-family "Iosevka Etoile Custom"
+	     :variable-pitch-weight nil
+	     :variable-pitch-height 1.0
+	     :bold-family nil
+	     :bold-weight regular
+	     :italic-family nil
+	     :italic-slant italic
+	     :line-spacing nil)))
+
+    (fontaine-set-preset (or (fontaine-restore-latest-preset) 'regular))
+    (add-hook 'kill-emacs-hook #'fontaine-store-latest-preset)
+
+    (define-key global-map (kbd "C-c f") #'fontaine-set-preset)
+    (define-key global-map (kbd "C-c F") #'fontaine-set-face-font))
+#+END_SRC
+
+*** Ligeratures Support
+Ligeratures make programming a little nicer. This plugin should just
+work.
+
+#+begin_src emacs-lisp
+;;; Ligature support (~ligature~)
+(vftc-emacs-manual-package 'ligature
+  (ligature-set-ligatures 't '("www"))
+  (ligature-set-ligatures 'eww-mode '("ff" "fi" "ffi"))
+  (ligature-set-ligatures 'prog-mode '("|||>" "<|||" "<==>" "<!--" "####" "~~>" "***" "||=" "||>"
+                                       ":::" "::=" "=:=" "===" "==>" "=!=" "=>>" "=<<" "=/=" "!=="
+                                       "!!." ">=>" ">>=" ">>>" ">>-" ">->" "->>" "-->" "---" "-<<"
+                                       "<~~" "<~>" "<*>" "<||" "<|>" "<$>" "<==" "<=>" "<=<" "<->"
+                                       "<--" "<-<" "<<=" "<<-" "<<<" "<+>" "</>" "###" "#_(" "..<"
+                                       "..." "+++" "/==" "///" "_|_" "www" "&&" "^=" "~~" "~@" "~="
+                                       "~>" "~-" "**" "*>" "*/" "||" "|}" "|]" "|=" "|>" "|-" "{|"
+                                       "[|" "]#" "::" ":=" ":>" ":<" "$>" "==" "=>" "!=" "!!" ">:"
+                                       ">=" ">>" ">-" "-~" "-|" "->" "--" "-<" "<~" "<*" "<|" "<:"
+                                       "<$" "<=" "<>" "<-" "<<" "<+" "</" "#{" "#[" "#:" "#=" "#!"
+                                       "##" "#(" "#?" "#_" "%%" ".=" ".-" ".." ".?" "+>" "++" "?:"
+                                       "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
+                                       "\\\\" "://"))
+  (global-ligature-mode t))
+#+end_src
+
+** Highlight the current line on demand
+Another fantastic simple Prot package in =pulsar.el=. I’m going to also create custom faces for it that use the theme colors.
+
+#+begin_src emacs-lisp
+  (defface vftc-pulsar
+    `((t :background ,(doom-color 'dark-blue)))
+    "Pulsar face that uses the Doom theme color."
+    :group 'vftc-faces)
+
+  (defface vftc-pulsar-highlight
+    `((t :background ,(doom-color 'yellow)))
+    "Pulsar highlight face that uses the Doom theme color."
+    :group 'vftc-faces)
+
+  (vftc-emacs-elpa-package 'pulsar
+    (setq pulsar-functions '(forward-page backward-page evil-scroll-page-down evil-scroll-page-up)
+	  pulsar-pulse-on-window-change t
+	  pulsar-pulse t
+	  pulsar-delay 0.055
+	  pulsar-iterations 10
+	  pulsar-face 'vftc-pulsar
+	  pulsar-highlight-face 'vftc-pulsar-highlight)
+
+    (pulsar-global-mode 1)
+
+    (let ((map global-map))
+      (define-key map (kbd "C-x l") #'pulsar-pulse-line)
+      (define-key map (kbd "C-x L") #'pulsar-highlight-dwim)))
+#+end_src
+
+** Highlight current line in appropriate modes
+=lin.el= is another Prot plugin. This one enhances the builtin =hl-line-mode= by setting its color and only turning it on in appropriate modes. I make another face based off the theme for colorful consistencey.
+
+#+begin_src emacs-lisp
+  (defface vftc-lin
+    `((t :background ,(doom-color 'base4)))
+    "A `lin' face that uses the Doom theme color."
+    :group 'vftc-faces)
+
+  (vftc-emacs-elpa-package 'lin
+    (setq lin-face 'vftc-lin
+	  lin-mode-hooks
+	  '(
+	    ;; bongo-mode-hook
+	    dired-mode-hook
+	    elfeed-search-mode-hook
+	    git-rebase-mode-hook
+	    ibuffer-mode-hook
+	    ;; ilist-mode-hook
+	    ;; ledger-report-mode-hook
+	    log-view-mode-hook
+	    ;; magit-log-mode-hook
+	    ;; mu4e-headers-mode
+	    ;; notmuch-search-mode-hook
+	    ;; notmuch-tree-mode-hook
+	    ;; occur-mode-hook
+	    ;; org-agenda-mode-hook
+	    ;; tabulated-list-mode-hook
+	    ))
+    (lin-global-mode 1))
+#+end_src
+
+** Performance for very long lines
+Enable the builtin ~so-long-mode~ so that long lines can be handled without crushing emacs performance.
+
+#+begin_src emacs-lisp
+  (vftc-emacs-builtin-package 'so-long
+    (global-so-long-mode 1))
+#+end_src
+
+** Handle pinentry in emacs
+Emacs supports pinentry so use it.
+
+#+begin_src emacs-lisp
+  ;;; Emacs pinentry mode (pinentry)
+  (vftc-emacs-elpa-package 'pinentry
+    (setq package-gnupghome-dir (getenv "GNUPGHOME")
+	  epg-gpg-home-directory (getenv "GNUPGHOME")
+	  epg-pinentry-mode 'loopback)
+    (pinentry-start))
+#+end_src
+
+** Respect envrc files
+I use direnv in a lot of projects.
+
+#+begin_src emacs-lisp
+;;; Respect envrc (envrc)
+(vftc-emacs-elpa-package 'envrc
+  (envrc-global-mode 1)
+
+  (let ((map envrc-mode-map))
+    (define-key map (kbd "C-c e e") #'envrc-allow)
+    (define-key map (kbd "C-c e d") #'envrc-deny)
+    (define-key map (kbd "C-c e r") #'envrc-reload)
+    (define-key map (kbd "C-c e R") #'envrc-reload-all)))
+#+end_src
+* Selection and search
+** Completion framework
+After editing text, the primary function of Emacs is picking which text to display on the screen. The completion framework is the way you decide what to load into a buffer. It can be files, directories, interactive apps among other things. The functions that enable the quick selection of which of those to put into a buffer is what is referred to as the completion framework.
+
+*** Orderless completion style (~vftc-orderless.el~)
+The Orderless plugin adds a new matching style to Emacs. It enables you to add additional search terms that can match the results in any order (hence "Orderless"). I have taken a few extensions that adds even more cool custom functionality.
+
+#+begin_src emacs-lisp
+  (vftc-emacs-elpa-package 'orderless
+    (setq orderless-component-separator 'orderless-escapable-split-on-space
+	  orderless-matching-styles
+	  '(orderless-prefixes
+	    orderless-strict-leading-initialism
+	    orderless-flex
+	    orderless-regexp)
+	  orderless-style-dispatchers
+	  '(vftc-orderless-literal-dispatcher
+	    vftc-orderless-initialism-dispatcher
+	    vftc-orderless-flex-dispatcher))
+
+    (let ((map minibuffer-local-completion-map))
+      (define-key map (kbd "SPC") nil)
+      (define-key map (kbd "?") nil)))
+
+  (vftc-emacs-builtin-package 'vftc-orderless)
+#+end_src
+
+This is the contents of ~vftc-orderless.el~ library.
+
+#+INCLUDE: vftc-lisp/vftc-orderless.el src emacs-lisp :tangle no
+
+*** Completion annotations (~marginalia.el~)
+Marginalia is a nice little package that adds additional information to the completion buffer.
+
+#+begin_src emacs-lisp
+  (vftc-emacs-elpa-package 'marginalia
+    (setq marginalia-max-relative-age 0)
+    (marginalia-mode 1))
+#+end_src
+
+*** Minibuffer configuration (~vertico.el~)
+The minibuffer is the central entrypoint to the completion framework. Previously all-in-one completion solutions would be used such as Ivy and Helm, but the current Emacs "meta" is to use tools that enhance builtin funcitonality. For the minibuffer, that tool is Vertico. Beyond configuring Vertico, I also configure the completion styles to use the Orderless package.
+
+#+begin_src emacs-lisp
+  (vftc-emacs-builtin-package 'minibuffer
+    (setq completion-styles '(basic orderless)
+	  completion-category-defaults nil
+	  completion-category-overrides
+	  '((file (styles . (basic partial-completion orderless)))
+	    (project-file (styles . (basic substring partial-completion orderless)))
+	    (imenu (styles . (basic substring orderless)))
+	    (kill-ring (styles . (basic substring orderless)))
+	    (consult-location (styles . (basic substring orderless))))
+	  completion-ignore-case t
+	  read-buffer-completion-ignore-case t
+	  read-file-name-completion-ignore-case t
+	  enable-recursive-minibuffers t
+	  resize-mini-windows t
+	  minibuffer-eldef-shorten-default t
+	  read-answer-short t
+	  echo-keystrokes 0.25
+	  kill-ring-max 60
+	  minibuffer-prompt-properties
+	  '(read-only t cursor-intangible t face minibuffer-prompt))
+
+    (setq-default case-fold-search t)
+
+    (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+
+    (defun crm-indicator (args)
+      "Add prompt indicator to `completing-read-multiple' filter ARGS."
+      ;; The `error' face just makes the text red.
+      (cons (concat (propertize "[CRM] " 'face 'error) (car args)) (cdr args)))
+
+    (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+
+    (file-name-shadow-mode 1)
+    (minibuffer-depth-indicate-mode 1)
+    (minibuffer-electric-default-mode 1))
+
+  (vftc-emacs-builtin-package 'savehist
+    (setq savehist-file (locate-user-emacs-file "savehist")
+	  history-length 10000
+	  history-delete-duplicates t
+	  savehist-save-minibuffer-history t)
+    (add-hook 'after-init-hook #'savehist-mode))
+
+  (vftc-emacs-elpa-package 'vertico
+    (setq vertico-scroll-margin 0
+	  vertico-count 10
+	  vertico-count-format nil
+	  vertico-resize nil
+	  vertico-cycle t
+
+	  vertico-grid-separator
+	  #("  |  " 2 3 (display (space :width (1))
+				 face (:background (face-background 'vftc-face-default-i))))
+
+	  vertico-group-format
+	  (concat #(" " 0 1 (face vertico-group-title))
+		  #(" " 0 1 (face vertico-group-separator))
+		  #(" %s " 0 4 (face vertico-group-title))
+		  #(" " 0 1 (face vertico-group-separator
+				  display (space :align-to (- right (-1 . right-margin) (- +1)))))))
+
+    (vertico-mode 1)
+
+    ;; Blend vertico with the theme
+    (set-face-attribute 'vertico-group-separator nil
+			:strike-through t)
+    (set-face-attribute 'vertico-current nil
+			:inherit '(vftc-face-strong vftc-face-subtle))
+    (set-face-attribute 'completions-first-difference nil
+			:inherit '(vftc-face-default))
+
+    (let ((map vertico-map))
+      (define-key map (kbd "M-,") #'vertico-quick-insert)
+      (define-key map (kbd "M-.") #'vertico-quick-exit))
+
+    (add-hook 'rfn-eshadow-update-overlay-hook #'vertico-directory-tidy))
+#+end_src
+
+*** Enhanced minibuffer commands (~consult.el~)
+The ~consult~ plugin adds in a bunch of commands that integrate well
+with the Emacs minibuffer completion system. Some of the commands are
+drop-in replacements for builtin functions and others are entirely new.
+
+#+begin_src emacs-lisp
+  (vftc-emacs-elpa-package 'consult
+    (setq consult-async-input-debounce 0.5
+	  consult-async-input-throttle 0.8
+	  consult-narrow-key ">"
+
+	  consult-imenu-config
+	  '((emacs-lisp-mode :toplevel "Functions"
+			     :types ((?f "Functions" font-lock-function-name-face)
+				     (?m "Macros"    font-lock-keyword-face)
+				     (?p "Packages"  font-lock-constant-face)
+				     (?t "Types"     font-lock-type-face)
+				     (?v "Variables" font-lock-variable-name-face))))
+	  ;; Search C-h f for more "bookmark jump" handlers.
+	  consult-bookmark-narrow
+	  `((?d "Docview" ,#'doc-view-bookmark-jump)
+	    (?e "Eshell" ,#'eshell-bookmark-jump)
+	    (?f "File" ,#'bookmark-default-handler)
+	    (?h "Help" ,#'help-bookmark-jump)
+	    (?i "Info" ,#'Info-bookmark-jump)
+	    (?m "Man" ,#'Man-bookmark-jump)
+	    (?v "VC Dir" ,#'vc-dir-bookmark-jump))
+	  register-preview-delay 0.8
+	  register-preview-function #'consult-register-format
+	  consult-find-args "find . -not ( -wholename */.* -prune )"
+	  consult-preview-key 'any)
+
+    (add-hook 'completion-list-mode-hook #'consult-preview-at-point-mode)
+
+    (require 'consult-imenu)
+
+    (let ((map global-map))
+      ;; C-c bindings (mode-specific)
+      (define-key map (kbd "C-c h") #'consult-history)
+      (define-key map (kbd "C-c m") #'consult-mode-command)
+      (define-key map (kbd "C-c k") #'consult-kmacro)
+      ;; C-x bindings (ctl-x-map)
+      (define-key map (kbd "C-x M-:") #'consult-complex-command)
+      (define-key map (kbd "C-x b") #'consult-buffer)
+      (define-key map (kbd "C-x 4 b") #'consult-buffer-other-window)
+      (define-key map (kbd "C-x 5 b") #'consult-buffer-other-frame)
+      (define-key map (kbd "C-x r b") #'consult-bookmark)
+      (define-key map (kbd "C-x p b") #'consult-project-buffer)
+      ;; M-# bindings for registers
+      (define-key map (kbd "M-#") #'consult-register-load)
+      (define-key map (kbd "M-'") #'consult-register-store)
+      (define-key map (kbd "C-M-#") #'consult-register)
+      ;; Misc custom bindings
+      (define-key map (kbd "M-y") #'consult-yank-pop)
+      (define-key map (kbd "<help> a") #'consult-apropos)
+      ;; M-g bindings (goto-map)
+      (define-key map (kbd "M-g e") #'consult-compile-error)
+      (define-key map (kbd "M-g f") #'consult-flymake)
+      (define-key map (kbd "M-g g") #'consult-goto-line)
+      (define-key map (kbd "M-g M-g") #'consult-goto-line)
+      (define-key map (kbd "M-g o") #'consult-outline)
+      (define-key map (kbd "M-g m") #'consult-mark)
+      (define-key map (kbd "M-g k") #'consult-global-mark)
+      (define-key map (kbd "M-g i") #'consult-imenu)
+      (define-key map (kbd "M-g I") #'consult-imenu-multi)
+      ;; M-s bindings (search-map)
+      (define-key map (kbd "M-s d") #'consult-find)
+      (define-key map (kbd "M-s D") #'consult-locate)
+      (define-key map (kbd "M-s g") #'consult-grep)
+      (define-key map (kbd "M-s G") #'consult-git-grep)
+      (define-key map (kbd "M-s r") #'consult-ripgrep)
+      (define-key map (kbd "M-s l") #'consult-line)
+      (define-key map (kbd "M-s L") #'consult-line-multi)
+      (define-key map (kbd "M-s m") #'consult-multi-occur)
+      (define-key map (kbd "M-s k") #'consult-keep-lines)
+      (define-key map (kbd "M-s u") #'consult-focus-lines)
+      (define-key map (kbd "M-s e") #'consult-isearch-history))
+
+    (let ((map isearch-mode-map))
+      (define-key map (kbd "M-e") #'consult-isearch-history)
+      (define-key map (kbd "M-s e") #'consult-isearch-history)
+      (define-key map (kbd "M-s l") #'consult-line)
+      (define-key map (kbd "M-s L") #'consult-line-multi))
+
+    (let ((map minibuffer-local-map))
+      (define-key map (kbd "M-s") #'consult-history)
+      (define-key map (kbd "M-r") #'consult-history))
+
+    (define-key consult-narrow-map (kbd "?") #'consult-narrow-help)
+
+    (setq consult-after-jump-hook nil)
+    (dolist (fn '(pulsar-recenter-top pulsar-reveal-entry))
+      (add-hook 'consult-after-jump-hook fn)))
+#+end_src
+
+**** Switching directories (~consult-dir.el~)
+A small package that adds in a "missing" Consult function. It adds a directory menu that lets you select director´s in bookmarks, the current project, other projects, and recent files.
+
+#+begin_src emacs-lisp
+  (vftc-emacs-elpa-package 'consult-dir
+    (setq consult-dir-sources '(consult-dir--source-bookmark
+				consult-dir--source-default
+				consult-dir--source-project
+				consult-dir--source-recentf))
+
+    (dolist (map (list global-map minibuffer-local-filename-completion-map))
+      (define-key map (kbd "C-x C-d") #'consult-dir)))
+#+end_src
+
+*** Extended minibuffer actions (~embark.el~ and ~vftc-embark.el~)
+Empark is essentially a right click menu for the minibuffer. When narrowing down a list of completions and the original task changes after seeing the results, Embark lets you open a context menu co chage course.
+
+#+begin_src emacs-lisp
+  (vftc-emacs-elpa-package 'embark
+    (setq prefix-help-command #'embark-prefix-help-command
+	  embark-quit-after-action t
+	  embark-cycle-key (kbd "C-.")
+	  embark-confirm-act-all nil
+	  embark-indicators
+	  '(embark-mixed-indicator
+	    embark-highlight-indicator)
+	  embark-verbose-indicator-excluded-actions
+	  '("\\`customize-" "\\(local\\|global\\)-set-key"
+	    set-variable embark-cycle embark-keymap-help embark-isearch)
+	  embark-verbose-indicator-buffer-sections
+	  `(target "\n" shadowed-targets " " cycle "\n" bindings)
+	  embark-mixed-indicator-both nil
+	  embark-mixed-indicator-delay 1.2
+	  embark-verbose-indicator-display-action nil)
+
+    (define-key global-map (kbd "C-,") #'embark-act)
+    (define-key embark-collect-mode-map (kbd "C-,") #'embark-act)
+
+    (let ((map minibuffer-local-completion-map))
+      (define-key map (kbd "C-,") #'embark-act)
+      (define-key map (kbd "C-.") #'embark-export)
+      (define-key map (kbd "C->") #'embark-become))
+    (let ((map embark-region-map))
+      (define-key map (kbd "a") #'align-regexp)
+      (define-key map (kbd "i") #'epa-import-keys-region)
+      (define-key map (kbd "r") #'repunctuate-sentences) ; overrides `rot13-region'
+      (define-key map (kbd "s") #'sort-lines)
+      (define-key map (kbd "u") #'untabify))
+    (let ((map embark-symbol-map))
+      (define-key map (kbd ".") #'embark-find-definition)
+      (define-key map (kbd "k") #'describe-keymap)))
+
+  (vftc-emacs-elpa-package 'embark-consult)
+
+  (vftc-emacs-builtin-package 'vftc-embark
+    (vftc-embark-keymaps 1))
+#+end_src
+
+The contents of ~vftc-embark.el~ is here:
+
+#+INCLUDE: vftc-lisp/vftc-embark.el src emacs-lisp :tangle no
+
+*** Project management (~project.el~ and ~vftc-project.el~)
+Project management in Emacs is now done with the recently bolstered ~project.el~ builtin library.
+
+#+begin_src emacs-lisp
+  (vftc-emacs-builtin-package 'project
+    (setq project-switch-commands
+	  '((?f "File" project-find-file)
+	    (?s "Subdir" vftc-project-find-subdir)
+	    (?g "Grep" project-find-regexp)
+	    (?d "Dired" project-dired)
+	    (?b "Buffer" project-switch-to-buffer)
+	    (?q "Query replace" project-query-replace-regexp)
+	    (?t "Tag switch" vftc-project-retrieve-tag)
+	    (?m "Magit" vftc-project-magit-status)
+	    (?v "VC dir" project-vc-dir)
+	    (?l "Log VC" vftc-project-commit-log)
+	    (?e "Eshell" project-eshell)))
+    (define-key global-map (kbd "C-x p q") #'project-query-replace-regexp))
+
+  (vftc-emacs-builtin-package 'vftc-project
+    (let ((map global-map))
+      (define-key map (kbd "C-x p <delete>") #'vftc-project-remove-project)
+      (define-key map (kbd "C-x p l") #'vftc-project-commit-log)
+      (define-key map (kbd "C-x p m") #'vftc-project-magit-status)
+      (define-key map (kbd "C-x p s") #'vftc-project-find-subdir)
+      (define-key map (kbd "C-x p t") #'vftc-project-retrieve-tag)))
+#+end_src
+
+The contents of ~vftc-project.el~ is here:
+
+#+INCLUDE: vftc-lisp/vftc-project.el src emacs-lisp :tangle no
+
+**** Project extensions (~project-x.el~)
+Some extensions to ~project.el~. The two main features are persistent storage of window configuration and arbitrary project declaration.
+
+#+begin_src emacs-lisp
+  (vftc-emacs-manual-package 'project-x
+    (setq project-x-window-list-file (locate-user-emacs-file "project-x-window-list"))
+    (project-x-mode 1))
+#+end_src
+
+*** Recent file completion (~vftc-recentf.el~)
+Setup ~recentf~, which is a builtin minor mode for keeping track of recent files.
+
+#+begin_src emacs-lisp
+  (vftc-emacs-builtin-package 'recentf
+    (setq recentf-save-file (locate-user-emacs-file "recentf")
+	  recentf-exclude '(".gz" ".xz" ".zip" "/elpa/" "/ssh:" "/sudo:"))
+    (add-hook 'after-init-hook #'recentf-mode))
+
+  (vftc-emacs-builtin-package 'vftc-recentf
+    (add-to-list 'recentf-keep 'vftc-recentf-keep-predicate)
+    (let ((map global-map))
+      (define-key map (kbd "C-x C-r") #'vftc-recentf-recent-files-or-dirs)))
+#+end_src
+
+The contents of ~vftc-recentf.el~ is here:
+
+#+INCLUDE: vftc-lisp/vftc-recentf.el src emacs-lisp :tangle no
+
+** In-buffer Completion
+This section of configuration adds completion as I type text into a buffer. This was historically done by ~company-mode.el~, but now we have a new lightweight stack that prioritizes builtin functionality in the mold of vertico and similar plugins.
+
+*** Completion prompt (~corfu.el~)
+The completion prompt is handled by Corfu.
+
+#+begin_src emacs-lisp
+  ;;; Corfu (in-buffer completion popup)
+  (vftc-emacs-elpa-package 'corfu
+    ;; Builtin completion settings
+    (setq completion-cycle-threshold 3
+	  read-extended-command-predicate #'command-completion-default-include-p
+	  tab-always-indent 'complete)
+
+    ;; corfu settings
+    (setq corfu-cycle t
+	  corfu-auto t
+	  corfu-auto-delay 0.3
+	  corfu-quit-at-boundary t
+	  corfu-quit-no-match t)
+
+    (global-corfu-mode 1)
+
+    (define-key corfu-map (kbd "<tab>") #'corfu-complete)
+
+    (add-hook 'eshell-mode-hook
+	      (lambda () (setq-local corfu-auto nil)))
+
+    (add-hook 'minibuffer-setup-hook
+	      (lambda ()
+		(unless (bound-and-true-p vertico--input)
+		  (setq-local corfu-auto nil) (corfu-mode 1)))))
+#+end_src
+
+*** Extra completion-at-point backends (~cape.el~)
+Since Corfu uses the bulitin in CAPE, it cannot have extra backends easily plugged in. Until CAPE comes in. CAPE adds in extra backends to make Corfu with CAPE feel like a more complex system.
+
+#+begin_src emacs-lisp
+  ;;; CAPE (extra completion-at-point backends)
+  (vftc-emacs-elpa-package 'cape
+    (require 'cape-keyword)
+
+    (setq cape-dabbrev-min-length 3)
+
+    (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-silent)
+    (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-purify)
+
+    (dolist (backend '(cape-symbol cape-keyword cape-file cape-dabbrev))
+      (add-to-list 'completion-at-point-functions backend)))
+#+end_src
+
+*** Completion menu icons (~kind-icon~)
+Corfu supports adding icons via external packages. The one that I will
+be using, ~kind-icon~ provides nice SVG icons.
+
+#+begin_src emacs-lisp
+  ;;; Completion menu icons (kind-icon)
+  (vftc-emacs-elpa-package 'kind-icon
+    (setq kind-icon-default-face 'corfu-default)
+    (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
+#+end_src
+
+*** Better command prompt completion (~pcmpl-args~)
+This little package makes the command completion way better by parsing subcommands and flags out of man pages.
+
+#+begin_src emacs-lisp
+  (vftc-emacs-elpa-package 'pcmpl-args)
+#+end_src
+
+*** Dynamic word completion (~dabbrev.el~)
+Emacs has a builtin bit of functionality called ~dabbrev~ that completes text based on the contents of the buffer.
+
+#+begin_src emacs-lisp
+  ;;; Dabbrev (dynamic word completion)
+  ;; (vftc-emacs-builtin-package 'dabbrev
+  ;;   (setq dabbrev-abbrev-char-regexp "\\W\\|\\s_"
+  ;; 	dabbrev-abbrev-skip-leading-regexp "[$*/=~’]"
+  ;; 	dabbrev-backward-only nil
+  ;; 	dabbrev-case-distinction 'case-replace
+  ;; 	dabbrev-upcase-means-case-search t)
+  ;;   (let ((map global-map))
+  ;;     (define-key map (kbd "M-/") #'dabbrev-expand)
+  ;;     (define-key map (kbd "C-x M-/") #'dabbrev-completion)))
+#+end_src
+
+*** Abbreviations (~abbrev.el~)
+Abbreviations provide an easy way to expand text. I haven’t played around with it a whole lot yet so this is more just scaffolding as I find more useful expansions.
+
+#+begin_src emacs-lisp
+  ;;; Abbreviations (abbrev.el)
+  ;; (vftc-emacs-builtin-package 'abbrev
+  ;;   (setq abbrev-file-name (locate-user-emacs-file "abbrevs"))
+  ;;
+  ;;   (let ((map global-map))
+  ;;     (define-key map (kbd "C-x a e") #'expand-abbrev)
+  ;;     (define-key map (kbd "C-x a u") #'unexpand-abbrev))
+  ;;
+  ;;   (dolist (hook '(text-mode-hook))
+  ;;     (add-hook hook #'abbrev-mode)))
+#+end_src
+
+** Builtin search commands
+*** Isearch, occur, grep, and extras (~vftc-search.el~)
+The search function is feeling a bit less intuitive than Vim’s ~incsearch~. I think its probably a fact of not knowing all the funcionality and when to use what. I just learned how ~occur.el~ works, which is going to change my life. I imagine there will be a bunch of features like that.
+
+#+begin_src emacs-lisp
+  ;;; Isearch, occur, grep, and extras (vftc-search.el)
+  (vftc-emacs-builtin-package 'isearch
+    (setq search-whitespace-regexp ".*?"
+	  isearch-lazy-count t
+	  lazy-count-prefix-format " (%s/%s)"
+	  isearch-yank-on-move 'shift
+	  isearch-allow-scroll t
+	  isearch-repeat-on-direction-change t)
+
+    (let ((map isearch-mode-map))
+      (define-key map (kbd "C-g") #'isearch-cancel)
+      (define-key map (kbd "M-/") #'isearch-complete)))
+
+  (vftc-emacs-builtin-package 'replace
+    (add-hook 'occur-mode-hook #'hl-line-mode)
+    (add-hook 'occur-mode-hook #'vftc-common-truncate-lines-silently)
+    (define-key occur-mode-map (kbd "t") #'toggle-truncate-lines))
+
+  (vftc-emacs-builtin-package 'grep)
+
+  (vftc-emacs-builtin-package 'vftc-search
+    (let ((map global-map))
+      (define-key map (kbd "M-s %") #'vftc-search-isearch-replace-symbol)
+      (define-key map (kbd "M-s M-%") #'vftc-search-replace-markup)
+      (define-key map (kbd "M-s M-<") #'vftc-search-isearch-beginning-of-buffer)
+      (define-key map (kbd "M-s g") #'vftc-search-grep)
+      (define-key map (kbd "M-s u") #'vftc-search-occur-urls)
+      (define-key map (kbd "M-s t") #'vftc-search-grep-todo-keywords)
+      (define-key map (kbd "M-s M-t") #'vftc-search-grep-todo-keywords))
+    (let ((map isearch-mode-map))
+      (define-key map (kbd "<up>") #'vftc-search-isearch-repeat-backward)
+      (define-key map (kbd "<down>") #'vftc-search-isearch-repeat-forward)
+      (define-key map (kbd "<backpace>") #'vftc-search-isearch-abort-dwim)
+      (define-key map (kbd "<C-return>") #'vftc-search-isearch-other-end)))
+#+end_src
+
+The contents of ~vftc-search.el~ is here:
+
+#+INCLUDE: vftc-lisp/vftc-search.el src emacs-lisp :tangle no
+
+*** Test regular experssions (~re-builder.el~)
+Enable the builtin tool for testing regular expressions.
+
+#+begin_src emacs-lisp
+  (vftc-emacs-builtin-package 're-builder)
+#+end_src
+
+*** Writeable grep buffers (~wgrep~)
+The ~wgrep~ plugin adds the ability to edit the result of a ~grep~ then save the changes to their respective buffers.
+
+#+begin_src emacs-lisp
+  ;;; writeable grep (wgrep)
+  (vftc-emacs-elpa-package 'wgrep
+    (setq wgrep-auto-save-buffer t
+	  wgrep-change-readonly-file t)
+    (let ((map grep-mode-map))
+      (define-key map (kbd "e") #'wgrep-change-to-wgrep-mode)
+      (define-key map (kbd "C-x C-q") #'wgrep-change-to-wgrep-mode)
+      (define-key map (kbd "C-c C-C") #'wgrep-finish-edit)))
+#+end_src
+
+*** Cross-references (~xref.el~)
+Xref is the builtin way to navigate code.
+
+#+begin_src emacs-lisp
+  (vftc-emacs-builtin-package 'xref
+    (setq xref-show-definitions-function #'xref-show-definitions-completing-read
+	  xref-show-xrefs-function #'xref-show-definitions-buffer
+	  xref-search-program 'ripgrep))
+#+end_src
+
+* Directory, buffer, and window management
+** Dired
+Dired is the builtin Emacs file manager.
+
+#+begin_src emacs-lisp
+  (vftc-emacs-builtin-package 'dired
+    (setq dired-recursive-copies 'always
+	  dired-recursive-deletes 'always
+	  delete-by-moving-to-trash nil
+	  dired-listing-switches "-AGFhlv --group-directories-first --time-style=long-iso"
+	  dired-dwim-target t
+	  dired-auto-revert-buffer #'dired-directory-changed-p)
+    (add-hook 'dired-mode-hook #'dired-hide-details-mode)
+    (add-hook 'dired-mode-hook #'hl-line-mode))
+
+  (vftc-emacs-builtin-package 'dired-aux
+    (setq dired-isearch-filenames 'dwim
+	  dired-create-destination-dirs t
+	  dired-vc-rename-file t
+	  dired-do-revert-buffer (lambda (dir) (not (file-remote-p dir))))
+    (let ((map dired-mode-map))
+      (define-key map (kbd "C-+") #'dired-create-empty-file)
+      (define-key map (kbd "M-s f") #'nil)
+      (define-key map (kbd "C-x v v") #'dired-vc-next-action)))
+
+  (vftc-emacs-builtin-package 'dired-x)
+
+  (vftc-emacs-builtin-package 'vftc-dired
+    (add-hook 'dired-mode-hook #'vftc-dired-setup-imenu)
+
+    (let ((map dired-mode-map))
+      (define-key map (kbd "i") #'vftc-dired-insert-subdir)
+      (define-key map (kbd "/") #'vftc-dired-limit-regexp)
+      (define-key map (kbd "C-c C-l") #'vftc-dired-limit-regexp)
+      (define-key map (kbd "M-n") #'vftc-dired-subdirectory-next)
+      (define-key map (kbd "C-c C-n") #'vftc-dired-subdirectory-next)
+      (define-key map (kbd "M-p") #'vftc-dired-subdirectory-previous)
+      (define-key map (kbd "C-c C-p") #'vftc-dired-subdirectory-previous)
+      (define-key map (kbd "M-s G") #'vftc-dired-grep-marked-files)))
+
+  (vftc-emacs-elpa-package 'dired-subtree
+    (setq dired-subtree-use-backgrounds nil)
+    (let ((map dired-mode-map))
+      (define-key map (kbd "<tab>") #'dired-subtree-toggle)
+      (define-key map (kbd "<backtab>") #'dired-subtree-remove)))
+
+  (vftc-emacs-builtin-package 'wdired
+    (setq wdired-allow-to-redirect-links t))
+
+  (vftc-emacs-builtin-package 'image-dired
+    (define-key image-dired-thumbnail-mode-map (kbd "<return>") #'image-dired-thumbnail-display-external))
+#+end_src
+
+** Dired-like mode for the trash (~trashed.el~)
+~trashed~ is a simple plugin that creates an interface for dealing with the system trash.
+
+#+begin_src emacs-lisp
+  (vftc-emacs-elpa-package 'trashed
+    (setq trashed-action-confirmer 'y-or-n-p
+	  trashed-date-format "%Y-%m-%d %H:%M:%S"))
+#+end_src
+
+** Buffer management
+*** Keymaps
+Add in a few missing keymaps.
+
+#+begin_src emacs-lisp
+  (let ((map ctl-x-x-map))
+    (define-key map "e" #'eval-buffer)
+    (define-key map "f" #'follow-mode)
+    (define-key map "r" #'rename-uniquely))
+#+end_src
+
+*** Unique buffer names (~uniquify.el~)
+This builtin package adds in a mechanism to ensure that buffers have unqiue names.
+
+#+begin_src emacs-lisp
+  ;;; Unique names for buffers
+  (vftc-emacs-builtin-package 'uniquify
+    (setq uniquify-buffer-name-style 'forward))
+#+end_src
+
+*** Ibuffer
+Let’s replace ~list-buffers~ with the wonderful ~ibuffer~.
+
+#+begin_src emacs-lisp
+  ;;; Ibuffer and extras (dired-like buffer management)
+  (vftc-emacs-builtin-package 'ibuffer
+    (setq ibuffer-expert t
+	  ibuffer-use-other-window nil
+	  ibuffer-default-sorting-mode 'filename/process)
+    (add-hook 'ibuffer-mode-hook #'hl-line-mode)
+    (define-key global-map (kbd "C-x C-b") #'ibuffer)
+    (let ((map ibuffer-mode-map))
+      (define-key map (kbd "* f") #'ibuffer-mark-by-file-name-regexp)
+      (define-key map (kbd "* g") #'ibuffer-mark-by-name-regexp)
+      (define-key map (kbd "s n") #'ibuffer-do-sort-by-alphabetic)
+      (define-key map (kbd "/ g") #'ibuffer-filter-by-content)))
+#+end_src
+
+** Windows
+*** Window rules (~window.el~)
+Setup a few rules here so that certain windows will open with certain size/placement.
+
+#+begin_src emacs-lisp
+  ;;; Window rules (window.el)
+  (vftc-emacs-builtin-package 'window
+    (setq display-buffer-alist
+	  `(;; no window
+	    ("\\`\\*Async Shell Command\\*\\'"
+	     (display-buffer-no-window))
+	    ;; top side window
+	    ("\\*\\(Flymake diagnostics\\|Package-Lint\\).*"
+	     (display-buffer-in-side-window)
+	     (window-height . 0.16)
+	     (side . top)
+	     (slot . 0))
+	    ("\\*Messages.*"
+	     (display-buffer-in-side-window)
+	     (window-height . 0.16)
+	     (side . top)
+	     (slot . 1))
+	    ("\\*\\(Backtrace\\|Warnings\\|Compile-Log\\|Flymake log\\)\\*"
+	     (display-buffer-in-side-window)
+	     (window-height . 0.16)
+	     (side . top)
+	     (slot . 2))
+	    ;; left side window
+	    ("\\*\\(.* # Help.*\\|Help\\)\\*"
+	     (display-buffer-reuse-mode-window display-buffer-in-side-window)
+	     (window-width 0.25)
+	     (side . left)
+	     (slot . 0))
+	    ;; bottom side window
+	    ("\\*Org Select\\*"
+	     (display-buffer-in-side-window)
+	     (dedicated . t)
+	     (side . bottom)
+	     (slot . 0)
+	     (window-parameters . ((mode-line-format . none))))
+	    ;; bottom buffer
+	    ("\\*Embark Actions\\*"
+	     (display-buffer-reuse-mode-window display-buffer-at-bottom)
+	     (window-height . fit-window-to-buffer)
+	     (window-parameters . ((no-other-window . t)
+				   (mode-line-format . none))))
+	    ;; below current window
+	    ;; ("\\*.*\\(e?shell\\|v?term\\).*"
+	    ;;  (display-buffer-reuse-mode-window display-buffer-below-selected)
+	    ;;  (window-height . 0.2))
+	    ("\\*\\(Calendar\\|Bookmark Annotation\\).*"
+	     (display-buffer-reuse-mode-window display-buffer-below-selected)
+	     (window-height . fit-window-to-buffer)))
+	  window-combination-resize t
+	  even-window-sizes 'height-only
+	  switch-to-buffer-in-dedicated-window 'pop)
+
+    (add-hook 'help-mode-hook #'visual-line-mode)
+    (add-hook 'custom-mode-hook #'visual-line-mode)
+
+    (let ((map global-map))
+      (define-key map (kbd "C-x !") #'delete-other-windows-vertically)
+      (define-key map (kbd "C-x -") #'fit-window-to-buffer)))
+#+end_src
+
+*** Window history (~winner.el~)
+Enable the tracking of window histories.
+
+#+begin_src emacs-lisp
+  ;;; Window history (winner.el)
+  (vftc-emacs-builtin-package 'winner
+    (add-hook 'after-init-hook #'winner-mode))
+#+end_src
+
+*** Tab bar (~tab-bar.el~ and ~vftc-tab.el~)
+Configure tabs. I might need to add in another plugin for projects, but lets see if I can make it work organically.
+
+#+begin_src emacs-lisp
+  ;;; Tabs for window layouts (tab-bar.el and vftc-tab.el)
+  (vftc-emacs-builtin-package 'tab-bar
+    (tab-bar-history-mode))
+
+  (vftc-emacs-builtin-package 'vftc-tab
+    (setq tab-bar-format
+	  '(vftc-tab-format-space-single
+	    vftc-tab-format-mule-info
+	    vftc-tab-format-modified
+	    tab-bar-format-tabs-groups
+	    vftc-tab-format-space-double
+	    vftc-tab-format-vc
+	    vftc-tab-format-space-double
+	    vftc-tab-format-modes
+	    tab-bar-format-align-right
+	    vftc-tab-format-misc-info
+	    vftc-tab-format-space-double
+	    tab-bar-format-global
+	    vftc-tab-format-space-single))
+
+    (add-hook 'after-init-hook #'vftc-tab-status-line)
+
+    (let ((map global-map))
+      (define-key map (kbd "C-x <down>") #'vftc-tab-winner-redo)
+      (define-key map (kbd "C-x <up>") #'vftc-tab-winner-undo)
+      (define-key map (kbd "<f8>") #'vftc-tab-status-line)
+      (define-key map (kbd "C-x t t") #'vftc-tab-select-tab-dwim)))
+#+end_src
+
+The contents of ~vftc-tab.el~ is here:
+
+#+INCLUDE: vftc-lisp/vftc-tab.el src emacs-lisp :tangle no
+*** Switching windows (~ace-window~)
+Use the ~ace-window~ package as the interface for handling windows.
+
+#+begin_src emacs-lisp
+  ;;; Window movement (ace-window)
+  (vftc-emacs-elpa-package 'ace-window
+    (setq aw-keys '(?a ?r ?s ?t ?g ?h ?n ?e ?i ?o)
+	  aw-minibuffer-flag t)
+    (ace-window-display-mode 1)
+
+    (define-key global-map (kbd "M-o") #'ace-window))
+#+end_src
+
+*** Transposition of windows (~transpose-frame~)
+The ~transpose-frame~ library sets up some commands to rotate windows.
+
+#+begin_src emacs-lisp
+  ;;; Transposition and rotation of windows
+  (vftc-emacs-elpa-package 'transpose-frame
+    (let ((map global-map))
+      (define-key map (kbd "C-x M-r") #'rotate-frame-clockwise)))
+#+end_src
+* Applications
+** Bookmarks
+The Emacs bookmarking framework lets you mark files and other buffers that can be recreated to revisit later.
+
+#+begin_src emacs-lisp
+  ;;; Builtin bookmarking (bookmark.el)
+  (vftc-emacs-builtin-package 'bookmark
+    (add-hook 'bookmark-bmenu-mode-hook #'hl-line-mode))
+#+end_src
+
+*** Ibuffer-like bookmark list (~blist~)
+A plugin that creates an Ibuffer-like interface for bookmarks.
+
+#+begin_src emacs-lisp
+  ;;; Ibuffer-like bookmark list (blist.el)
+  (vftc-emacs-elpa-package 'ilist)
+
+  (vftc-emacs-elpa-package 'blist
+    (setq blist-expert t)
+
+    (blist-define-criterion "info" "Info"
+      (eq (bookmark-get-handler bookmark)
+	  #'Info-bookmark-jump))
+
+    (setq blist-filter-groups
+	  (list
+	   (cons "Eshell" #'blist-eshell-p)
+	   (cons "Info" #'blist-info-p)
+	   (cons "Default" #'blist-default-p)))
+
+    (define-key global-map (kbd "C-x r l") #'blist-list-bookmarks))
+#+end_src
+
+** Note taking (~denote~)
+Instead of a more involved system like ~org-roam~, I am opting to use
+Prot’s ~denote~ as my note taking solution. What attracted me to this is
+the fact that its completely decoupled from ~org-mode~. It is a text
+organization system. Prot uses this to take a lot of plain text notes. I
+still intend to use ~org~ files for notes, but I can also intermingle any
+PDFs I have. The end goal is instead of managing my documents with a
+folder hierarchy, I’ll use be able to use a single flat directory with
+tags.
+
+#+begin_src emacs-lisp
+  ;;; Simple note-taking (denote)
+  (vftc-emacs-elpa-package 'denote
+    (setq denote-directory (expand-file-name "~/Nextcloud/Documents/notes/")
+	  denote-known-keywords '("emacs" "flipside"))
+
+    (add-hook 'dired-mode-hook #'denote-dired-mode)
+
+    (let ((map global-map))
+      (define-key map (kbd "C-c n n") #'denote)
+      (define-key map (kbd "C-c n N") #'denote-type)
+      (define-key map (kbd "C-c n d") #'denote-date)
+      (define-key map (kbd "C-c n s") #'denote-subdirectory)
+      (define-key map (kbd "C-c n i") #'denote-link)
+      (define-key map (kbd "C-c n I") #'denote-link-add-links)
+      (define-key map (kbd "C-c n l") #'denote-link-find-file)
+      (define-key map (kbd "C-c n b") #'denote-link-backlints)
+      (define-key map (kbd "C-c n r") #'denote-dired-rename-file))
+
+    (with-eval-after-load 'org-capture
+      (add-to-list 'org-capture-templates
+		   '("n" "New note (with denote.el)" plain
+		     (file denote-last-path)
+		     #'denote-org-capture
+		     :no-save t
+		     :immediate-finish nil
+		     :kill-buffer t
+		     :jump-to-captured t))))
+#+end_src
+** Calendar and Diary
+** Email (~notmuch~)
+Email is one of the more annoying things to configure since it requires
+the orchestration of multiple different tools. The setup I use contains:
+
+- The ~mbsync~ programs uses IMAP to sync email from my various email
+  accounts. Its run on demand and a timer.
+- The ~notmuch~ package with the mail indexer and several front ends. The
+  Emacs one will be integrated into this configuration.
+- The ~afew~ utility to tag messages indexed by
+  ~notmuch~.
+
+*** General
+These are some core settings that don’t belong to any particular email client.
+
+#+begin_src emacs-lisp
+;;; General settings
+(vftc-emacs-builtin-package 'auth-source
+  (setq user-full-name "Ryan King"
+	user-mail-addrss "ryantking@protonmail.com"))
+
+(vftc-emacs-builtin-package 'message
+  (setq mail-header-separator (purecopy "*****")
+	message-elide-ellipsis "\n> [... %l lines elided]\n"
+	compose-mail-user-agent-warnings nil
+	message-mail-user-agent t
+	mail-signature "- Ryan"
+	message-signature "- Ryan"
+	message-kill-buffer-on-exit t
+	message-wide-reply-confirm-recipients t)
+
+  (add-to-list 'mm-body-charset-encoding-alist '(utf-8 . base64))
+  (add-hook 'message-setup-hook #'message-sort-headers))
+
+(vftc-emacs-builtin-package 'gnus-dired
+  (add-hook 'dired-mode-hook #'gnus-dired-mode))
+
+
+#+end_src
+** Focus mode (~logos~)
+Use a focus mode based on ~logos~.
+
+#+begin_src emacs-lisp
+  ;;; Custom extensions for "focus mode"
+  (vftc-emacs-elpa-package 'olivetti
+    (setq olivetti-body-width 0.7
+	  olivetti-minimum-body-width 80))
+
+  (vftc-emacs-elpa-package 'logos
+    (setq logos-outlines-are-pages t)
+
+    (setq-default logos-variable-pitch t
+		  logos-olivetti t)
+
+    (let ((map global-map))
+      (define-key map [remap narrow-to-region] #'logos-narrow-dwim)
+      (define-key map [remap forward-page] #'logos-forward-page-dwim)
+      (define-key map [remap backward-page] #'logos-backward-page-dwim)
+      (define-key map (kbd "M-]") #'logos-forward-page-dwim)
+      (define-key map (kbd "M-[") #'logos-backward-page-dwim)
+      (define-key map (kbd "<f9>") #'logos-focus-mode)))
+#+end_src
+
+** Version control tools
+*** Working with file diffs (~diff-mode~)
+Working with fill diffs is an isolated mode in Emacs called ~diff-mode~.
+
+#+begin_src emacs-lisp
+  (vftc-emacs-builtin-package 'diff-mode
+    (setq diff-refine t
+	  diff-font-lock-prettify t))
+
+  (vftc-emacs-builtin-package 'vftc-diff
+    (define-key global-map (kbd "C-x v =") #'vftc-diff-buffer-dwim))
+#+end_src
+
+The content of ~vftc-diff.el~ is here:
+
+#+INCLUDE: vftc-lisp/vftc-diff.el src emacs-lisp :tangle no
+
+*** Version control framework (~vc.el~ and ~vftc-vc.el~)
+The builtin Emacs version control framework is good for simple tasks such as adding files and creating commits.
+
+The content of ~vftc-vc.el~ is here:
+
+#+begin_src emacs-lisp
+  ;;; Version control framework (vc.el and vftc-vc.el)
+  (vftc-emacs-builtin-package 'vc
+    (require 'vc-annotate)
+    (require 'vc-dir)
+    (require 'vc-git)
+    (require 'add-log)
+    (require 'log-view)
+    (require 'log-edit)
+
+    (setq vc-find-revision-no-save t
+	  vc-annotate-display-mode 'scale
+	  add-log-mailing-address (getenv "GITHUB_EMAIL")
+	  add-log-keep-changes-together t
+	  vc-git-diff-switches '("--path-with-stat" "--histogram")
+	  vc-git-print-log-follow t)
+
+    (add-hook 'log-view-mode-hook #'hl-line-mode)
+
+    (let ((map global-map))
+      (define-key map (kbd "C-x v b") #'vc-retrieve-tag)
+      (define-key map (kbd "C-x v t") #'vc-create-tag)
+      (define-key map (kbd "C-x v f") #'vc-log-incoming)
+      (define-key map (kbd "C-x v o") #'vc-log-outgoing)
+      (define-key map (kbd "C-x v F") #'vc-update)
+      (define-key map (kbd "C-x v d") #'vc-diff))
+
+    (let ((map vc-dir-mode-map))
+      (define-key map (kbd "b") #'vc-retrieve-tag)
+      (define-key map (kbd "t") #'vc-create-tag)
+      (define-key map (kbd "O") #'vc-log-outgoing)
+      (define-key map (kbd "o") #'vc-dir-find-file-other-window)
+      (define-key map (kbd "f") #'vc-log-incoming)
+      (define-key map (kbd "F") #'vc-update)
+      (define-key map (kbd "d") #'vc-diff)
+      (define-key map (kbd "k") #'vc-dir-clean-files)
+      (define-key map (kbd "G") #'vc-revert)
+      (let ((vftc-vc-git-branch-map (make-sparse-keymap)))
+	(define-key map "B" vftc-vc-git-branch-map)
+	(define-key vftc-vc-git-branch-map "n" #'vc-create-tag)
+	(define-key vftc-vc-git-branch-map "s" #'vc-retrieve-tag)
+	(define-key vftc-vc-git-branch-map "c" #'vftc-vc-git-checkout-remote)
+	(define-key vftc-vc-git-branch-map "l" #'vc-print-branch-log))
+      (let ((vftc-vc-git-stash-map (make-sparse-keymap)))
+	(define-key map "S" vftc-vc-git-stash-map)
+	(define-key vftc-vc-git-stash-map "c" 'vc-git-stash)
+	(define-key vftc-vc-git-stash-map "s" 'vc-git-stash-snapshot)))
+    (let ((map vc-git-stash-shared-map))
+      (define-key map "a" 'vc-git-stash-apply-at-point)
+      (define-key map "c" 'vc-git-stash)
+      (define-key map "D" 'vc-git-stash-delete-at-point)
+      (define-key map "p" 'vc-git-stash-pop-at-point)
+      (define-key map "s" 'vc-git-stash-snapshot))
+    (let ((map vc-annotate-mode-map))
+      (define-key map (kbd "M-q") #'vc-annotate-toggle-annotation-visibility)
+      (define-key map (kbd "C-c C-c") #'vc-annotate-goto-line)
+      (define-key map (kbd "<return>") #'vc-annotate-find-revision-at-line))
+    (let ((map log-view-mode-map))
+      (define-key map (kbd "<tab>") #'log-view-toggle-entry-display)
+      (define-key map (kbd "<return>") #'log-view-find-revision)
+      (define-key map (kbd "s") #'vc-log-search)
+      (define-key map (kbd "o") #'vc-log-outgoing)
+      (define-key map (kbd "f") #'vc-log-incoming)
+      (define-key map (kbd "F") #'vc-update)
+      (define-key map (kbd "P") #'vc-pull)))
+
+  (vftc-emacs-builtin-package 'vftc-vc
+    (vftc-vc-git-setup-mode 1)
+
+    (let ((map global-map))
+      (define-key map (kbd "C-x v i") #'vftc-vc-git-log-insert-commits)
+      (define-key map (kbd "C-x v p") #'vftc-vc-project-or-dir)
+      (define-key map (kbd "C-x v SPC") #'vftc-vc-custom-log)
+      (define-key map (kbd "C-x v g") #'vftc-vc-git-grep)
+      (define-key map (kbd "C-x v G") #'vftc-vc-git-log-grep)
+      (define-key map (kbd "C-x v s") #'vftc-vc-git-show)
+      (define-key map (kbd "C-x v r") #'vftc-vc-git-find-revision)
+      (define-key map (kbd "C-x v B") #'vftc-vc-git-blame-region-or-file)
+      (define-key map (kbd "C-x v r") #'vftc-vc-git-reset))
+
+    (let ((map vc-git-log-edit-mode-map))
+      (define-key map (kbd "C-c C-n") #'vftc-vc-git-log-edit-extract-file-name)
+      (define-key map (kbd "C-c C-i") #'vftc-vc-git-log-insert-commits)
+      (define-key map (kbd "C-c C-c") #'vftc-vc-git-log-edit-done)
+      (define-key map (kbd "C-c C-a") #'vftc-vc-git-log-edit-toggle-amend)
+      (define-key map (kbd "M-p") #'vftc-vc-git-log-edit-previous-comment)
+      (define-key map (kbd "M-n") #'vftc-vc-git-log-edit-next-comment)
+      (define-key map (kbd "M-s") #'vftc-vc-git-log-edit-complete-comment)
+      (define-key map (kbd "M-r") #'vftc-vc-git-log-edit-complete-comment))
+
+    (let ((map log-view-mode-map))
+      (define-key map (kbd "<C-tab>") #'vftc-vc-log-view-toggle-entry-all)
+      (define-key map (kbd "R") #'vftc-vc-git-log-reset)
+      (define-key map (kbd "W") #'vftc-vc-log-kill-hash)))
+#+end_src
+
+*** Power git frontend (~magit~)
+For more complicated operations I'm going to use the more powerful ~magit~.
+
+#+begin_src emacs-lisp
+  ;;; Powerful git frontend (Magit)
+  (vftc-emacs-elpa-package 'magit
+    (setq magit-define-global-key-bindings nil)
+    (define-key global-map (kbd "C-c g") #'magit-status)
+
+    (require 'git-commit)
+    (setq git-commit-style-convention-checks
+	  '(non-empty-second-line overlong-summary-l))
+
+    (require 'magit-diff)
+    (setq magit-diff-refine-hunk t)
+
+    (require 'magit-repos)
+    (setq magit-repository-directories
+	  '(("~/Projects" . 1))))
+#+end_src
+
+*** Resolving conflicts (~smerge.el~ and ~ediff.el~)
+Emacs provides two ways to reslove conflicts out of the box. The first one is ~smerge~, which provides simple bindings in any file that has active git conflicts. The second one is ~ediff~, which is a much more powerful interface.
+
+#+begin_src emacs-lisp
+  ;;; Conflict resolution (smerge.el and ediff.el)
+  (vftc-emacs-builtin-package 'smerge-mode)
+
+  (vftc-emacs-builtin-package 'ediff
+    (setq ediff-keep-variants nil
+	  ediff-show-clashes-only t
+	  ediff-split-window-function 'split-window-horizontally
+	  ediff-window-setup-function 'ediff-setup-windows-plain))
+#+end_src
+
+** Command-line shells
+One of the most important applications in Emacs for me is an interactive shell. Not all applications have Emacs equivalents.
+
+*** The Emacs shell (~eshell~ and ~vftc-emacs.el~)
+In the pursue of Emacs purism, the ~eshell~ will be my primary shell. This provides some minimal configuration with some shell features recreated.
+
+The only binding I really need is to open an ~eshell~ for the current project:
+
+| Binding   | Command          | Description                                                          |
+|-----------+------------------+----------------------------------------------------------------------|
+| ~C-x p e~ | ~project-eshell~ | Open an ~eshell~ instance in the current window at the project root. |
+
+#+begin_src emacs-lisp
+  ;;; The emacs shell (eshell and vftc-emacs.el)
+  (vftc-emacs-builtin-package 'eshell
+    (require 'esh-mode)
+    (require 'esh-module)
+
+    (setq eshell-history-size 10000
+	  eshell-buffer-maximum-lines 10000
+	  eshell-scroll-to-bottom-on-input t)
+
+    (setenv "PAGER" "cat")
+
+    (push 'eshell-tramp eshell-modules-list)
+    (add-hook 'eshell-pre-command-hook 'eshell-save-some-history)
+    ; (eshell-hist-initialize)
+
+    (define-key eshell-mode-map (kbd "C-r") #'consult-history)
+
+    (require 'em-cmpl)
+    (require 'em-dirs)
+    (require 'em-tramp)
+    (require 'em-hist)
+
+    (setq password-cache t
+	  password-cache-expiry 600
+	  eshell-hist-ignoredups t))
+
+  (vftc-emacs-builtin-package 'vftc-eshell
+    (setq eshell-prompt-function #'vftc-eshell-prompt
+	  eshell-prompt-regexp "^λ "))
+#+end_src
+
+*** Unix Shell
+When figuring out bash scripts with pipes and what not its good to have
+access to a normal shell.
+
+**** Builtin Shell
+The builtin shell integrates with Emacs better so its my first choice.
+
+#+begin_src emacs-lisp
+;;; Unix shell (shell)
+(vftc-emacs-builtin-package 'shell
+  (setq shell-command-prompt-show-cwd t))
+#+end_src
+
+*** Pop-up shell (~pop-shell~)
+My use-case for the shell in Emacs is somewhat complex. I need both an IDE-style pop-up terminal for quick CLI actions and full-window terminals for more complex shell work. The plugin that I’m adding to handle the pop-up portion is ~pop-shell~. That way I can still create new ~eshell~ instances at will with commands like ~eshell~ and ~project-eshell~.
+
+These are the ~eshell~ related bindings that I set and/or use:
+
+| Binding | Command | Description                      |
+|---------+---------+----------------------------------|
+| ~C-M-'~ | ~shell-pop~ | Open a pop-up ~eshell~ instance. |
+
+#+begin_src emacs-lisp
+  ;;; Pop-up shell (shell-pop)
+  (setq shell-pop-shell-type '("eshell" "*eshell*" #'eshell)
+	shell-pop-autocd-to-working-dir nil
+	shell-pop-universal-key "C-M-'")
+
+  (vftc-emacs-elpa-package 'shell-pop
+    (define-key global-map (kbd "C-M-'") #'shell-pop))
+#+end_src
+
+*** Enhanced color support (~xterm-color~)
+This package improves Emacs color output by adding support for the full 256 ANSI color space and 24-bit color as well.
+
+#+begin_src emacs-lisp
+  ;;; Enhanced color support
+  (vftc-emacs-elpa-package 'xterm-color
+    ;;; Eshell
+    (add-hook 'eshell-before-prompt-hook
+	      (lambda ()
+		(setq xterm-color-preserve-properties t)))
+
+    (add-to-list 'eshell-preoutput-filter-functions 'xterm-color-filter)
+    (setq eshell-output-filter-functions (remove 'eshell-handle-ansi-color eshell-output-filter-functions))
+
+    ;; Only enable xterm colors during commands
+    (add-hook 'eshell-pre-command-hook (lambda () (setenv "TERM" "xterm-256color")))
+    (add-hook 'eshell-post-command-hook (lambda () (setenv "TERM" "dumb")))
+
+    ;;; Compilation buffers
+    (setq compilation-environment '("TERM=xterm-256color"))
+    (advice-add
+     'compilation-filter
+     :around
+     (lambda (f proc string)
+       (funcall f proc (xterm-color-filter string)))))
+#+end_src
+
+** Org
+At its core, ~org~ is a markup language like Markdown. You can annotate
+text with symbols to give semantic meeting to different pieces. But that
+is just the core.
+
+Around the core, there exists a rich ecosystem that enables users to
+build a super-powered workflow by combining modular pieces.
+
+#+begin_src emacs-lisp
+;;; Information manager (org-mode)
+(vftc-emacs-builtin-package 'org
+  (setq org-directory (expand-file-name "~/Nextcloud/Documents/org")
+	org-imenu-depth 7
+	org-special-ctrl-a/e t
+	org-special-ctrl-k t
+	org-M-RET-may-split-line '((default . nil))
+	org-hide-emphasis-markers t
+	org-pretty-entities t
+	org-hide-leading-stars t
+	org-startup-folded 'content
+	org-structure-template-alist
+	'(("s" . "src")
+	  ("E" . "src emacs-lisp")
+	  ("e" . "example")
+	  ("q" . "quote")
+	  ("v" . "verse")
+	  ("V" . "verbatim")
+	  ("c" . "center")
+	  ("comment" . "comment"))
+	org-catch-invisible-edits 'show
+	org-loop-over-headlines-in-active-region 'start-level
+	org-modules '(org-crypt org-eshell)
+	org-use-sub-superscripts '{}
+	org-insert-heading-respect-content t)
+
+    ;;; todo and refile
+  (setq org-capture-templates
+	'(("i" "Inbox" entry (file "inbox.org") "* TODO %?\n%U\n\n  %i")
+	  ("l" "Link" entry (file "inbox.org") "* TODO %?\n%U\n\n  %i\n  %a")
+	  ("p" "Project" entry (file "projects.org") "* %? [/]")
+	  ("m" "Meeting" entry (file+headline "agenda.org" "Future") "* %? :meeting:\n%^T")
+	  ("n" "Note" entry (file "notes.org") "* Note (%a)\n%U\n\n%?"))
+	org-refile-targets
+	'(("projects.org" . (:maxlevel . 2))
+	  ("agenda.org" . (:maxlevel . 2))
+	  ("someday.org" . (:level . 1)))
+	org-refile-use-outline-path 'file
+	org-outline-path-complete-in-steps nil
+	org-refile-allow-creating-parent-nodes 'confirm
+	org-refile-use-cache t
+	org-todo-keywords
+	'((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
+	  (sequence "HOLD(h)" "|" "CNCL(c)")
+	  (sequence "MEETING(m)" "|" "APPOINTMENT(a)"))
+	org-todo-keyword-faces
+	`(("NEXT" . ,(doom-color 'cyan))
+	  ("HOLD" . ,(doom-color 'yellow))
+	  ("CNCL" . ,(doom-color 'base4))
+	  ("MEETING" . ,(doom-color 'blue))
+	  ("APPOINTMENT" . ,(doom-color 'blue)))
+	org-use-fast-tag-selection 'expert
+	org-priority-faces
+	'((?A . '(bold org-priority))
+	  (?B . org-priority)
+	  (?C . '(shadow org-priority)))
+	org-fontify-quote-and-verse-blocks t
+	org-fontify-whole-block-delimiter-line t
+	org-enforce-todo-dependencies t
+	org-enforce-todo-checkbox-dependencies t
+	org-track-ordered-property-with-tag t
+	org-highest-priority ?A
+	org-lowest-priority ?C
+	org-default-priority ?A)
+
+    ;;; tags
+  (setq org-tag-alist
+	'(("@home" . ?H)
+	  ("@work" . ?W)
+	  ("@computer" . ?C)
+	  ("@errand" . ?E)
+	  ("emacs" . ?e)
+	  ("nix" . ?n)
+	  ("unraid" . ?u)))
+
+    ;;; log
+  (setq org-log-done 'time
+	org-log-into-drawer nil
+	org-read-date-prefer-future 'time)
+
+  (add-hook 'org-after-todo-state-change-hook
+	    (lambda (&rest ignore)
+	      (when (and (string= (org-get-todo-state) "NEXT")
+			 (not (org-entry-get nil "ACTIVATED")))
+		(org-entry-put nil "ACTIVATED" (format-time-string "[%Y-%m-%d]")))))
+
+    ;;; agenda
+  (setq org-default-notes-file (expand-file-name "notes.org" org-directory)
+	org-agenda-files `("inbox.org" "projects.org" "agenda.org" ,org-default-notes-file)
+	org-agenda-start-on-weekday 0
+	org-agenda-prefix-format
+	'((agenda . " %i %?-12t% s")
+	  (todo   . " %i")
+	  (tags   . " %i %-12:c")
+	  (search . " %i %-12:c"))
+	org-agenda-window-setup 'current-window
+	org-agenda-bulk-mark-char "#"
+	org-agenda-follow-indirect t
+	org-agenda-hide-tags-regexp "."
+	org-deadline-warning-days 5
+	org-agenda-skip-scheduled-if-deadline-is-shown t
+	org-agenda-skip-timestamp-if-deadline-is-shown t
+	org-agenda-skip-deadline-prewarning-if-scheduled 1
+	org-agenda-search-headline-for-time nil
+	org-scheduled-past-days 365
+	org-deadline-past-days 365
+	org-agenda-time-leading-zero t
+	org-agenda-time-grid
+	'((daily today require-timed)
+	  (0600 0700 800 0900 1000 1100
+		1200 1300 1400 1500 1600
+		1700 1800 1900 2000 2100)
+	  " ....." "-----------------")
+	org-agenda-todo-ignore-with-date t
+	org-agenda-todo-ignore-timestamp t
+	org-agenda-todo-ignore-scheduled t
+	org-agenda-todo-ignore-deadlines t
+	org-agenda-todo-ignore-time-comparison-use-seconds t
+
+	org-agenda-custom-commands
+	'(("d" "Dashboard"
+	   ((agenda "" ((org-agenda-span 1)
+			(org-deadline-warning-days 0)
+			(org-scheduled-past-days 0)
+			(org-agenda-format-date "%A %-e %B %Y")
+			(org-agenda-overriding-header "Today's agenda\n")))
+	    (agenda "" ((org-agenda-start-on-weekday nil)
+			(org-agenda-start-day "+1d")
+			(org-agenda-span 3)
+			(org-deadline-warning-days 0)
+			(org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+			(org-agenda-overriding-header "Next three days\n")))
+	    (agenda "" ((org-agenda-time-grid nil)
+			(org-agenda-start-on-weekday nil)
+			(org-agenda-start-day "+4d")
+			(org-agenda-span 15)
+			(org-agenda-show-all-dates nil)
+			(org-deadline-warning-days 0)
+			(org-agenda-entry-types '(:deadline))
+			(org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+			(org-agenda-overriding-header "Upcoming deadlines")))
+	    (todo "NEXT"
+		  ((org-agenda-max-todos nil)
+		   (org-agenda-overriding-header "Next Actions\n")))
+	    (todo "TODO"
+		  ((org-agenda-overriding-header "Inbox")
+		   (org-agenda-files '("inbox.org"))
+		   (org-agenda-text-search-extra-files nil)))))
+	  ("n" "Today and all next tasks"
+	   ((agenda "" ((org-agenda-span 1)
+			(org-deadline-warning-days 0)
+			(org-scheduled-past-days 0)
+			(org-agenda-format-date "%A %-e %B %Y")
+			(org-agenda-overriding-header "Today's agenda\n")))
+	    (todo "NEXT"
+		  ((org-agenda-overriding-header "Next Actions\n")))
+	    (todo "HOLD" ((org-agenda-todo-ignore-with-date)
+			  (org-agenda-overriding-header "Blocked items")))))))
+
+  (advice-add 'org-refile :after
+	      (lambda (&rest _)
+		(vftc-org-save-all)))
+
+  (vftc-emacs-builtin-package 'org-habit
+    (setq org-habit-graph-column 50
+	  org-habit-preceding-days 9))
+
+    ;;; source blocks
+  (setq org-confirm-babel-evaluate nil
+	org-src-window-setup 'current-window
+	org-edit-src-persistent-message nil
+	org-src-preserve-indentation t
+	org-edit-src-content-indentation 0)
+
+    ;;; exports
+  (setq org-export-headline-levels 8
+	org-export-backends '(html latex texinfo md))
+
+    ;;; IDs
+  (setq org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id)
+
+  (run-at-time (* 60 5) nil #'org-agenda-to-appt)
+
+  (dolist (hook '(org-agenda-after-show-hook org-follow-link-hook))
+    (add-hook hook #'pulsar-recenter-middle)
+    (add-hook hook #'pulsar-reveal-entry))
+
+  (let ((map global-map))
+    (define-key map (kbd "C-c a") #'org-agenda)
+    (define-key map (kbd "C-c c") #'org-capture)
+    (define-key map (kbd "C-c i") #'vftc-org-capture-inbox)
+    (define-key map (kbd "C-c l") #'org-store-link)
+    (define-key map (kbd "C-c o") #'org-open-at-point-global))
+
+  (let ((map org-mode-map))
+    (define-key map (kbd "C-'") nil)
+    (define-key map (kbd "C-,") nil)
+    (define-key map (kbd "C-c M-l") #'org-insert-last-stored-link)
+    (define-key map (kbd "C-c C-M-l") #'org-toggle-link-display)
+    (define-key map (kbd "C-c SPC") #'consult-org-heading)))
+
+(vftc-emacs-builtin-package 'vftc-org
+  (setq org-agenda-format-date #'vftc-org-agenda-format-date-aligned)
+
+  (define-key global-map (kbd "C-c A") (lambda () (interactive) (org-agenda nil "A"))))
+#+end_src
+
+*** Task dependencies (~org-edna~)
+This package adds the ability to define dependencies between tasks. I
+primarily use it to advance sequential TODOs in projects, but I may end
+up finding additional uses for it.
+
+#+begin_src emacs-lisp
+;;; Task dependencies (org-edna)
+(vftc-emacs-elpa-package 'org-edna
+  (setq org-edna-use-inheritance t)
+  (org-edna-mode 1))
+#+end_src
+
+*** Prettier Org (~org-modern~)
+This package makes org look a little nicer.
+
+#+begin_src emacs-lisp
+(vftc-emacs-elpa-package 'org-modern
+  (add-hook 'org-mode-hook #'org-modern-mode)
+  (add-hook 'org-agenda-finalize-hook #'org-modern-agenda))
+#+end_src
+
+** Process monitor
+One CLI application that I will miss is ~htop~.
+
+#+begin_src emacs-lisp
+  ;;; Process monitor (proced)
+  (vftc-emacs-builtin-package 'proced
+    (setq proced-auto-update-flag t))
+#+end_src
+
+* General interface
+** Go to last change
+A quick binding that makes better use of ~C-z~ to go to the last change.
+
+#+begin_src emacs-lisp
+  ;;; Go to last change
+  (vftc-emacs-elpa-package 'goto-last-change
+    (define-key global-map (kbd "C-z") #'goto-last-change))
+#+end_src
+
+** Cycle between related buffers (~transient-cycles~)
+This package adds in a nifty way to switch between related buffers.
+
+#+begin_src emacs-lisp
+  ;;; Cycle between related buffers (transient-cycles.el)
+  (vftc-emacs-elpa-package 'transient-cycles
+    (setq transient-cycles-buffer-siblings-major-modes
+	  '(("\\*.*eshell.*" . eshell-mode)
+	    ("\\*.*shell.*" . shell-mode)
+	    (".*vc-dir.*" . vc-dir-mode)
+	    ("^magit: .*" . magit-status-mode)
+	    ("\\*.*eww.*\\" . eww-mode)
+	    ("\\*Embark Collect: .*" . embark-collect-mode)))
+
+    (transient-cycles-buffer-siblings-mode 1)
+    (transient-cycles-window-buffers-mode 1)
+    (transient-cycles-tab-bar-mode 1))
+#+end_src
+
+** Jump to visible position (~avy~)
+A fantastic package that lets you select a location via keys. I've played with a bunch of different ones, most notably ~lightspeed.nvim~, but ~avy~ seems to be the magic one.
+
+#+begin_src emacs-lisp
+  (vftc-emacs-elpa-package 'avy
+    (setq avy-all-windows nil
+	  avy-all-windows-alt t
+	  avy-single-candidate-jump t
+	  avy-timeout-seconds 0.3
+	  avy-style 'pre
+	  avy-keys '(?a ?r ?s ?t ?g ?m ?n ?e ?i ?o))
+    (define-key global-map (kbd "C-.") #'avy-goto-char-timer))
+#+end_src
+
+** Modeline
+I'm going to attempt to use the builtin modeline instead of an external one.
+
+#+begin_src emacs-lisp
+  ;;; Mode line
+  (setq mode-line-position-column-line-format '(" %l,%c")
+	mode-line-defining-kbd-macro
+	(propertize " Macro" 'face 'mode-line-emphasis))
+
+  (setq-default mode-line-modes
+		(seq-filter (lambda (s)
+			      (not (and (stringp s)
+					(string-match-p
+					 "+\\(%\\[\\|%\\]\\)$" s))))
+			    mode-line-modes)
+
+		mode-line-format
+		'("%e"
+		  mode-line-front-space
+		  mode-line-mule-info
+		  mode-line-client
+		  mode-line-modified
+		  mode-line-remote
+		  mode-line-frame-identification
+		  mode-line-buffer-identification
+		  "  "
+		  mode-line-position
+		  mode-line-modes
+		  "  "
+		  (vc-mode vc-mode)
+		  "  "
+		  mode-line-misc-info
+		  mode-line-end-spaces))
+#+end_src
+
+*** Sleeker modeline (~moody~)
+Instead of replacing the entire Emacs modeline with something like ~doom-modeline~ or ~nano-modeline~, let's stay true to the builtin-first approach to this configuration and use ~moody~ to enhance the look of the builtin modeline.
+
+#+begin_src emacs-lisp
+  ;;; Simple mode line configuration (moody)
+  (vftc-emacs-elpa-package 'moody)
+
+  (vftc-emacs-builtin-package 'vftc-moody
+    (vftc-moody-set-height 1))
+#+end_src
+
+*** Hide mode lighters (~minions~)
+A small package to unify all the "lighters" behind a single character.
+
+#+begin_src emacs-lisp
+  ;;; Hide modeline "lighters" (minions)
+  (vftc-emacs-elpa-package 'minions
+    (setq minions-mode-line-lighter ";"
+	  minions-prominent-modes
+	  '(defining-kbd-macro 'flymake-mode))
+    (minions-mode 1))
+#+end_src
+
+*** Modeline recursion indicator
+Add in a utility that indicates recursive minibuffers.
+
+#+begin_src emacs-lisp
+  ;;; Mode line recursion indicator (recursion-indicator)
+  (vftc-emacs-elpa-package 'recursion-indicator
+    (recursion-indicator-mode))
+#+end_src
+
+** Window divider mode
+A builtin mode to draw borders around windows.
+
+#+begin_src emacs-lisp
+  ;;; Window divider mode
+  (setq window-divider-default-right-width 2
+	window-divider-default-bottom-width 2
+	window-divider-default-places 'right-only)
+#+end_src
+
+** Fringe mode
+The fringes are on the left and right edges and can be used to show contextual information.
+
+#+begin_src emacs-lisp
+  ;;; Fringe mode
+  (vftc-emacs-builtin-package 'fringe
+    (fringe-mode nil))
+#+end_src
+
+** Line numbers and other indicators (~vftc-sideline.el~)
+This is a minor mode that handles the sideline of buffers.
+
+#+begin_src emacs-lisp
+  ;;; Line numbers and relevant indicators (vftc-sideline.el)
+  (vftc-emacs-builtin-package 'vftc-sideline
+    (require 'display-line-numbers)
+    (setq display-line-numbers-major-tick 50
+	  display-line-numbers-minor-tick 10
+	  display-line-numbers-widen t)
+
+    (vftc-emacs-elpa-package 'diff-hl
+      (setq diff-hl-draw-borders nil))
+
+    (require 'hl-line)
+    (setq hl-line-sticky-flag nil)
+
+    (require 'whitespace)
+
+
+    (set-face-attribute 'line-number-major-tick nil
+			:foreground (face-foreground 'vftc-face-strong)
+			:background nil)
+
+    (set-face-attribute 'line-number-minor-tick nil
+			:foreground (face-foreground 'vftc-face-faded)
+			:background nil)
+
+    (add-hook 'prog-mode-hook #'vftc-sideline-mode)
+
+    (let ((map global-map))
+      (define-key map (kbd "<f6>") #'vftc-sideline-negative-space-toggle)
+      (define-key map (kbd "<f7>") #'vftc-sideline-mode)
+      (define-key map (kbd "C-c z") #'delete-trailing-whitespace)))
+#+end_src
+
+The contents of ~vftc-sideline.el~ is here:
+
+#+INCLUDE: vftc-lisp/vftc-sideline.el src emacs-lisp :tangle no
+
+** Cursor and mouse settings
+*** Cursor appearance (~cursory~)
+The ~cursory~ package provides an interface similar to ~fontaine~ for switching the cursor preset.
+
+#+begin_src emacs-lisp
+  ;;; Cursor appearance (cursory)
+  (vftc-emacs-elpa-package 'cursory
+    (setq cursory-presets
+	  '((bar
+	     :cursor-type (bar . 2)
+	     :cursor-in-non-selected-windows hollow
+	     :blink-cursor-blinks 10
+	     :blink-cursor-interval 0.5
+	     :blink-cursor-delay 0.2)
+	    (box
+	     :cursor-type box
+	     :cursor-in-non-selected-windows hollow
+	     :blink-cursor-blinks 10
+	     :blink-cursor-interval 0.5
+	     :blink-cursor-delay 0.2)
+	    (underscore
+	     :cursor-type (hbar . 3)
+	     :cursor-in-non-selected-windows hollow
+	     :blink-cursor-blinks 50
+	     :blink-cursor-interval 0.2
+	     :blink-cursor-delay 0.2)))
+
+    (cursory-set-preset (or (cursory-restore-latest-preset) 'box))
+
+    (add-hook 'kill-emacs-hook #'cursory-store-latest-preset)
+
+    (define-key global-map (kbd "C-c p") #'cursory-set-preset))
+#+end_src
+
+*** Mouse wheel behaviour
+Configure how the mouse wheel should work.
+
+#+begin_src emacs-lisp
+  ;;; Mouse wheel behavior
+  (vftc-emacs-builtin-package 'mouse
+    (setq mouse-wheel-scroll-amount
+	  '(1
+	    ((shift) . 5)
+	    ((meta) . 0.5)
+	    ((control) . text-scale)))
+
+    (add-hook 'after-init-hook #'mouse-wheel-mode)
+    (define-key global-map (kbd "C-M-<mouse-3>") #'tear-off-window))
+#+end_src
+
+*** Scrolling behaviour
+Improve the default scrolling behaviour.
+
+#+begin_src emacs-lisp
+  ;;; Scrolling behaviour
+  (setq-default scroll-preserve-screen-position t
+		scroll-conservatively 1
+		next-screen-context-lines 0)
+#+end_src
+
+*** Delete selection (~delsel.el~)
+A really nice builtin mode that kills a marked region when inserting into it.
+
+#+begin_src emacs-lisp
+  ;;; Delete selection
+  (vftc-emacs-builtin-package 'delsel
+    (add-hook 'after-init-hook #'delete-selection-mode))
+#+end_src
+
+*** Tooltips
+Configure how tooltips are handled.
+
+#+begin_src emacs-lisp
+  ;;; Tooltips (tooltip.el)
+  (vftc-emacs-builtin-package 'tooltip
+    (setq tooltip-delay 0.5
+	  tooltip-frame-parameters
+	  '((name . "tooltip")
+	    (internal-border-width . 6)
+	    (border-width . 0)
+	    (no-special-glyphs . t)))
+    (add-hook 'after-init-hook #'tooltip-mode))
+#+end_src
+
+** Dired-like list for registers (~rlist~)
+This package adds a dired-like interface for handling registers.
+
+#+begin_src emacs-lisp
+  ;;; Dired-like list for registers (rlist)
+  (vftc-emacs-manual-package 'rlist
+    (setq rlist-expert t
+	  rlist-verbose t)
+
+    (let ((map global-map))
+      (define-key map (kbd "C-x r <backpace>") #'rlist-list-registers)
+      (define-key map (kbd "C-x r DEL") #'rlist-list-registers)))
+#+end_src
+
+** Quality of life
+*** Auto revert mode
+A mode that makes buffers automatically reload files that change on disk.
+
+#+begin_src emacs-lisp
+  ;;; Auto revert mode
+  (vftc-emacs-builtin-package 'autorevert
+    (add-hook 'after-init-hook #'global-auto-revert-mode))
+#+end_src
+
+*** Preserve system keyboard
+Don't overwrite system clipboard with kills.
+
+#+begin_src emacs-lisp
+  ;;; Preserve system clipboard
+  (setq save-interprogram-paste-before-kill t)
+
+  (defun vftc-emacs-paste-from-mac ()
+    (shell-command-to-string "pbpaste"))
+
+  (defun vftc-emacs-copy-to-mac (text &optional push)
+    (let ((process-connection-type nil))
+      (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
+	(process-send-string proc text)
+	(process-send-eof proc))))
+
+  (when (and (not (display-graphic-p))
+	     (eq system-type 'darwin))
+    (setq interprogram-cut-function   #'vftc-emacs-paste-from-mac
+	  interprogram-paste-function #'vftc-emacs-copy-to-mac))
+#+end_src
+
+*** Newline characters for file ending
+Ensure that files end with newlines.
+
+#+begin_src emacs-lisp
+  ;;; Newline characters for file ending
+  (setq mode-require-final-newline 'visit-save)
+#+end_src
+
+*** Zap characters
+Add bindings for Emac's zap functionality.
+
+#+begin_src emacs-lisp
+  ;;; Zap characters
+  (let ((map global-map))
+    (define-key map (kbd "M-z") #'zap-up-to-char)
+    (define-key map (kbd "M-Z") #'zap-to-char))
+#+end_src
+
+*** Package lists
+Configure the package list interface.
+
+#+begin_src emacs-lisp
+  ;;; Package lists
+  (vftc-emacs-builtin-package 'package
+    (setq package-name-column-width 40)
+    (add-hook 'package-menu-mode-hook #'hl-line-mode))
+#+end_src
+
+* Language settings
+These are all my settings related to interacting with the logical contents of the buffer text. This is primarily related to code, but there are some features for prose such as spell check.
+
+
+** Language Server Protocol (~eglot~)
+The [[https://microsoft.github.io/language-server-protocol/][Language Server Protocol]], which Microsoft designed for Visual Studio Code, provides a unified interface for editors to learn about code. Previously, every language would need a custom editor or editor plugin in order to get features like auto-complete, documentation, etc.. With LSP, each editor just needs an LSP plugin and each language needs a server.
+
+The most popular LSP plugin for Emacs is [[https://emacs-lsp.github.io/lsp-mode/][lsp-mode]], but it goes against the "built-in first" philosophy. I will be going with the next most popular option: [[https://github.com/joaotavora/eglot][eglot]]. Unlike ~lsp-mode~, ~eglot~ more supercharges the existing Emacs features. For example, it adds the LSP as a backend to ~xref~ so the Emacs bindings and way of doing things is unchanged. It does add some additional functions that do not integrate with any builtin functions.
+
+The bindings add a few actions that can operate across files:
+
+| Function                              | Binding | Description                     |
+|---------------------------------------+---------+---------------------------------|
+| ~eglot-rename~                        | ~C-c r~ | Rename the symbol at the point. |
+| ~eglot-code-actions-organize-imports~ | ~C-c o~ | Organize the file imports.      |
+| ~eldoc~                               | ~C-c h~ | Show the documentation for the symbol at the point |
+
+#+begin_src emacs-lisp
+  ;;; Language Server Protocol (lsb-bridge)
+  (vftc-emacs-elpa-package 'eglot
+    (setq eglot-autoshutdown t
+	  eglot-confirm-server-initiated-edits nil)
+
+    (add-to-list 'eglot-server-programs '(nix-mode . ("rnix-lsp")))
+
+    (let ((map eglot-mode-map))
+      (define-key map (kbd "C-c r") #'eglot-rename)
+      (define-key map (kbd "C-c o") #'eglot-code-action-organize-imports)
+      (define-key map (kbd "C-c h") #'eldoc)))
+#+end_src
+
+** Improved syntax highlighting (~tree-sitter~)
+From the [[https://tree-sitter.github.io/tree-sitter][Tree-sitter website]]:
+
+#+begin_quote
+Tree-sitter is a parser generator tool and an incremental parsing library. It can build a concrete syntax tree for a source file and efficiently update the syntax tree as the source file is edited.
+#+end_quote
+
+Most editors do syntax highlighting (or font-locking as Emacs calls it) with regular expressions. Tree-sitter aims to be a generic parser that provides highlighting based on the actual syntax. I believe that it is fair to say that tree-sitter is the direction that editors are going in for parsing syntax the same way LSP unified language intelligence features.
+
+#+begin_src emacs-lisp
+  ;;; Syntax parsing (tree-sitter)
+  (vftc-emacs-elpa-package 'tree-sitter
+    (vftc-emacs-elpa-package 'tree-sitter-langs)
+
+    (set-face-attribute 'tree-sitter-hl-face:property nil
+  		      :foreground (doom-color 'magenta)
+  		      :slant 'normal)
+
+    (set-face-attribute 'tree-sitter-hl-face:method.call nil
+  		      :foreground (doom-color 'dark-blue)
+  		      :slant 'normal)
+
+    (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
+    (global-tree-sitter-mode 1))
+#+end_src
+
+** Additional major modes
+Emacs comes with a bunch of builtin major modes, but is still missing a
+lot of languages. The major modes are a little less significant with
+~tree-sitter~ handling syntax highlighting and LSP providing intelligence
+features, but they still need to be present. Some do offer nice
+functionality that isn’t covered by LSP.
+
+*** Beancount
+Tool for personal budgeting.
+
+#+begin_src emacs-lisp
+;;; Beancount support (beancount)
+(vftc-emacs-manual-package 'beancount)
+#+end_src
+
+*** C family
+Packages for when I occasionally have to edit C code.
+
+#+begin_src emacs-lisp
+;;; C family
+(vftc-emacs-elpa-package 'rtags)
+
+(vftc-emacs-elpa-package 'cmake-mode)
+
+(vftc-emacs-elpa-package 'demangle-mode)
+#+end_src
+
+*** Data languages (~csv-mode~)
+Modes for easier editing of data languages.
+
+#+begin_src emacs-lisp
+;;; Data (csv-mode)
+(vftc-emacs-elpa-package 'csv-mode
+  (let ((map csv-mode-map))
+    (define-key map (kbd "C-c a") #'csv-align-fields)
+    (define-key map (kbd "C-c u") #'csv-unalign-fields)
+    (define-key map (kbd "C-c s") #'csv-sort-fields)
+    (define-key map (kbd "C-c S") #'csv-sort-numeric-fields)
+    (define-key map (kbd "C-c k") #'csv-kill-fields)
+    (define-key map (kbd "C-c t") #'csv-transpose)))
+#+end_src
+*** Go (~go-mode~)
+On top of the essential major mode features, the ~go-mode~ plugin adds  some useful bindings for navigating around ~go~ files. I also hook ~go-mode~ into ~eglot~.
+
+I will be sticking with the default bindings for now:
+
+| Binding     | Function                  | Description                                                        |
+|-------------+---------------------------+--------------------------------------------------------------------|
+| ~C-c C-f a~ | ~go-goto-arguments~       | Move the point to the current function’s arguments.                |
+| ~C-c C-f d~ | ~go-goto-docstring~       | Move the pointo the doc string for the current function.           |
+| ~C-c C-f f~ | ~go-goto-function~        | Move the point to the current function’s definition.               |
+| ~C-c C-f n~ | ~go-goto-function-name~   | Move the point to the current function’s name.                     |
+| ~C-c C-f i~ | ~go-goto-imports~         | Move the point to the import block.                                |
+| ~C-c C-f r~ | ~go-goto-method-reciever~ | Move the point to the reciever for the current function.           |
+| ~C-c C-f r~ | ~go-goto-return-values~   | Move the point to the current function’s return value declaration. |
+| ~C-c C-a~   | ~go-add-import~           | Search for an available import and add it.                         |
+
+#+begin_src emacs-lisp
+;;; Go (go-mode)
+(vftc-emacs-elpa-package 'go-mode
+  (add-hook 'go-mode-hook #'eglot-ensure)
+
+  (let ((map go-mode-map))
+    (define-key map (kbd "C-c b r") (lambda () (compile "go run .")))
+    (define-key map (kbd "C-c b b") (lambda () (compile "go build")))
+    (define-key map (kbd "C-c b c") (lambda () (compile "go clean")))))
+
+(vftc-emacs-builtin-package 'vftc-go
+  (let ((map go-mode-map))
+    (define-key map (kbd "C-c t t") #'vftc-go-test-rerun)
+    (define-key map (kbd "C-c t a") #'vftc-go-test-all)
+    (define-key map (kbd "C-c t s") #'vftc-go-test-single)
+    (define-key map (kbd "C-c t n") #'vftc-go-test-nested)
+    (define-key map (kbd "C-c t f") #'vftc-go-test-file)))
+#+end_src
+*** Haskell (~haskell-mode~)
+#+begin_src emacs-lisp
+(vftc-emacs-elpa-package 'haskell-mode)
+#+end_src
+
+*** Markdown
+
+The ~markdown-mode~ extension provides a few niceties on top of the basics. The most notable is the bindings that let you navigate Markdown files the same way you would an ~org-mode~ file. I also add in the ~edit-indirect~ plugin that lets you edit Markdown source blocks in a separate buffer as you can in ~org-mode~ with ~C-c '~.
+
+#+begin_src emacs-lisp
+;;; Markdown (markdown-mode)
+(vftc-emacs-elpa-package 'markdown-mode
+  (setq markdown-fontify-code-blocks-natively t))
+
+(vftc-emacs-elpa-package 'edit-indirect)
+
+(vftc-emacs-manual-package 'flymake-markdownlint
+  (add-hook 'markdown-mode-hook #'flymake-markdownlint-setup))
+
+(vftc-emacs-elpa-package 'grip-mode
+  (define-key markdown-mode-command-map (kbd "g") #'grip-mode))
+#+end_src
+
+*** YAML (~yaml-mode~)
+This plugin adds basic YAML support.
+
+#+begin_src emacs-lisp
+  ;;; YAML (yaml-mode)
+  (vftc-emacs-elpa-package 'yaml-mode)
+#+end_src
+
+**** Debugging with delve (~go-dlv~)
+**** Python (~python-mode~)
+Python can be fun sometimes.
+
+#+begin_src emacs-lisp
+;;; Python (python-mode)
+(vftc-emacs-elpa-package 'python-mode
+  
+  (add-hook 'python-mode-hook #'eglot-ensure)
+  (add-hook 'python-mode-hook #'eldoc-mode))
+
+(vftc-emacs-elpa-package 'anaconda-mode
+  (add-hook 'python-mode-hook #'anaconda-mode))
+#+end_src
+
+*** Nix (~nix-mode~)
+My system configuration is in ~nix~.
+
+#+begin_src emacs-lisp
+  ;;; Nix (nix-mode)
+  (vftc-emacs-elpa-package 'nix-mode
+    (add-hook 'nix-mode-hook #'eglot-ensure))
+#+end_src
+
+*** Caddyfile (~caddyfile-mode~)
+Caddy is my reverse proxy of choice. This major mode adds in some syntax
+highlighting to make editing the config files a bit more fun.
+
+#+begin_src emacs-lisp
+  ;;; Caddyfile (caddy-mode)
+  (vftc-emacs-elpa-package 'caddyfile-mode)
+#+end_src
+
+*** Earthfile
+Experimenting with a cool tool.
+
+#+begin_src emacs-lisp
+;;; Earthfile support (earthfile-mode)
+(vftc-emacs-elpa-package 'earthfile-mode)
+#+end_src
+
+*** Terraform
+The magical language for managing infrastructure and randomly tearing it
+down when you least expect it.
+
+#+begin_src emacs-lisp
+;;; Terraform (terraform-mode)
+(vftc-emacs-elpa-package 'terraform-mode)
+#+end_src
+
+*** Fennel
+The lisp language for making writing lua configurations harder.
+
+#+begin_src emacs-lisp
+;;; Fennel (fennel-mode)
+(vftc-emacs-elpa-package 'fennel-mode)
+#+end_src
+
+** Code and text linting (~flymake~)
+Since version 26, Emacs has had a builtin linting feature called ~flymake~. It replaces the longstanding ~flycheck~ package that has long been the default for syntax checking. With a diagnostic GUI and additional linters, ~flymake~ is a great replacement.
+
+The bindings make it easy to navigate around buffer errors:
+
+| Binding   | Function                          | Description                                          |
+|-----------+-----------------------------------+------------------------------------------------------|
+| ~C-c !s~  | ~flymake-start~                   | Start a ~flymake~ linter process.                    |
+| ~C-c ! d~ | ~flymake-show-buffer-diagnostics~ | Show all errors in the current buffer.               |
+| ~C-c ! n~ | ~flymake-goto-next-error~         | Go to the next ~flymake~ error in the buffer. |
+| ~C-c ! p~ | ~flymake-goto-prev-error~         | Go to the previous ~flymake~ error in the buffer. |
+
+#+begin_src emacs-lisp
+;;; Flymake
+(vftc-emacs-builtin-package 'flymake
+  (setq flymake-suppress-zero-counters t
+	flymake-mode-line-format
+	'("" flymake-mode-line-exception flymake-mode-line-counters)
+	flymake-mode-line-counter-format
+	'(" " flymake-mode-line-error-counter
+	  flymake-mode-line-warning-counter
+	  flymake-mode-line-note-counter ""))
+
+  (let ((map flymake-mode-map))
+    (define-key map (kbd "C-c ! s") #'flymake-start)
+    (define-key map (kbd "C-c ! d") #'flymake-show-buffer-diagnostics)
+    (define-key map (kbd "C-c ! n") #'flymake-goto-next-error)
+    (define-key map (kbd "C-c ! p") #'flymake-goto-prev-error)))
+
+(vftc-emacs-elpa-package 'flymake-diagnostic-at-point
+  (setq flymake-diagnostic-at-point-display-diagnostic-function
+	'flymake-diagnostic-at-point-display-popup)
+  (add-hook 'flymake-mode-hook #'flymake-diagnostic-at-point-mode))
+#+end_src
+
+**** Additional backends (~flymake-collection~)
+We can teach ~flymake~ how to run additional linters pretty easily by adding in the [[https://github.com/mohkale/flymake-collection][flymake-collection]] plugin. It adds a pretty exhaustive list of linters. I enable the ones that I anticipate using.
+
+#+begin_src emacs-lisp
+;;; Additional flymake linters (flymake-collection)
+(vftc-emacs-elpa-package 'flymake-collection
+  (add-hook
+   'shell-mode-hook
+   (lambda ()
+     (add-hook 'flymake-diagnostic-functions #'flymake-collection-shellcheck nil t)
+     (flymake-mode 1)))
+
+  (add-hook
+   'yaml-mode-hook
+   (lambda ()
+     (add-hook 'flymake-diagnostic-functions #'flymake-collection-yamllint nil t)
+     (flymake-mode 1))))
+#+end_src
+
+**** Prose linting (~flymake-vale~)
+Add in a powerful prose linter.
+
+#+begin_src emacs-lisp
+;;; Prose linting (flymake-vale)
+(vftc-emacs-manual-package 'flymake-vale
+  (add-hook 'text-mode-hook #'flymake-vale-load)
+  (add-hook 'markdown-mode-hook #'flymake-vale-load)
+  (add-hook 'org-mode-hook #'flymake-vale-load)
+  (add-hook 'message-mode-hook #'flymake-vale-load))
+#+end_src
+
+** Formatting files automatically (~apheleia~)
+I want every file to be formatted automatically on save. I’ve previously used ~format-all~ for this, but ~apheleia~ has some really cool sounding performance optimizations. I also setup a few custom formatters:
+
++ alejandra :: A better ~nix~ formatter that does some cool shit under the hood
+
+I just add a single binding to run the formatter on demand:
+
+| Binding   | Function                 | Description                                           |
+|-----------+--------------------------+-------------------------------------------------------|
+| ~C-c C-f~ | ~apheleia-format-buffer~ | Run the formatter for the buffer if one is configured |
+
+#+begin_src emacs-lisp
+  ;;; Formatting files automatically (apheleia)
+  (vftc-emacs-elpa-package 'apheleia
+    (setf (alist-get 'nixfmt apheleia-formatters)
+	  '("alejandra"))
+
+    (define-key global-map (kbd "C-c C-f") #'apheleia-format-buffer)
+
+    (apheleia-global-mode 1))
+#+end_src
+
+** Paragraphs and fill-mode
+~vftc-fill.el~ is a library that adds in a slightly smarter ~auto-fill-mode~ that handles different fill lengths for comments and code.
+
+#+begin_src emacs-lisp
+  ;;; Paragraphs and fill-mode (vftc-fill.el)
+  (vftc-emacs-builtin-package 'vftc-fill
+    (vftc-fill-mode 1)
+    (add-hook 'after-init-hook #'column-number-mode))
+#+end_src
+
+The content of ~vftc-fill.el~ is here:
+
+#+INCLUDE: vftc-lisp/vftc-fill.el src emacs-lisp :tangle no
+
+** Comments (~newcomment.el~ and ~vftc-comment.el~)
+Keybindings for automatically commenting and uncommenting code.
+
+#+begin_src emacs-lisp
+  ;;; Comments (newcomment.el and vftc-comment.el)
+  (vftc-emacs-builtin-package 'newcomment
+    (setq comment-empty-lines t)
+    (let ((map global-map))
+      (define-key map (kbd "C-:") #'comment-kill)
+      (define-key map (kbd "M-;") #'comment-indent)))
+
+  (vftc-emacs-builtin-package 'vftc-comment
+    (let ((map global-map))
+      (define-key map (kbd "C-;") 'vftc-comment-comment-dwim)
+      (define-key map (kbd "C-x C-;") #'vftc-comment-timestamp-keyword)))
+#+end_src
+
+*** It's electric (~electric.el~)
+Another wonderful builtin package is ~electric.el~ that provides the ubiquitous auto parenthesis matching that most editors have either natively or via plugin.
+
+#+begin_src emacs-lisp
+  ;;; Electric behaviour (electric.el)
+  (vftc-emacs-builtin-package 'electric
+    (electric-pair-mode 1)
+    (add-hook 'prog-mode-hook #'electric-indent-local-mode))
+#+end_src
+
+*** Parenthesis (~paren~)
+Use the builtin ~paren~ library to enable highlighting parenthesis.
+
+#+begin_src emacs-lisp
+  ;;; Parenthesis (paren.el)
+  (vftc-emacs-builtin-package 'paren
+    (add-hook 'after-init-hook #'show-paren-mode))
+#+end_src
+
+*** Tabs and indentation
+Make the tab key work as expected.
+
+#+begin_src emacs-lisp
+  ;;; Tabs and indendation
+  (setq-default tab-always-indent 'complete
+		tab-first-completion 'word-or-paren-or-punct)
+#+end_src
+
+** Spelling (~spell-fu~ and ~vftc-spell.el~)
+My spelling setup is largely taken from ~Doom~. It uses the really fast ~spell-fu~ plugin with some nice extras such a better spell correction interface that uses minibuffer completion.
+
+#+begin_src emacs-lisp
+  ;;; Spelling (spell-fu and vftc-spell.el)
+  (vftc-emacs-elpa-package 'spell-fu
+    (setq spell-fu-directory (locate-user-emacs-file "spell-fu")))
+
+  (vftc-emacs-builtin-package 'vftc-spell
+    (add-hook 'text-mode #'spell-fu-mode)
+    (add-hook 'prog-mode #'spell-fu-mode)
+    (add-hook 'conf-mode #'spell-fu-mode)
+    (add-hook 'spell-fu-mode-hook #'vftc-spell-setup-spell-fu)
+
+    (let ((map global-map))
+      (define-key map (kbd "M-$") #'vftc-spell-correct)))
+#+end_src
+
+The content of ~vftc-spell.el~ is here:
+
+#+INCLUDE: vftc-lisp/vftc-spell.el src emacs-lisp :tangle no
+
+** Elisp live documentation (~eldoc~)
+Emacs has really nice builtin documentation.
+
+#+begin_src emacs-lisp
+  ;;; Elisp live documentation feedback (eldoc.el)
+  (vftc-emacs-builtin-package 'eldoc
+    (global-eldoc-mode 1))
+#+end_src
+
+** Navigate by s-expression (~puni~)
+Puni is a great little plugin that emphasizes builtin functionality to navigate by s-expression.
+
+#+begin_src emacs-lisp
+  (vftc-emacs-elpa-package 'puni
+    (puni-global-mode)
+    (add-hook 'term-mode-hook #'puni-disable-puni-mode))
+#+end_src
+
+* History and state
+** Record cursor position
+Save the cursor position per file.
+
+#+begin_src emacs-lisp
+  ;;; Record cursor position
+  (vftc-emacs-builtin-package 'saveplace
+    (save-place-mode 1))
+#+end_src
+
+** Move the backups to a different directory
+Backups can't be co-located with the files.
+
+#+begin_src emacs-lisp
+  ;;; Backups
+(let ((auto-save-directory (concat user-emacs-directory "auto-save/")))
+ (setq backup-directory-alist
+	`(("." . ,(concat user-emacs-directory "backup/")))
+	auto-save-file-name-transforms
+	`((".*" ,auto-save-directory t))
+	backup-by-copying t
+	version-control t
+	delete-old-versions t
+	kept-new-versions 6
+	kept-old-versions 2
+	create-lockfiles nil)
+
+ (unless (file-exists-p auto-save-directory)
+   (make-directory auto-save-directory)))
+#+end_src

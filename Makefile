@@ -3,6 +3,8 @@ MARKUP_SOURCES := $(shell find -name "*.yaml" -or -name "*.json" -or -name "*.to
 SH_SOURCES := $(shell find -name "*.sh")
 GO_SOURCES := $(shell find -name "*.go")
 
+PACKAGES := emacs
+
 all: switch
 
 .PHONY: help
@@ -58,3 +60,12 @@ serve-website: garden
 .PHONY: garden
 garden:
 	go run ./bin/trowel.go $(HOME)/Dropbox/org/roam
+
+SYSTEMS_ROOT := "${HOME}/Systems"
+ETC := "${SYSTEMS_ROOT}/etc"
+
+##@ Applications
+
+emacs:
+	test -L "${HOME}/.config/emacs" || rm -rf "${HOME}/.config/emacs"
+	ln -vsfn "${ETC}/emacs" "${HOME}/.config/emacs"
