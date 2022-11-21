@@ -1,0 +1,63 @@
+# .bashrc :: Bash interactive shell configuration
+
+# Exit non-interactive shells
+case $- in
+    *i*) ;;
+      *) return;;
+esac
+
+##@ Colors
+
+## Prompt
+export PS1='\[\e[1;38;5;244m\]\t \[\e[1;36m\]\u@\H \[\e[1;33m\]\w \[\e[1;36m\]\$ \[\e[0m\]'
+
+## Colored LS
+alias ls="ls --color=always"
+alias ll="ls -l"
+alias la="ls -lA"
+
+##@ Settings
+
+HISTCONTROL=ignoreboth
+shopt -s histappend
+
+HISTSIZE=1000
+HISTFILESIZE=2000
+
+shopt -s checkwinsize
+
+shopt -s globstar
+
+## Warning about root shells
+if [ `id -u` -eq 0 ]; then 
+    start="\033[1;37;41m"
+    end="\033[0m"
+    printf "\n"
+    printf "  $start                                                                       $end\n"
+    printf "  $start  WARNING: You are in a root shell. This is probably a very bad idea.  $end\n"
+    printf "  $start                                                                       $end\n"
+    printf "\n"
+fi
+
+## Setup GPG with SSH support
+export GPG_TTY="$(tty)"
+export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+gpgconf --launch gpg-agent
+
+## Enable completion
+if ! shopt -oq posix; then
+  if [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
+  elif [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+  fi
+fi
+
+##@ Path Configuration
+
+[ -d "$HOME/.local/bin" ] && PATH="$HOME/.local/bin:$PATH"
+[ -d "$HOME/.cargo/bin" ] && PATH="$HOME/.cargo/bin:$PATH"
+
+export PATH
+
+### .bashrc ends here

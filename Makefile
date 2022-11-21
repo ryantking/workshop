@@ -64,8 +64,17 @@ garden:
 SYSTEMS_ROOT := "${HOME}/Systems"
 ETC := "${SYSTEMS_ROOT}/etc"
 
-##@ Applications
+##@ Config Files
 
-emacs:
+init:
+	test -L "${HOME}/.config/git" || rm -rf "${HOME}/.config/git"
+	ln -vsfn "${ETC}/git" "${HOME}/.config/git"
 	test -L "${HOME}/.config/emacs" || rm -rf "${HOME}/.config/emacs"
 	ln -vsfn "${ETC}/emacs" "${HOME}/.config/emacs"
+	for item in bashrc xinitrc; do \
+		ln -vsf {${PWD}/,${HOME}/.}$$item; \
+	done
+
+xmonad:
+	test -L "${HOME}/.config/xmonad" || rm -rf "${HOME}/.config/xmonad"
+	ln -vsfn "${ETC}/xmonad" "${HOME}/.config/xmonad"
