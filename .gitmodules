@@ -16,6 +16,3 @@
 [submodule "usr/site-lisp/flymake-markdownlint"]
 	path = usr/site-lisp/flymake-markdownlint
 	url = https://github.com/shaohme/flymake-markdownlint.git
-[submodule "usr/site-lisp/makefile-executor.el"]
-	path = usr/site-lisp/makefile-executor.el
-	url = https://github.com/jumper047/makefile-executor.el.git

@@ -2,7 +2,7 @@
   imports = with profiles; [
     core.nixos
     users.root
-    users.rking
+    users.ryan
   ];
 
   boot.loader.systemd-boot.enable = true;

@@ -7,14 +7,14 @@
 }: let
   inherit (config.whoami.keys) ssh;
 in {
-  home-manager.users = {inherit (hmUsers) rking;};
+  home-manager.users = {inherit (hmUsers) ryan;};
 
-  users.users.rking =
+  users.users.ryan =
     {
       home =
         if pkgs.stdenv.isDarwin
-        then "/Users/rking"
-        else "/home/rking";
+        then "/Users/ryan"
+        else "/home/ryan";
       shell = pkgs.zsh;
       packages = import ./packages.nix {inherit pkgs;};
     }

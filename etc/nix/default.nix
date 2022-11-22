@@ -3,6 +3,7 @@
   nixos,
   home,
   digga,
+  deploy,
   ragenix,
   nvfetcher,
   emacs,
@@ -25,7 +26,7 @@
     profiles = digga.lib.rakeLeaves ./profiles // {users = digga.lib.rakeLeaves ./users;};
 
     suites = with profiles; {
-      base = [core users.rking yubikey];
+      base = [core users.ryan yubikey];
       gui = [fonts];
       devel = [languages.go languages.nodejs];
     };
@@ -61,10 +62,12 @@ in
         __dontExport = true;
         lib = prev.lib.extend (lfinal: lprev: {our = self.lib;});
         rnix-lsp = rnix-lsp.defaultPackage."${prev.stdenv.system}";
+        deploy = deploy.defaultPackage."${prev.stdenv.system}".deploy-rs;
       })
 
-      ragenix.overlay
+      ragenix.overlays.default
       nvfetcher.overlay
+      deploy.overlay
 
       (import ./pkgs)
     ];
@@ -86,7 +89,8 @@ in
       imports = [(digga.lib.importHosts ./hosts/nixos)];
 
       hosts = {
-        trashstation = {};
+        bootstrap = {};
+        triangle-vm = {};
       };
 
       importables = rec {
@@ -101,7 +105,7 @@ in
             boot
             core.common
             core.nixos
-            users.rking
+            users.ryan
             users.root
           ];
 
@@ -160,7 +164,7 @@ in
           base = [
             core.common
             core.darwin
-            users.rking
+            users.ryan
           ];
 
           desktop =
@@ -184,4 +188,6 @@ in
     devshell = ./shell;
 
     homeConfigurations = digga.lib.mkHomeConfigurations (digga.lib.collectHosts self.nixosConfigurations self.darwinConfigurations);
+
+    deploy.nodes = digga.lib.mkDeployNodes self.nixosConfigurations {};
   }

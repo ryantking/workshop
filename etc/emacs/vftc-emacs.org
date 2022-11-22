@@ -1150,33 +1150,33 @@ folder hierarchy, I’ll use be able to use a single flat directory with
 tags.
 
 #+begin_src emacs-lisp
-;;; Simple note-taking (denote)
-(vftc-emacs-elpa-package 'denote
-  (setq denote-directory (expand-file-name "~/Nextcloud/Documents/notes/")
-	denote-known-keywords '("emacs" "flipside"))
+  ;;; Simple note-taking (denote)
+  (vftc-emacs-elpa-package 'denote
+    (setq denote-directory (expand-file-name "~/Nextcloud/Documents/notes/")
+	  denote-known-keywords '("emacs" "flipside"))
 
-  (add-hook 'dired-mode-hook #'denote-dired-mode)
+    (add-hook 'dired-mode-hook #'denote-dired-mode)
 
-  (let ((map global-map))
-    (define-key map (kbd "C-c n n") #'denote)
-    (define-key map (kbd "C-c n N") #'denote-type)
-    (define-key map (kbd "C-c n d") #'denote-date)
-    (define-key map (kbd "C-c n s") #'denote-subdirectory)
-    (define-key map (kbd "C-c n i") #'denote-link)
-    (define-key map (kbd "C-c n I") #'denote-link-add-links)
-    (define-key map (kbd "C-c n l") #'denote-link-find-file)
-    (define-key map (kbd "C-c n b") #'denote-link-backlints)
-    (define-key map (kbd "C-c n r") #'denote-dired-rename-file))
+    (let ((map global-map))
+      (define-key map (kbd "C-c n n") #'denote)
+      (define-key map (kbd "C-c n N") #'denote-type)
+      (define-key map (kbd "C-c n d") #'denote-date)
+      (define-key map (kbd "C-c n s") #'denote-subdirectory)
+      (define-key map (kbd "C-c n i") #'denote-link)
+      (define-key map (kbd "C-c n I") #'denote-link-add-links)
+      (define-key map (kbd "C-c n l") #'denote-link-find-file)
+      (define-key map (kbd "C-c n b") #'denote-link-backlints)
+      (define-key map (kbd "C-c n r") #'denote-dired-rename-file))
 
-  (with-eval-after-load 'org-capture
-    (add-to-list 'org-capture-templates
-		 '("n" "New note (with denote.el)" plain
-		   (file denote-last-path)
-		   #'denote-org-capture
-		   :no-save t
-		   :immediate-finish nil
-		   :kill-buffer t
-		   :jump-to-captured t))))
+    (with-eval-after-load 'org-capture
+      (add-to-list 'org-capture-templates
+		   '("n" "New note (with denote.el)" plain
+		     (file denote-last-path)
+		     #'denote-org-capture
+		     :no-save t
+		     :immediate-finish nil
+		     :kill-buffer t
+		     :jump-to-captured t))))
 #+end_src
 ** Calendar and Diary
 ** Email (~notmuch~)
@@ -2204,15 +2204,6 @@ I will be sticking with the default bindings for now:
     (define-key map (kbd "C-c t f") #'vftc-go-test-file)))
 #+end_src
 
-*** Makefile
-Run make targets interactively.
-
-#+begin_src emacs-lisp
-;;; Run make targets interactively (makefile-executor)
-(vftc-emacs-manual-package 'makefile-executor
-  (add-hook 'makefile-mode-hook #'makefile-executor-mode))
-#+end_src
-
 *** Markdown
 The ~markdown-mode~ extension provides a few niceties on top of the basics. The most notable is the bindings that let you navigate Markdown files the same way you would an ~org-mode~ file. I also add in the ~edit-indirect~ plugin that lets you edit Markdown source blocks in a separate buffer as you can in ~org-mode~ with ~C-c '~.
 
@@ -2225,6 +2216,9 @@ The ~markdown-mode~ extension provides a few niceties on top of the basics. The 
 
 (vftc-emacs-manual-package 'flymake-markdownlint
   (add-hook 'markdown-mode-hook #'flymake-markdownlint-setup))
+
+(vftc-emacs-elpa-package 'grip-mode
+  (define-key markdown-mode-command-map (kbd "g") #'grip-mode))
 #+end_src
 
 *** YAML (~yaml-mode~)

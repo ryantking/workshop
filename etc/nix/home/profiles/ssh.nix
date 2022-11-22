@@ -20,12 +20,30 @@ in {
         identitiesOnly = true;
       };
 
-      "trashmetal" = {
+      "charlemagne" = {
+        inherit identityFile;
+        identitiesOnly = true;
+        forwardAgent = true;
+        extraOptions = {"ControlPersist" = "30m";};
+      };
+
+      "rome" = {
         inherit identityFile;
         user = "root";
         identitiesOnly = true;
         forwardAgent = true;
         extraOptions = {"ControlPersist" = "30m";};
+      };
+
+      "thevatican" = {
+        inherit identityFile;
+        identitiesOnly = true;
+      };
+
+      "templar" = {
+        inherit identityFile;
+        user = "root";
+        identitiesOnly = true;
       };
 
       "*" = {
@@ -38,7 +56,6 @@ in {
         extraOptions = {
           AddKeysToAgent = "yes";
           ChallengeResponseAuthentication = "no";
-          PasswordAuthentication = "no";
           StrictHostKeyChecking = "ask";
           VerifyHostKeyDNS = "yes";
           VisualHostKey = "yes";

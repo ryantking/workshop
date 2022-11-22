@@ -13,7 +13,7 @@
 
       autoLogin = {
         enable = true;
-        user = "rking";
+        user = "ryan";
       };
     };
   };

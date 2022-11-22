@@ -20,16 +20,15 @@
       "docker"
       "dropbox"
       "railwaycat/homebrew-emacsmacport/emacs-mac"
-      "firefox-developer-edition"
       "gpg-suite-no-mail"
       "karabiner-elements"
       "kitty"
       "ledger-live"
+      "librewolf"
       "logitech-options"
       "mactex-no-gui"
       "meetingbar"
       "monero-wallet"
-      "mymonero"
       "nextcloud"
       "pictogram"
       "postman"
@@ -46,17 +45,12 @@
       "spotify"
       "tailscale"
       "telegram-desktop"
+      "thunderbird"
       "tor-browser"
       "webpquicklook"
       "yubico-yubikey-personalization-gui"
       "zsa-wally"
     ];
-
-    # extraConfig = ''
-    # cask "railwaycat/emacsmacport/emacs-mac", args: [
-    # "with-native-comp", "with-mac-metal", "with-xwidgets", "with-imagemagick", "with-rsvg",
-    # "with-natural-title-bar", "with-emacs-big-sur-icon", "with-starter"
-    # ]'';
   };
 
   shell.env.PATH = ["/Library/TeX/Distributions/Programs/texbin"];

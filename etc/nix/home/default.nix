@@ -18,7 +18,7 @@
   };
 
   users = {
-    rking = {suites, ...}: {
+    ryan = {suites, ...}: {
       imports = suites.base ++ suites.gui ++ suites.devel;
     };
   };

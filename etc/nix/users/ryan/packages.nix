@@ -19,7 +19,7 @@ with pkgs; [
   postgresql
   procs
   rage
-  ragenix
+  # ragenix
   (ripgrep.override {withPCRE2 = true;})
   ripgrep-all
   sd

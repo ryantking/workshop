@@ -18,7 +18,7 @@
     envName = builtins.getEnv "USER";
   in
     if builtins.elem envName ["" "root"]
-    then "rking"
+    then "ryan"
     else envName;
 in {
   imports = lib.mapAttrsToList mkHomeAlias {
