@@ -1,0 +1,12 @@
+/crls.d
+/openpgp-revocs.d
+/private-keys-v1.d
+/.gpg-connect_history
+/.#lk0x*
+/S.*
+/dirmngr.conf
+/pubring.kbx
+/random_seed
+/reader_0.status
+/tofu.db
+/trustdb.gpg
