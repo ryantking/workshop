@@ -1,4 +1,4 @@
-;;; init.el --- VFTC Emacs Entrypoint -*- lexical-binding: t -*-
+;;; init.el --- Emacs entrypoint -*- lexical-binding: t -*-
 
 ;; Copyright (c) 2022  Ryan King <ryantking@protonmail.com>
 
@@ -24,57 +24,58 @@
 
 ;;; Commentary:
 
-;; This file sets up VFTC emacs with the core package management macros.
+;; This file sets up emacs with the core package management macros.
 
 ;;; Code:
 
 (require 'package)
 
-(add-to-list 'package-archives '("elpa-devel" . "https://elpa.gnu.org/devel/"))
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+(setq package-archives
+      '(("elpa" . "https://elpa.gnu.org/packages/")
+	("nongnu" . "https://elpa.nongnu.org/nongnu/")
+	("melpa" . "https://melpa.org/packages/"))
 
-(defvar vftc-emacs-ensure-installed nil
-  "List of package names used by `vftc-emacs-install-ensured'.")
+      package-archive-priorities
+      '(("elpa" . 2)
+	("nongnu" . 1)))
 
-(defun vftc-emacs-install-ensured ()
-  "Install all `vftc-emacs-ensure-installed' packages, if needed.
-If a package is already installed, no action is taken."
-  (interactive)
-  (when (yes-or-no-p (format "Try to install %d packages?" (length vftc-emacs-ensure-installed)))
-    (package-refresh-contents)
-    (mapc (lambda (package)
-            (unless (package-installed-p package)
-              (package-install package)))
-          vftc-emacs-ensure-installed)))
+(dolist (path '("contrib-lisp" "ryan-lisp"))
+  (add-to-list 'load-path (locate-user-emacs-file path)))
 
-(defmacro vftc-emacs-builtin-package (package &rest body)
+(setq frame-title-format '("%b")
+      ring-bell-function 'ignore
+      use-short-answers t
+      initial-buffer-choice t)
+
+(put 'overwrite-mode 'disabled t)
+
+(add-hook 'package-menu-mode-hook #'hl-line-mode)
+
+(defmacro ryan-emacs-builtin-package (package &rest body)
   "Set up builtin PACKAGE with rest BODY.
 PACKAGE is a quoted symbol, while BODY consists of balanced
 expressions."
   (declare (indent 1))
   `(progn
      (unless (require ,package nil 'noerror)
-       (display-warning 'vftc-emacs (format "Loading `%s' failed" ,package) :warning))
+       (display-warning 'ryan-emacs (format "Loading `%s' failed" ,package) :warning))
      ,@body))
 
-(defmacro vftc-emacs-elpa-package (package &rest body)
+(defmacro ryan-emacs-elpa-package (package &rest body)
   "Set up PACKAGE from an Elisp archive with rest BODY.
 PACKAGE is a quoted symbol, while BODY consists of balanced
 expressions."
   (declare (indent 1))
   `(progn
      (unless (package-installed-p ,package)
+       (unless package-archive-contents
+	 (package-refresh-contents))
        (package-install ,package))
      (if (require ,package nil 'noerror)
          (progn ,@body)
-       (display-warning 'vftc-emacs (format "Loading `%s' failed" ,package) :warning)
-       (add-to-list 'vftc-emacs-ensure-installed ,package)
-       (display-warning
-        'vftc-emacs
-        "Run `vftc-emacs-install-ensured' to install all packages in `vftc-emacs-ensure-installed'"
-        :warning))))
+       (display-warning 'ryan-emacs (format "Loading `%s' failed" ,package) :warning))))
 
-(defmacro vftc-emacs-manual-package (package &rest body)
+(defmacro ryan-emacs-manual-package (package &rest body)
   "Set up manually installed PACKAGE with rest BODY.
 PACKAGE is a quoted symbol, while BODY consists of balanced
 expressions."
@@ -87,61 +88,21 @@ expressions."
          (add-to-list 'load-path ,path))
        (if (require ,package nil 'noerror)
            (progn ,@body)
-         (display-warning 'vftc-emacs (format "Loading `%s' failed" ,package) :warning)
-         (display-warning 'vftc-emacs (format "This must be available at %s" ,path) :warning)))))
+         (display-warning 'ryan-emacs (format "Loading `%s' failed" ,package) :warning)
+         (display-warning 'ryan-emacs (format "This must be available at %s" ,path) :warning)))))
 
-;; Add additional directories to `load-path'.
-;; `vftc-emacs-contrib-dir' is all third party lisp repos added as submodules.
-;; "vftc-lisp" is all the lisp code I've written for my config.
-(dolist (path '("vftc-lisp" "contrib-lisp"))
-  (add-to-list 'load-path (locate-user-emacs-file path)))
-
-;; The bell must be turned off
-(setq ring-bell-function 'ignore)
-
-;; Don't make me type yes
-(setq use-short-answers t)
-
-(defvar vftc-emacs-configuration-file "vftc-emacs"
-  "Base name of the configuration file.")
-
-(defun vftc-emacs--expand-file-name (file extension)
-  "Return the canonical path to FILE to Emacs config with EXTENSION."
-  (locate-user-emacs-file (concat file extension)))
-
-(defun vftc-emacs-load-config ()
-  "Load main Emacs configuration, either '.el' or '.org' file."
-  (let* ((init vftc-emacs-configuration-file)
-         (init-el (vftc-emacs--expand-file-name init ".el"))
-         (init-org (vftc-emacs--expand-file-name init ".org")))
-    (require 'org)
-    (if (file-exists-p init-el)
-        (load-file init-el)
-      (when (file-exists-p init-org)
-        (org-babel-load-file init-org)))))
-
-;; The following as for when we close the Emacs session.
-(declare-function org-babel-tangle-file "ob-tangle")
-
-(defun vftc-emacs-build-config ()
-  "Produce Elisp init from my Org dotemacs.
-Add this to `kill-emacs-hook', to use the newest file in the next
-session.  The idea is to reduce startup time, though just by
-rolling it over to the end of a session rather than the beginning
-of it."
-  (interactive)
-  (let* ((init vftc-emacs-configuration-file)
-         (init-el (vftc-emacs--expand-file-name init ".el"))
-         (init-org (vftc-emacs--expand-file-name init ".org")))
-    (when (file-exists-p init-el) (delete-file init-el))
-    (message init-org)
-    (require 'org)
-    (when (file-exists-p init-org)
-      (org-babel-tangle-file init-org init-el)
-      (byte-compile-file init-el))))
-
-(add-hook 'kill-emacs-hook #'vftc-emacs-build-config)
-
-(vftc-emacs-load-config)
+(require 'init-core)
+(require 'init-theme)
+(require 'init-font)
+(require 'init-modeline)
+(require 'init-completion)
+(require 'init-search)
+(require 'init-window)
+(require 'init-dired)
+(require 'init-write)
+(require 'init-shell)
+(require 'init-git)
+(require 'init-org)
+(require 'init-langs)
 
 ;;; init.el ends here

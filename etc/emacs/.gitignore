@@ -1,5 +1,4 @@
 /.cache
-/contrib-lisp
 /auto-save
 /auto-save-list
 /backup
@@ -9,10 +8,11 @@
 /bookmarks
 /cursory-latest-state.eld
 /fontaine-latest-state.eld
+/package-quickstart.el
 /places
 /projects
 /recentf
 /savehist
+/spell-fu
 /tramp
 *.elc
-/vftc-emacs.el

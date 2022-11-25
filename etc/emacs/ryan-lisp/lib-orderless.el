@@ -1,13 +1,23 @@
-;;; vftc-orderless.el --- VFTC Emacs Orderless Extensions -*- lexical-binding: t -*-
+;;; lib-orderless.el --- Orderless Extensions -*- lexical-binding: t -*-
 
-;; Copyright (c) 2022  Ryan King <ryantking@vftconmail.com>
-
-;; Author: Ryan King <ryantking@rotonmail.com>
-;; URL: https://github.com/ryantking/Workshop
+;; Author: Ryan <ryan@carelesslisper.xyz>
+;; URL: https://github.com/ryantking/system
 ;; Version: 0.3.0
-;; Package-Requires: ((emacs "28.1"))
 
 ;; This file is NOT part of GNU Emacs.
+
+;; This file is free software: you can redistribute it and/or modify it
+;; under the terms of the GNU General Public License as published by the
+;; Free Software Foundation, either version 3 of the License, or (at
+;; your option) any later version.
+;;
+;; This file is distributed in the hope that it will be useful, but
+;; WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+;; General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this file.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 
@@ -16,7 +26,7 @@
 ;;; Code:
 
 ;;;###autoload
-(defun vftc-orderless-literal-dispatcher (pattern _index _total)
+(defun ryan-orderless-literal-dispatcher (pattern _index _total)
   "Literal style dispatcher using the equals sign as a suffix.
 It matches PATTERN _INDEX and _TOTAL according to how Orderless
 parses its input."
@@ -24,7 +34,7 @@ parses its input."
     `(orderless-literal . ,(substring pattern 0 -1))))
 
 ;;;###autoload
-(defun vftc-orderless-initialism-dispatcher (pattern _index _total)
+(defun ryan-orderless-initialism-dispatcher (pattern _index _total)
   "Leading initialism  dispatcher using the comma suffix.
 It matches PATTERN _INDEX and _TOTAL according to how Orderless
 parses its input."
@@ -32,18 +42,12 @@ parses its input."
     `(orderless-strict-leading-initialism . ,(substring pattern 0 -1))))
 
 ;;;###autoload
-(defun vftc-orderless-flex-dispatcher (pattern _index _total)
+(defun ryan-orderless-flex-dispatcher (pattern _index _total)
   "Flex  dispatcher using the tilde suffix.
 It matches PATTERN _INDEX and _TOTAL according to how Orderless
 parses its input."
   (when (string-suffix-p "~" pattern)
     `(orderless-flex . ,(substring pattern 0 -1))))
-
-;;;; Initialisms
-
-;; All of the following are a copy of code that was removed from
-;; orderless.el.  I was using it, so I want to keep it, at least until
-;; some new version is provided upstream.
 
 (defun orderless--strict-*-initialism (component &optional anchored)
   "Match a COMPONENT as a strict initialism, optionally ANCHORED.
@@ -84,6 +88,6 @@ first and last initials appear in the first and last words of the
 candidate, respectively."
   (orderless--strict-*-initialism component 'both))
 
-(provide 'vftc-orderless)
+(provide 'lib-orderless)
 
-;;; vftc-orderless.el ends here
+;;; lib-orderless.el ends here
