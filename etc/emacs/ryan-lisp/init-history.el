@@ -1,4 +1,4 @@
-;;; early-init.el --- Early Init File -*- lexical-binding: t -*-
+;;; init-history.el --- History management -*- lexical-binding: t -*-
 
 ;; Copyright (c) 2022  Ryan King <ryantking@protonmail.com>
 
@@ -24,36 +24,31 @@
 
 ;;; Commentary:
 
-;; This file sets Emacs behavior before package managements starts.
+;; Configures how emacs stores file history.
 
 ;;; Code:
 
-;; Package management configuration
-(setq package-enable-at-startup t)
-(defvar package-quickstart)
-(setq package-quickstart t)
+;;; Record cursor position
+(ryan-emacs-builtin-package 'saveplace
+  (save-place-mode 1))
 
-;; Don't resize the frame
-(setq frame-inhibit-implied-resize t)
+;;;; Backup files
 
-;; Disable GUI elements
-(menu-bar-mode -1)
-(tool-bar-mode -1)
-(scroll-bar-mode -1)
+(setq backup-directory-alist
+      `(("." . ,(concat user-emacs-directory "backup/")))
+      backup-by-copying t
+      version-control t
+      delete-old-versions t
+      kept-new-versions 6
+      kept-old-versions 2
+      create-lockfiles nil)
 
-(setq inhibit-splash-screen t
-      use-dialog-box t
-      use-file-dialog nil)
+(let ((auto-save-directory (concat user-emacs-directory "auto-save/")))
+  auto-save-file-name-transforms `((".*" ,auto-save-directory t))
 
-(setq inhibit-startup-echo-area-message user-login-name
-      inhibit-startup-screen t
-      inhibit-startup-buffer-menu t)
+  (unless (file-exists-p auto-save-directory)
+    (make-directory auto-save-directory)))
 
-;; Don't spam compilation warnings
-(setq native-comp-async-report-warnings-errors 'silent)
+(provide 'init-history)
 
-;; Temporarily disable garbage collection
-(setq gc-cons-threshold most-positive-fixnum)
-(add-hook 'after-init-hook #'(lambda () (setq gc-cons-threshold (* 8 1024 1024))))
-
-;;; early-init.el ends here
+;;; init-history.el ends here

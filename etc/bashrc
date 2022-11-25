@@ -53,7 +53,7 @@ if ! shopt -oq posix; then
   fi
 fi
 
-##@ Path Configuration
+##@ Path configuration
 
 [ -d "$HOME/.local/bin" ] && PATH="$HOME/.local/bin:$PATH"
 [ -d "$HOME/.cargo/bin" ] && PATH="$HOME/.cargo/bin:$PATH"

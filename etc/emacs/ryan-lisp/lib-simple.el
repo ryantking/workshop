@@ -1,13 +1,26 @@
-;;; vftc-simple.el --- Simple emacs commands -*- lexical-binding: t -*-
+;;; ryan-simple.el --- Simple emacs commands -*- lexical-binding: t -*-
 
-;; Copyright (C) 2022 Ryan King
+;; Copyright (C) 2022 Ryan <ryan@carelesslisper.xyz>
 
-;; Author: Ryan King <ryantking@protonmail.com>
-;; URL: https://github.com/ryantking/workshop
+;; Author: Ryan <ryan@carelesslisper.xyz>
+;; URL: https://github.com/ryantking/system
 ;; Version: 0.3.0
 ;; Package-Requires: ((emacs "28.1"))
 
 ;; This file is NOT part of GNU Emacs.
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or (at
+;; your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 ;;
@@ -18,23 +31,24 @@
 (eval-when-compile
   (require 'cl-lib))
 
-(defgroup vftc-simple ()
-  "Generic utilities for Emacs")
+(defgroup ryan-simple ()
+  "Generic utilities for Emacs"
+  :group 'editing)
 
 ;;;###autoload
-(defun vftc-simple-describe-symbol ()
+(defun ryan-simple-describe-symbol ()
   "Run `describe-symbol' for the `symbol-at-point'."
   (interactive)
   (describe-symbol (symbol-at-point)))
 
 ;;;###autoload
-(defun vftc-simple-new-line-below ()
+(defun ryan-simple-new-line-below (&optional arg)
   (interactive "P")
   (end-of-line)
   (if arg (newline-and-indent) (newline)))
 
 ;;;###autoload
-(defun vftc-simple-new-line-above ()
+(defun ryan-simple-new-line-above (&optional arg)
   (interactive "P")
   (let ((indent (or arg nil)))
     (if (or (bobp) (line-number-at-pos (point-min)))
@@ -43,11 +57,11 @@
           (newline)
           (forward-line -1))
       (forward-line -1)
-      (vftc-simple-new-line-below))))
+      (ryan-simple-new-line-below))))
 
 
 ;;;###autoload
-(defun vftc-simple-copy-line-or-region (&optional arg)
+(defun ryan-simple-copy-line-or-region (&optional arg)
   "Kill-save the current line or active region.
 With optional ARG (\\[universal-argument]) duplicate the target
 instead.  When region is active, also apply context-aware
@@ -66,7 +80,7 @@ indentation while duplicating."
           (let ((text (buffer-substring rbeg rend)))
             (when (eq (point) rbeg)
               (exchange-point-and-mark))
-            (vftc-simple-new-line-below indent)
+            (ryan-simple-new-line-below indent)
             (insert text))
         (copy-region-as-kill rbeg rend)
         (message "Current region copied")))
@@ -80,7 +94,7 @@ indentation while duplicating."
         (message "Current line copied"))))))
 
 ;;;###autoload
-(defun vftc-simple-yank-replace-line-or-region ()
+(defun ryan-simple-yank-replace-line-or-region ()
   "Replace line or region with latest kill.
 This command can then be followed by the standard
 `yank-pop' (default is bound to \\[yank-pop])."
@@ -91,25 +105,25 @@ This command can then be followed by the standard
   (yank))
 
 ;;;###autoload
-(defun vftc-simple-multi-line-next ()
+(defun ryan-simple-multi-line-next ()
   "Move point 15 lines down."
   (interactive)
   (forward-line 15))
 
 ;;;###autoload
-(defun vftc-simple-multi-line-prev ()
+(defun ryan-simple-multi-line-prev ()
   "Move point 15 lines up."
   (interactive)
   (forward-line -15))
 
 ;;;###autoload
-(defun vftc-simple-kill-line-backward ()
+(defun ryan-simple-kill-line-backward ()
   "Kill from point to the beginning of the line."
   (interactive)
   (kill-line 0))
 
 
-(defmacro vftc-simple-mark (name object &optional docstring)
+(defmacro ryan-simple-mark (name object &optional docstring)
   "Produce function for marking small syntactic constructs.
 NAME is how the function should be called.  OBJECT is its scope.
 Optional DOCSTRING describes the resulting function.
@@ -142,18 +156,18 @@ This is a slightly modified version of the built-in `mark-word'."
                    (point)))
                 (activate-mark)))))))
 
-(vftc-simple-mark
- vftc-simple-mark-word
+(ryan-simple-mark
+ ryan-simple-mark-word
  "word"
  "Mark the whole word at point.
 This function is a slightly modified version of the built-in
 `mark-word', that I intend to use only in special circumstances,
 such as when recording a keyboard macro where precision is
-required.  For a general purpose utility, use `vftc-simple-mark-symbol'
+required.  For a general purpose utility, use `ryan-simple-mark-symbol'
 instead.")
 
-(vftc-simple-mark
- vftc-simple-mark-symbol
+(ryan-simple-mark
+ ryan-simple-mark-symbol
  "symbol"
  "Mark the whole symbol at point.
 With optional ARG, mark the current symbol and any remaining
@@ -165,7 +179,7 @@ In the absence of a symbol and if a word is present at point,
 this command will operate on it as described above.")
 
 ;;;###autoload
-(defun vftc-simple-mark-sexp-backward (&optional arg)
+(defun ryan-simple-mark-sexp-backward (&optional arg)
   "Mark previous or ARGth balanced expression[s].
 Just a convenient backward-looking `mark-sexp'."
   (interactive "P")
@@ -174,7 +188,7 @@ Just a convenient backward-looking `mark-sexp'."
     (mark-sexp (- 1) t)))
 
 ;;;###autoload
-(defun vftc-simple-unfill-region-or-paragraph (&optional beg end)
+(defun ryan-simple-unfill-region-or-paragraph (&optional beg end)
   "Unfill paragraph or, when active, the region.
 Join all lines in region delimited by BEG and END, if active,
 while respecting any empty lines (so multiple paragraphs are not
@@ -189,7 +203,7 @@ paragraph.  The idea is to produce the opposite effect of both
 
 
 ;;;###autoload
-(defun vftc-simple-rename-file-and-buffer (name)
+(defun ryan-simple-rename-file-and-buffer (name)
   "Apply NAME to current file and rename its buffer.
 Do not try to make a new directory or anything fancy."
   (interactive
@@ -201,7 +215,7 @@ Do not try to make a new directory or anything fancy."
     (set-visited-file-name name t t)))
 
 ;;;###autoload
-(defun vftc-simple-kill-buffer-current (&optional arg)
+(defun ryan-simple-kill-buffer-current (&optional arg)
   "Kill current buffer or abort recursion when in minibuffer.
 With optional prefix ARG (\\[universal-argument]) delete the
 buffer's window as well."
@@ -213,6 +227,6 @@ buffer's window as well."
              (not (one-window-p)))
     (delete-window)))
 
-(provide 'vftc-simple)
+(provide 'lib-simple)
 
-;;; vftc-simple.el ends here
+;;; lib-simple.el ends here

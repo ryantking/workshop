@@ -1,13 +1,26 @@
-;;; vftc-spell.el --- VFTC Emacs Spell Functions -*- lexical-binding: t -*-
+;;; lib-spell.el --- Enhanced spell mode -*- lexical-binding: t -*-
 
-;; Copyright (c) 2022  Ryan King <ryantking@protonmail.com>
+;; Copyright (c) 2022  Ryan <ryan@carelesslisper.xyz>
 
-;; Author: Ryan King <ryantking@rotonmail.com>
-;; URL: https://github.com/ryantking/Workshop
+;; Author: Ryan <ryan@carelesslisper.xyz>
+;; URL: https://github.com/ryantking/system
 ;; Version: 0.3.0
 ;; Package-Requires: ((emacs "28.1"))
 
 ;; This file is NOT part of GNU Emacs.
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or (at
+;; your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 
@@ -17,7 +30,7 @@
 
 (require 'ispell)
 
-(defvar vftc-spell--excluded-faces-alist
+(defvar ryan-spell--excluded-faces-alist
   '((markdown-mode
      . (markdown-code-face
         markdown-html-attr-name-face
@@ -63,7 +76,7 @@
         font-lock-variable-name-face)))
   "Faces in certain major modes that spell-fu will not spellcheck.")
 
-(defun vftc-spell--correct (replace poss word orig-pt start end)
+(defun ryan-spell--correct (replace poss word orig-pt start end)
   (cond ((eq replace 'ignore)
          (goto-char orig-pt)
          nil)
@@ -96,11 +109,11 @@
         ((goto-char orig-pt)
          nil)))
 
-(defun vftc-spell--complete (candidates word)
+(defun ryan-spell--complete (candidates word)
   (completing-read (format "Corrections for %S: " word) candidates))
 
 ;;;###autoload
-(defun vftc-spell-correct ()
+(defun ryan-spell-correct ()
   "Correct spelling of word at point."
   (interactive)
   ;; spell-fu fails to initialize correctly if it can't find aspell or a similar
@@ -137,24 +150,24 @@
         (error "Ispell: error in Ispell process"))
        (t
         ;; The word is incorrect, we have to propose a replacement.
-        (setq res (vftc-spell--complete (nth 2 poss) word))
+        (setq res (ryan-spell--complete (nth 2 poss) word))
         ;; Some interfaces actually eat 'C-g' so it's impossible to stop rapid
         ;; mode. So when interface returns nil we treat it as a stop.
         (unless res (setq res (cons 'break word)))
         (cond
          ((stringp res)
-          (vftc-spell--correct res poss word orig-pt start end))
+          (ryan-spell--correct res poss word orig-pt start end))
          ((let ((cmd (car res))
                 (wrd (cdr res)))
             (unless (or (eq cmd 'skip)
                         (eq cmd 'break)
                         (eq cmd 'stop))
-              (vftc-spell--correct cmd poss wrd orig-pt start end)
+              (ryan-spell--correct cmd poss wrd orig-pt start end)
               (unless (string-equal wrd word)
-                (vftc-spell--correct wrd poss word orig-pt start end))))))
+                (ryan-spell--correct wrd poss word orig-pt start end))))))
         (ispell-pdict-save t))))))
 
-(defun vftc-spell-setup-spell-fu ()
+(defun ryan-spell-setup-spell-fu ()
   (require 'spell-fu)
 
   (spell-fu-dictionary-add (spell-fu-get-ispell-dictionary "en"))
@@ -168,9 +181,9 @@
     (expand-file-name "var/ispell.personal.pws" (getenv "WORKSHOP_DIR"))))
 
   ;; If we have excluded faces for the language defined, set the variable.
-  (when-let (excluded (cdr (cl-find-if #'derived-mode-p vftc-spell--excluded-faces-alist :key #'car)))
+  (when-let (excluded (cdr (cl-find-if #'derived-mode-p ryan-spell--excluded-faces-alist :key #'car)))
     (setq-local spell-fu-faces-exclude excluded)))
 
-(provide 'vftc-spell)
+(provide 'lib-spell)
 
-;; vftc-spell.el ends here
+;; lib-spell.el ends here

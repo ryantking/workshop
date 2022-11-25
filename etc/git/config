@@ -46,5 +46,5 @@ rebase = false
 [tag]
 sort = "version:refname"
 
-[url "git@github.com:"]
-insteadOf = https://github.com/
+[url "git@github.com:ryantking"]
+insteadOf = https://github.com/ryantking

@@ -17,11 +17,18 @@ ETC := "${SYSTEM_ROOT}/etc"
 init:
 	test -L "${HOME}/.config/git" || rm -rf "${HOME}/.config/git"
 	ln -vsfn "${ETC}/git" "${HOME}/.config/git"
-	test -L "${HOME}/.config/emacs" || rm -rf "${HOME}/.config/emacs"
-	ln -vsfn "${ETC}/emacs" "${HOME}/.config/emacs"
 	for item in bashrc; do \
 		ln -vsf {${ETC}/,${HOME}/.}$$item; \
 	done
+
+emacs:
+ifeq ($(UNAME),darwin)
+	brew tap d12frosted/emacs-plus
+	brew install --with-elrumo1-icon emacs-plus@29
+	brew services start emacs-plus
+endif
+	test -L "${HOME}/.config/emacs" || rm -rf "${HOME}/.config/emacs"
+	ln -vsfn "${ETC}/emacs" "${HOME}/.config/emacs"
 
 gnupg:
 ifeq ($(UNAME),darwin)
