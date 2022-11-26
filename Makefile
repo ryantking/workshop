@@ -25,7 +25,7 @@ emacs:
 ifeq ($(UNAME),darwin)
 	brew tap d12frosted/emacs-plus
 	brew install --with-elrumo1-icon emacs-plus@29
-	brew services start emacs-plus
+	brew services start emacs-plus@29
 endif
 	test -L "${HOME}/.config/emacs" || rm -rf "${HOME}/.config/emacs"
 	ln -vsfn "${ETC}/emacs" "${HOME}/.config/emacs"
@@ -55,19 +55,15 @@ linux:
 
 .PHONY: darwin yabai hammerspoon sketchybar
 
-darwin: yabai hammerspoon sketchybar
+darwin: yabai sketchybar
 
 yabai:
 	brew tap koekeishiya/formulae
-	brew install yabai
-	sudo yabai --load-sa
+	brew install yabai skhd
 	ln -vsf ${ETC}/yabairc "${HOME}/.yabairc"
+	ln -vsf ${ETC}/skhdrc "${HOME}/.skhdrc"
 	brew services start yabai
-
-hammerspoon:
-	brew install --cask hammerspoon
-	test -L "${HOME}/.hammerspoon" || rm -rf "${HOME}/.hammerspoon"
-	ln -vsfn "${ETC}/hammerspoon" "${HOME}/.hammerspoon"
+	brew services start skhd
 
 sketchybar:
 	brew tap FelixKratz/formulae

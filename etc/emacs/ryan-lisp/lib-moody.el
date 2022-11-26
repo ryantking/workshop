@@ -45,13 +45,11 @@
   "Set Moody height to an even number.
 Bind this to a hook that gets called after loading/changing the
 mode line's typeface (or the default one if they are the same)."
-  (let* ((font (face-font 'mode-line))
-         (height (truncate (* ryan-moody-font-height-multiplier (aref (font-info font) 2))))
-         (height-even (if (ryan-common-number-even-p height) height (+ height 1))))
+  (let ((font (face-font 'mode-line)))
     (if font
-        height-even
-      24)))
-
+	(let ((height (truncate (* ryan-moody-font-height-multiplier (aref (font-info font) 2)))))
+	  (if (ryan-common-number-even-p height) height (+ height 1))) 24)))
+  
 (defvar moody-mode-line-height)
 
 (defun ryan-moody--mode-line-height ()
