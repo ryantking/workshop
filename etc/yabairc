@@ -1,61 +1,46 @@
-yabai -m config active_window_border_color 0xFF88C0D0
-yabai -m config active_window_opacity 1.000000
-yabai -m config auto_balance on
-yabai -m config bottom_padding 18
-yabai -m config focus_follows_mouse off
-yabai -m config insert_feedback_color 0xFFA3BE8C
+#!/usr/bin/env sh
+
+sudo yabai --load-sa
+
+yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
+
+yabai -m config external_bar all:42:0 \
+      window_border on \
+      mouse_follows_focus off \
+      focus_follows_mouse off \
+      window_placement second_child \
+      window_topmost off \
+      window_shadow float \
+      window_opacity on \
+      window_opacity_duration 0.15 \
+      active_window_opacity 1.0 \
+      normal_window_opacity 0.95 \
+      window_border_width 2 \
+      window_border_radius 11 \
+      window_animation_duration 0.15 \
+      active_window_border_color 0xFF88C0D0 \
+      normal_window_border_color 0x002E3440 \
+      insert_feedback_color 0xFFA3BE8C \
+      split_ratio 0.5 \
+      auto_balance off \
+      mouse_modifier fn \
+      mouse_action1 move \
+      mouse_action2 resize \
+      mouse_drop_action swap \
+      \
+      top_padding 20 \
+      bottom_badding 10 \
+      left_padding 10 \
+      right_padding 10 \
+      window_gap 8
+
+yabai -m rule --add app='Alfred Preferences' manage='off' sticky='on'
+yabai -m rule --add app='^System Preferences$' manage='off' sticky='on' 
+yabai -m rule --add app='Hammerspoon' layer='above' manage='on' sticky='on' title=''
+yabai -m rule --add app='Hammerspoon Console' action="yabai -m window $(yabai -m query --windows | jq '.[] | select(.app==\"Hammerspoon\" and .name==\"Hammerspoon Console\") | .id') --minimize"
+
 yabai -m config layout bsp
-yabai -m config left_padding 18
-yabai -m config mouse_action1 move
-yabai -m config mouse_action2 resize
-yabai -m config mouse_follows_focus on
-yabai -m config mouse_modifier fn
-yabai -m config normal_window_border_color 0x002E3440
-yabai -m config normal_window_opacity 0.980000
-yabai -m config right_padding 18
-yabai -m config split_ratio 0.500000
-yabai -m config top_padding 18
-yabai -m config window_border on
-yabai -m config window_gap 18
-yabai -m config window_opacity on
-yabai -m config window_placement second_child
-yabai -m config window_shadow on
-yabai -m config window_topmost off
-yabai -m space 1 --label 'dev'
-yabai -m space 2 --label 'www'
-yabai -m space 3 --label 'work'
-yabai -m space 4 --label 'chat'
-yabai -m space 5 --label 'audio'
-yabai -m space 6 --label 'video'
 
-# yabai -m rule --add app='1Password' manage='off' \
-# sticky='on' \
+echo "yabai config loaded"
 
-yabai -m rule --add app='Alfred Preferences' manage='off' \
-sticky='on' \
-
-yabai -m rule --add app='^System Preferences$' manage='off' \
-sticky='on' \
-
-yabai -m rule --add app='Hammerspoon' layer='above' \
-manage='on' \
-sticky='on' \
-title='' \
-
-yabai -m rule --add app='Hammerspoon Console' action='yabai -m window $(yabai -m query --windows | jq '.[] | select(.app=="Hammerspoon" and .name=="Hammerspoon Console") | .id') --minimize' \
-
-yabai -m rule --add app='Emacs' border='off' \
-label='[Emacs]: Float minibuffer' \
-manage='off' \
-title='.*Minibuf.*' \
-
-yabai -m rule --add app='Emacs' border='off' \
-grid='3:3:1:1:1:1' \
-label='[Emacs]: Float emacs-everywhere window' \
-manage='off' \
-title='Emacs Everywhere ::*' \
-
-
-yabai -m signal --add event='dock_did_restart' action='sudo yabai --load-sa' 
-yabai -m signal --add event='window_destroyed' action='hs -c "hooks.windowDestroyed()"' 
-yabai -m signal --add event='application_activated' action='hs -c "hooks.applicationActivated(`printenv YABAI_PROCESS_ID`)"'
+### yabairc ends here

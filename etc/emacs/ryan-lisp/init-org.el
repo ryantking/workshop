@@ -58,27 +58,23 @@
   (setq org-capture-templates
 	'(("i" "Inbox" entry (file "inbox.org") "* TODO %?\n%U\n\n  %i")
 	  ("l" "Link" entry (file "inbox.org") "* TODO %?\n%U\n\n  %i\n  %a")
-	  ("p" "Project" entry (file "projects.org") "* %? [/]")
-	  ("m" "Meeting" entry (file+headline "agenda.org" "Future") "* %? :meeting:\n%^T")
+	  ("p" "Project" entry (file+headline "tasks.org") "* %? [/]")
+	  ("m" "Meeting" entry (file+headline "tasks.org" "Future") "* %? :meeting:\n%^T")
 	  ("n" "Note" entry (file "notes.org") "* Note (%a)\n%U\n\n%?"))
 	org-refile-targets
-	'(("projects.org" . (:maxlevel . 2))
-	  ("agenda.org" . (:maxlevel . 2))
-	  ("someday.org" . (:level . 1)))
+	'(("tasks.org" . (:level . 1))
+	  ("projects.org" . (:level . 1)))
 	org-refile-use-outline-path 'file
 	org-outline-path-complete-in-steps nil
 	org-refile-allow-creating-parent-nodes 'confirm
 	org-refile-use-cache t
 	org-todo-keywords
 	'((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
-	  (sequence "HOLD(h)" "|" "CNCL(c)")
-	  (sequence "MEETING(m)" "|" "APPOINTMENT(a)"))
+	  (sequence "HOLD(h)" "|" "CNCL(c)"))
 	org-todo-keyword-faces
 	`(("NEXT" . ,(doom-color 'cyan))
 	  ("HOLD" . ,(doom-color 'yellow))
-	  ("CNCL" . ,(doom-color 'base4))
-	  ("MEETING" . ,(doom-color 'blue))
-	  ("APPOINTMENT" . ,(doom-color 'blue)))
+	  ("CNCL" . ,(doom-color 'base4)))
 	org-use-fast-tag-selection 'expert
 	org-priority-faces
 	'((?A . '(bold org-priority))
@@ -98,9 +94,12 @@
 	'(("@home" . ?H)
 	  ("@work" . ?W)
 	  ("@computer" . ?C)
+	  ("@web" . ?w)
 	  ("@errand" . ?E)
 	  ("emacs" . ?e)
-	  ("linux" . ?l)))
+	  ("mac" . ?m)
+	  ("linux" . ?l)
+	  ("homelab" . ?h)))
 
     ;;; log
   (setq org-log-done 'time
@@ -115,7 +114,7 @@
 
     ;;; agenda
   (setq org-default-notes-file (expand-file-name "notes.org" org-directory)
-	org-agenda-files `("inbox.org" "projects.org" "agenda.org" ,org-default-notes-file)
+	org-agenda-files `("tasks.org" "projects.org" ,org-default-notes-file)
 	org-agenda-start-on-weekday 0
 	org-agenda-prefix-format
 	'((agenda . " %i %?-12t% s")
