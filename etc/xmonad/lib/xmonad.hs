@@ -23,7 +23,8 @@ import           XMonad.Custom.StatusBar
 import           XMonad.Custom.Variables
 import           XMonad.Util.EZConfig
 
-main =
+main = do
+  myKeys <- myKeys
   xmonad
     .                 withSB myStatusBar
     .                 docks
