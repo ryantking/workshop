@@ -2,8 +2,9 @@
 
 #### App shortcuts
 
-cmd + alt - return : /Applications/kitty.app/Contents/MacOS/kitty
+cmd + alt - return : /Applications/kitty.app/Contents/MacOS/kitty -1 ~
 cmd + alt - m : /opt/homebrew/opt/emacs-plus@29/bin/emacsclient -c
+cmd + alt - c : /opt/homebrew/opt/emacs-plus@29/bin/emacsclient -c -e '(ryan-org-capture-open-frame)' -F '((name . "org-capture") (width . 70) (height . 25) (transient . t))'
 cmd + alt - b : /Applications/LibreWolf.app/Contents/MacOS/librewolf
 cmd + alt - e : open -a finder
 
@@ -22,7 +23,7 @@ cmd + alt + shift - right : yabai -m window --swap east
 cmd + alt - f : yabai -m window --toggle zoom-fullscreen
 cmd + alt - s : yabai -m window --toggle split
 
-### Control spaces
+#### Control spaces
 
 cmd + alt - 1 : yabai -m space --focus 1
 cmd + alt - 2 : yabai -m space --focus 2

@@ -183,6 +183,16 @@
 ;;; Symbol handling (demangle-mode.el)
 (ryan-emacs-elpa-package 'demangle-mode)
 
+;;; Common Lisp (lisp-mode, sly, sly-macrostep, and sly-repl-ansi-color)
+(ryan-emacs-builtin-package 'lisp-mode
+  (setq inferior-lisp-program "sbcl")
+
+  (add-hook 'lisp-mode-hook #'rainbow-delimiters-mode))
+
+(ryan-emacs-elpa-package 'sly)
+(ryan-emacs-elpa-package 'sly-macrostep)
+(ryan-emacs-elpa-package 'sly-repl-ansi-color)
+
 ;;; Data (csv-mode.el)
 (ryan-emacs-elpa-package 'csv-mode
   (let ((map csv-mode-map))

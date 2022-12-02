@@ -28,6 +28,8 @@
 
 ;;; Code:
 
+(ryan-emacs-elpa-package 'noflet)
+
 (defun ryan-org-save-all ()
   "Saves all open buffers without user confirmation."
   (interactive)
@@ -55,6 +57,11 @@
   (call-interactively 'org-store-link)
   (org-capture nil "i"))
 
+(defun ryan-org-capture-full-frame ()
+  (interactive)
+  (let ((display-buffer-alist `((".*" (display-buffer-full-frame)))))
+    (org-capture nil "i")))
+
 (declare-function cl-letf "cl-lib")
 
 (defun ryan-org--capture-no-delete-windows (oldfun &rest args)
@@ -62,6 +69,33 @@
     (apply oldfun args)))
 
 (advice-add 'org-capture-place-template :around 'ryan-org--capture-no-delete-windows)
+
+;;;###autoload
+(defvar ryan-org-capture--frame-parameters
+  `((name . "org-capture")
+    (width . 70)
+    (height . 25)
+    (transient . t)))
+
+;;;###autoload
+(defun ryan-org-capture-cleanup-frame-h ()
+  (when (and (ryan-org-capture--frame-p)
+             (not org-capture-is-refiling))
+    (delete-frame nil t)))
+
+;;;###autoload
+(defun ryan-org-capture--frame-p (&rest _)
+  (and (equal (alist-get 'name ryan-org-capture--frame-parameters)
+              (frame-parameter nil 'name))
+       (frame-parameter nil 'transient)))
+
+;;;###autoload
+(defun ryan-org-capture-open-frame ()
+  "Create a new frame and run org-capture."
+  (interactive)
+  (delete-other-windows)
+  (noflet ((switch-to-buffer-other-window (buf) (switch-to-buffer buf)))
+    (org-capture nil "i")))
 
 ;;;; org-agenda
 
