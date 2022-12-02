@@ -229,6 +229,8 @@
 
 ;;; Org extensions (lib-org.el)
 (ryan-emacs-builtin-package 'lib-org
+  (add-hook 'org-capture-after-finalize-hook #'ryan-org-capture-cleanup-frame-h)
+  
   (setq org-agenda-format-date #'ryan-org-agenda-format-date-aligned)
 
   (define-key global-map (kbd "C-c A") (lambda () (interactive) (org-agenda nil "A"))))
