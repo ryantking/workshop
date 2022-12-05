@@ -36,8 +36,7 @@ yabai -m config external_bar all:42:0 \
 
 yabai -m rule --add app='Alfred Preferences' manage='off' sticky='on'
 yabai -m rule --add app='^System Preferences$' manage='off' sticky='on' 
-yabai -m rule --add app='Hammerspoon' layer='above' manage='on' sticky='on' title=''
-yabai -m rule --add app='Hammerspoon Console' action="yabai -m window $(yabai -m query --windows | jq '.[] | select(.app==\"Hammerspoon\" and .name==\"Hammerspoon Console\") | .id') --minimize"
+yabai -m rule --add app='Emacs' title="^org-capture.*$" layer='above' manage='off'
 
 yabai -m config layout bsp
 
