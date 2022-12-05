@@ -1,5 +1,6 @@
 module XMonad.Custom.Variables where
 
+import           System.Posix.User
 import           XMonad
 import           XMonad.StackSet               as W
 
@@ -18,11 +19,14 @@ myTerminal = "st"
 myBrowser :: String
 myBrowser = "librewolf"
 
-myEditor :: String
-myEditor = "emacsclient -c -a 'emacs' "
-
-myEmacs :: String
-myEmacs = "emacsclient -c -a 'emacs' "
+myEmacs :: IO String
+myEmacs = do
+  uid <- getRealUserID
+  return
+    (  "emacsclient --socket-name /tmp/emacs"
+    ++ show uid
+    ++ "/server -c -a 'emacs' "
+    )
 
 myDmenu :: String
 myDmenu = "dmenu_run"

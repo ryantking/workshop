@@ -1,18 +1,11 @@
 PACKAGES := emacs
+ETC := $(shell pwd)/etc
 
 all: help
 
 .PHONY: help
 help: ## Show this help screen.
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z0-9_-]+:.*?##/ { printf "  \033[36m%-25s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
-
-UNAME := $(shell uname -s | tr A-Z a-z)
-SYSTEM_ROOT := "${HOME}/System"
-ETC := "${SYSTEM_ROOT}/etc"
-
-##@ Config Files
-
-.PHONY: init xmonad
 
 init:
 	test -L "${HOME}/.config/git" || rm -rf "${HOME}/.config/git"
@@ -29,19 +22,23 @@ ifeq ($(UNAME),darwin)
 endif
 	test -L "${HOME}/.config/emacs" || rm -rf "${HOME}/.config/emacs"
 	ln -vsfn "${ETC}/emacs" "${HOME}/.config/emacs"
+	for item in bashrc; do \
+		ln -vsf {${ETC}/,${HOME}/.}$$item; \
+	done
 
-gnupg:
-ifeq ($(UNAME),darwin)
-	brew install --cask gpg-suite-no-mail
-	brew install pinentry-mac
-endif
-	test -L "${HOME}/.gnupg" || rm -rf "${HOME}/.gnupg"
-	ln -vsfn "${ETC}/gnupg" "${HOME}/.gnupg"
-	export GPG_TTY="$(tty)"
-	export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
-	gpgconf --launch gpg-agent
+ssh:
+	test -L "${HOME}/.ssh" || rm -rf "${HOME}/.config/ssh"
+	ln -vsfn "${ETC}/ssh" "${HOME}/.ssh"
+	sudo ln -vsf "${ETC}/authorized_keys" /etc/ssh/authorized_keys
 
 ##@ Linux
+
+.PHONY: linux xmonad picom
+
+linux: xmonad picom
+	for item in xinitrc; do \
+		ln -vsf ${ETC}/$$item ${HOME}/.$$item; \
+	done
 
 xmonad:
 	test -L "${HOME}/.config/xmonad" || rm -rf "${HOME}/.config/xmonad"
@@ -51,6 +48,9 @@ linux:
 	for item in xinitrc; do \
 		ln -vsf ${ETC}/$$item ${HOME}/.$$item; \
 	done
+picom:
+	test -L "${HOME}/.config/picom.conf" || rm -rf "${HOME}/.config/picom.conf"
+	ln -vsf "${ETC}/picom.conf" "${HOME}/.config/picom.conf"
 
 ##@ Darwin
 

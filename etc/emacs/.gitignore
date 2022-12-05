@@ -1,3 +1,4 @@
+/**.elc
 /.cache
 /auto-save
 /auto-save-list
@@ -15,4 +16,4 @@
 /savehist
 /spell-fu
 /tramp
-*.elc
+

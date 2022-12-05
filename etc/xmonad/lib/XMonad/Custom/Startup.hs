@@ -14,6 +14,7 @@ myStartupHook :: X ()
 myStartupHook = do
   spawn "killall trayer-srg"
   spawnOnce "feh --bg-fill --no-fehbg ~/Pictures/wallpaper/blue-bond.jpg"
+  spawnOnce "picom"
   spawn
     ("sleep 2 && trayer-srg --edge top --align right --SetDockType true --SetPartialStrut true --widthtype request --expand true --width 10 --transparent true --tint "
     ++ Theme.colorTrayer
