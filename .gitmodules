@@ -28,3 +28,6 @@
 [submodule "etc/emacs/contrib-lisp/makefile-executor.el"]
 	path = etc/emacs/contrib-lisp/makefile-executor.el
 	url = https://github.com/Olivia5k/makefile-executor.el.git
+[submodule "src/st"]
+	path = src/st
+	url = https://git.suckless.org/st

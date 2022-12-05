@@ -1,4 +1,5 @@
 PACKAGES := emacs
+ETC := $(shell pwd)/etc
 
 all: help
 
@@ -21,7 +22,7 @@ ifeq ($(UNAME),darwin)
 endif
 	test -L "${HOME}/.config/emacs" || rm -rf "${HOME}/.config/emacs"
 	ln -vsfn "${ETC}/emacs" "${HOME}/.config/emacs"
-	for item in bashrc xinitrc; do \
+	for item in bashrc; do \
 		ln -vsf {${ETC}/,${HOME}/.}$$item; \
 	done
 
@@ -30,13 +31,22 @@ ssh:
 	ln -vsfn "${ETC}/ssh" "${HOME}/.ssh"
 	sudo ln -vsf "${ETC}/authorized_keys" /etc/ssh/authorized_keys
 
+##@ Linux
+
+.PHONY: linux xmonad picom
+
+linux: xmonad picom
+	for item in xinitrc; do \
+		ln -vsf ${ETC}/$$item ${HOME}/.$$item; \
+	done
+
 xmonad:
 	test -L "${HOME}/.config/xmonad" || rm -rf "${HOME}/.config/xmonad"
 	ln -vsfn "${ETC}/xmonad" "${HOME}/.config/xmonad"
 
-linux:
-	for item in xinitrc; do \
-		ln -vsf ${ETC}/$$item ${HOME}/.$$item
+picom:
+	test -L "${HOME}/.config/picom.conf" || rm -rf "${HOME}/.config/picom.conf"
+	ln -vsf "${ETC}/picom.conf" "${HOME}/.config/picom.conf"
 
 ##@ Darwin
 
