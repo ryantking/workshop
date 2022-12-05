@@ -25,7 +25,7 @@ Host *
   Compression no
   ServerAliveInterval 0
   ServerAliveCountMax 3
-  HashKnownHosts yes
+  HashKnownHosts no
   UserKnownHostsFile ~/.ssh/known_hosts
   ControlMaster auto
   ControlPath ~/.ssh/master-%r@%n:%p

@@ -13,12 +13,21 @@
 [submodule "etc/emacs/contrib-lisp/flymake-markdownlint"]
 	path = etc/emacs/contrib-lisp/flymake-markdownlint
 	url = https://github.com/shaohme/flymake-markdownlint.git
-[submodule "etc/emacs/contrib-lisp/makefile-executor.el"]
-	path = etc/emacs/contrib-lisp/makefile-executor.el
-	url = https://github.com/jumper047/makefile-executor.el.git
-[submodule "src/dmenu"]
-	path = src/dmenu
-	url = git://git.suckless.org/dmenu
+[submodule "etc/emacs/contrib-lisp/ligature"]
+	path = etc/emacs/contrib-lisp/ligature
+	url = https://github.com/mickeynp/ligature.el.git
 [submodule "etc/emacs/contrib-lisp/beancount"]
 	path = etc/emacs/contrib-lisp/beancount
 	url = https://github.com/beancount/beancount-mode.git
+[submodule "etc/emacs/contrib-lisp/agitate"]
+	path = etc/emacs/contrib-lisp/agitate
+	url = https://git.sr.ht/~protesilaos/agitate
+[submodule "src/dmenu"]
+	path = src/dmenu
+	url = git://git.suckless.org/dmenu
+[submodule "etc/emacs/contrib-lisp/makefile-executor.el"]
+	path = etc/emacs/contrib-lisp/makefile-executor.el
+	url = https://github.com/Olivia5k/makefile-executor.el.git
+[submodule "src/st"]
+	path = src/st
+	url = https://git.suckless.org/st
