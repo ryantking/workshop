@@ -49,20 +49,25 @@ xmonad:
 
 linux:
 	for item in xinitrc; do \
-		ln -vsf ${ETC}/$$item ${HOME}/.$$item
+		ln -vsf ${ETC}/$$item ${HOME}/.$$item; \
+	done
 
 ##@ Darwin
 
-.PHONY: darwin yabai hammerspoon sketchybar
+.PHONY: darwin yabai skhd sketchybar
 
-darwin: yabai sketchybar
+darwin: yabai skhd sketchybar
 
 yabai:
 	brew tap koekeishiya/formulae
-	brew install yabai skhd
+	brew install yabai
 	ln -vsf ${ETC}/yabairc "${HOME}/.yabairc"
-	ln -vsf ${ETC}/skhdrc "${HOME}/.skhdrc"
 	brew services start yabai
+
+skhd:
+	brew tap koekeishiya/formulae
+	brew install skhd
+	ln -vsf ${ETC}/skhdrc "${HOME}/.skhdrc"
 	brew services start skhd
 
 sketchybar:
