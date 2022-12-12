@@ -79,16 +79,17 @@
 	eglot-confirm-server-initiated-edits nil)
 
   (add-to-list 'eglot-server-programs '(nix-mode . ("rnix-lsp")))
-
+  
   (let ((map eglot-mode-map))
-    (define-key map (kbd "C-c R") #'eglot-reconnect)
-    (define-key map (kbd "C-c S") #'eglot-shutdown)
-    (define-key map (kbd "C-c a") #'eglot-code-actions)
-    (define-key map (kbd "C-c f") #'eglot-format)
-    (define-key map (kbd "C-c h") #'eglot)
-    (define-key map (kbd "C-c o") #'eglot-code-action-organize-imports)
-    (define-key map (kbd "C-c r") #'eglot-rename)
-    (define-key map (kbd "C-c h") #'eldoc)))
+    (define-key map (kbd "C-c l q") #'eglot-shutdown)
+    (define-key map (kbd "C-c l Q") #'eglot-shutdown-all)
+    (define-key map (kbd "C-c l d") #'eglot-find-declaration)
+    (define-key map (kbd "C-c l i") #'eglot-find-implementation)
+    (define-key map (kbd "C-c l t") #'eglot-find-typeDefinition)
+    (define-key map (kbd "C-c l r") #'eglot-rename)
+    (define-key map (kbd "C-c l f") #'eglot-format-buffer)
+    (define-key map (kbd "C-c l o") #'eglot-code-action-organize-imports)
+    (define-key map (kbd "C-c l a") #'eglot-code-actions)))
 
 ;;; Syntax parsing (tree-sitter.el and tree-sitter-langs.el)
 (ryan-emacs-elpa-package 'tree-sitter
@@ -263,6 +264,24 @@
 
 ;;; Fennel (fennel-mode.el)
 (ryan-emacs-elpa-package 'fennel-mode)
+
+(ryan-emacs-elpa-package 'haskell-mode
+  (add-hook 'haskell-mode #'eglot-ensure))
+
+;;; Ocaml
+(ryan-emacs-elpa-package 'tuareg
+  (setq tuareg-prettify-symbols-full t)
+  (add-hook 'tuareg-mode-hook #'eglot-ensure)
+
+  (let ((map tuareg-mode-map))
+    (define-key map (kbd "C-c m a") #'tuareg-find-alternate-file)))
+
+(ryan-emacs-elpa-package 'utop
+  (add-hook 'tuareg-mode-hook #'utop-minor-mode))
+
+(add-to-list 'load-path (expand-file-name "~/.opam/default/share/emacs/site-lisp"))
+(ryan-emacs-manual-package 'ocp-indent
+  (add-hook 'tuareg-mode-hook #'ocp-setup-indent))
 
 (provide 'init-langs)
 

@@ -2,6 +2,12 @@ Host github.com
   IdentitiesOnly yes
   User git
   IdentityFile ~/.ssh/id_rsa_yk.pub
+Host git.carelesslisper.xyz
+  IdentitiesOnly yes
+  Port 2022
+  User git
+  HostName rome
+  IdentityFile ~/.ssh/id_rsa_yk.pub
 Host charlemagne
   ForwardAgent yes
   IdentitiesOnly yes

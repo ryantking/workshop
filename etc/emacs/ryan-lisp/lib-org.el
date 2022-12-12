@@ -72,10 +72,9 @@
 
 ;;;###autoload
 (defvar ryan-org-capture--frame-parameters
-  `((name . "org-capture")
-    (width . 70)
-    (height . 25)
-    (transient . t)))
+  `((name . "capture")
+    (width . 120)
+    (height . 15)))
 
 ;;;###autoload
 (defun ryan-org-capture-cleanup-frame-h ()

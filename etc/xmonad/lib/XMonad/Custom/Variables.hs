@@ -8,7 +8,7 @@ import qualified XMonad.Custom.Colors.Nord     as Theme
 
 
 myFont :: String
-myFont = "xft:Iosevka Custom:regular:size=16:antialias=true:hinting=true"
+myFont = "xft:Iosevka Custom:bold:size=16:antialias=true:hinting=true"
 
 myModMask :: KeyMask
 myModMask = mod4Mask
@@ -17,7 +17,10 @@ myTerminal :: String
 myTerminal = "st"
 
 myBrowser :: String
-myBrowser = "librewolf"
+myBrowser = "librewolf-bin"
+
+myFileManager :: String
+myFileManager = "pcmanfm"
 
 myEmacs :: IO String
 myEmacs = do
@@ -32,13 +35,13 @@ myDmenu :: String
 myDmenu = "dmenu_run"
 
 myBorderWidth :: Dimension
-myBorderWidth = 6
+myBorderWidth = 2
 
 myNormColor :: String
 myNormColor = Theme.color00
 
 myFocusColor :: String
-myFocusColor = Theme.color15
+myFocusColor = Theme.color08
 
 windowCount :: X (Maybe String)
 windowCount =
@@ -53,6 +56,5 @@ windowCount =
     . windowset
 
 myWorkspaces :: [String]
-myWorkspaces =
-  ["dev", "www", "work", "chat", "audio", "video", "sys", "game", "misc"]
+myWorkspaces = ["dev", "www", "work", "chat", "video", "sys", "misc"]
 
