@@ -140,6 +140,6 @@ myLayoutHook1 =
     myDefaultLayout
  where
   myDefaultLayout =
-    noBorders monocle ||| withBorder myBorderWidth tall ||| noBorders tabs
+    withBorder myBorderWidth tall ||| noBorders monocle ||| noBorders tabs
 
 myLayouts = onWorkspace (myWorkspaces !! 0) myLayoutHook1 $ myLayoutHook

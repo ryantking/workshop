@@ -15,16 +15,17 @@ myStatusBar = statusBarProp
   (clickablePP myXmobarPP)
 
 myXmobarPP = xmobarPP
-  { ppCurrent         = xmobarColor Theme.color15 "" . wrap "[" "]"
-  , ppVisible         = xmobarColor "#FF0000" ""
-  , ppHidden          = xmobarColor Theme.color08 ""
-  , ppHiddenNoWindows = xmobarColor Theme.color03 ""
-  , ppTitle           = xmobarColor Theme.color07 "" . shorten 60
-  , ppSep             = "<fc=" ++ Theme.color03 ++ "> | </fc>"
-  , ppUrgent          = xmobarColor Theme.color11 "" . wrap "!" "!"
-  , ppExtras          = [windowCount]
-  , ppOrder           = \(ws : l : t : ex) ->
-                          [ws]
-                            ++ ex
-                            ++ [xmobarColor Theme.color15 "" $ wrap "[" "]" l ++ " " ++ t]
+  { ppCurrent = xmobarColor Theme.color08 ""
+  , ppVisible = xmobarColor "#FF0000" ""
+  , ppHidden  = xmobarColor Theme.color03 ""
+  , ppTitle   = xmobarColor Theme.color04 "" . shorten 60
+  , ppSep     = xmobarColor Theme.color03 "" "  |  "
+  , ppUrgent  = xmobarColor Theme.color11 "" . wrap "!" "!"
+  , ppOrder   = \(ws : l : t : ex) ->
+                  [ws]
+                    ++ ex
+                    ++ [ xmobarColor Theme.color09 "" l
+                         ++ (xmobarColor Theme.color03 "" "  |  ")
+                         ++ t
+                       ]
   }
