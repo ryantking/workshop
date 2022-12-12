@@ -1,5 +1,6 @@
 /usr/bin/gentoo-pipewire-launcher &
 
+xrdb -merge ~/.Xresources
 xsetroot -cursor_name left_ptr
 # xscreensaver -no-splash &tr
 

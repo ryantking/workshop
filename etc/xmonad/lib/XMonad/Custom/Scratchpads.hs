@@ -8,23 +8,31 @@ import           XMonad.Util.NamedScratchpad
 
 myScratchPads :: [NamedScratchpad]
 myScratchPads =
-  [ NS "terminal"   spawnTerm findTerm manageTerm
-  , NS "calculator" spawnCalc findCalc manageCalc
+  [ NS "terminal"
+       (myTerminal ++ " -c tscratchpad")
+       (className =? "tscratchpad")
+       manageTerm
+  , NS "calculator" "qalculate-gtk" (className =? "Qalculate-gtk") manageWindow
+  , NS "pavu" "pavucontrol-qt" (className =? "pavucontrol-qt") manageWindow
+  , NS "networkmanager"
+       "nm-connection-editor"
+       (className =? "Nm-connection-editor")
+       manageWindow
+  , NS "bluetooth"
+       "blueman-manager"
+       (className =? "Blueman-manager")
+       manageWindow
   ]
  where
-  spawnTerm  = myTerminal ++ " -T tscratchpad"
-  findTerm   = title =? "tscratchpad"
   manageTerm = customFloating $ W.RationalRect l t w h
    where
     h = 0.9
     w = 0.9
     t = 0.95 - h
     l = 0.95 - w
-  spawnCalc  = "qalculate-gtk"
-  findCalc   = className =? "Qalculate-gtk"
-  manageCalc = customFloating $ W.RationalRect l t w h
+  manageWindow = customFloating $ W.RationalRect l t w h
    where
-    h = 0.5
-    w = 0.4
-    t = 0.75 - h
-    l = 0.70 - w
+    h = 0.6
+    w = 0.6
+    t = 0.85 - h
+    l = 0.80 - w

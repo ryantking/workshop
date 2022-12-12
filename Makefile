@@ -1,4 +1,8 @@
-PACKAGES := emacs
+PACKAGES := bash gnupg pinentry yubikey-manager go go-tools python3 tree emacs bash-completions
+PACKAGES += dev-lang/ocaml tree-sitter-ocaml opam dune merlin
+
+OPAM_PACKAGES := ocamlformat
+
 ETC := $(shell pwd)/etc
 
 all: help
@@ -43,6 +47,10 @@ linux: xmonad picom
 xmonad:
 	test -L "${HOME}/.config/xmonad" || rm -rf "${HOME}/.config/xmonad"
 	ln -vsfn "${ETC}/xmonad" "${HOME}/.config/xmonad"
+
+dunst:
+	test -L "${HOME}/.config/dunst" || rm -rf "${HOME}/.config/dunst"
+	ln -vsfn "${ETC}/dunst" "${HOME}/.config/dunst"
 
 picom:
 	test -L "${HOME}/.config/picom.conf" || rm -rf "${HOME}/.config/picom.conf"

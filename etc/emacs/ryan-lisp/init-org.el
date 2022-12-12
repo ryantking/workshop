@@ -217,7 +217,7 @@
     (define-key map (kbd "C-c a") #'org-agenda)
     (define-key map (kbd "C-c c") #'org-capture)
     (define-key map (kbd "C-c i") #'ryan-org-capture-inbox)
-    (define-key map (kbd "C-c l") #'org-store-link)
+    (define-key map (kbd "C-c L") #'org-store-link)
     (define-key map (kbd "C-c o") #'org-open-at-point-global))
 
   (let ((map org-mode-map))
