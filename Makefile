@@ -74,9 +74,9 @@ spotifyd: ## Configure the Spotify daemon
 
 ##@ Applications
 
-.PHONY: apps emacs doom k9s
+.PHONY: apps emacs doom k9s keyd
 
-apps: emacs k9s
+apps: emacs k9s keyd
 apps: ## Install all applications
 
 emacs: TARGET = "$(XDG_CONFIG_HOME)/emacs"
@@ -90,12 +90,43 @@ emacs: doom ## Use Doom to configure Emacs
 
 doom: TARGET = "$(XDG_CONFIG_HOME)/doom"
 doom: ## Configure Doom emacs
-	@test -L "$(TARGET)" || rm -rf "(TARGET)"
+	@test -L "$(TARGET)" || rm -rf "$(TARGET)"
 	@ln -vsfn "$(ETC)/doom" "$(TARGET)"
 
 k9s: TARGET = "$(XDG_CONFIG_HOME)/k9s"
 k9s: ## Configure the K9s Kubernetes UI
-	@test -L "$(TARGET)" || rm -rf "(TARGET)"
+	@test -L "$(TARGET)" || rm -rf "$(TARGET)"
 	@ln -vsfn "$(ETC)/k9s" "$(TARGET)"
+
+keyd: TARGET = "/etc/keyd"
+keyd: ## Configure keyd and its service
+	@mkdir -d "$(TARGET)" || mkdir -p "$(TARGET)"
+	@test -L "$(TARGET)/default.conf" || rm -rf "$(TARGET)/default.conf"
+	@ln -vsfn "$(ETC)/keyd.conf" "$(TARGET)/default.conf"
+	@test -L /etc/dinit.d/keyd || rm -rf /etc/dinit.d/keyd
+	@ln -vsfn "$(ETC)/dinit.d/keyd" "/etc/dinit.d/keyd"
+
+##@ Artix
+
+.PHONY: pacman pac-freeze pac-install mkinitcpio
+
+artix: pacman mkinitcpio
+artix: ## Configure mkinitcpio
+
+mkinitcpio: TARGET = "/etc/mkinitcpio.conf"
+mkinitcpio: ## Configure mkinitcpio
+	@sudo test -L $(TARGET) || sudo rm -rf "$(TARGET)"
+	@sudo ln -vsfn "$(ETC)/mkinitcpio.conf" "$(TARGET)"
+
+pacman: TARGET = "/etc/pacman.conf"
+pacman: ## Configure pacman and install packages
+	@sudo test -L $(TARGET) || sudo rm -rf "$(TARGET)"
+	@sudo ln -vsfn "$(ETC)/pacman.conf" "$(TARGET)"
+
+pac-freeze: ## Freeze the list of pacman files installed
+	@pacman -Qe | awk '{print $$1}' > var/pacman-packages.txt
+
+pac-install: ## Install pacman packages
+	@for pkg in $(cat var/pacman-packages.txt); do pacman -S $pkg; done
 
 # Makefile ends herer
