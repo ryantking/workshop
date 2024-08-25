@@ -170,7 +170,6 @@ Also immediately enables `mixed-pitch-modes' if currently in one of the modes."
 
 (add-hook 'doom-init-ui-hook #'init-mixed-pitch-h)
 
-
 (autoload #'mixed-pitch-serif-mode "mixed-pitch"
   "Change the default face of the current buffer to a serifed variable pitch, while keeping some faces fixed pitch." t)
 
@@ -199,7 +198,6 @@ Also immediately enables `mixed-pitch-modes' if currently in one of the modes."
          (set-default-toplevel-value symbol value)))
 
 ;;  Marginalia
-
 (after! marginalia
   (setq marginalia-censor-variables nil)
 
@@ -440,7 +438,7 @@ and `text-scale-mode-step'."
         (,(+org--notes-file) . (:maxlevel . 3)))
 
       org-capture-templates
-      `(("i" "Inbox" entry (file ,(+org--inbox-file)) "* TODO %?")
+      `(("t" "Todo" entry (file ,(+org--inbox-file)) "* TODO %?")
         ("n" "Quick Note" entry (file ,(+org--notes-file)) "* %?")
         ("N" "Note" plain
          (file denote-last-path)
@@ -450,6 +448,10 @@ and `text-scale-mode-step'."
          :kill-buffer t
          :jump-to-captured t)
         ("p" "Project" entry (file+headline ,(+org--todo-file) "Projects")
+         (file ,(expand-file-name "project.org" (+org--templates-directory))))
+        ("a" "Area" entry (file+headline ,(+org--todo-file) "Areas")
+         (file ,(expand-file-name "project.org" (+org--templates-directory))))
+        ("r" "Resource" entry (file+headline ,(+org--todo-file) "Resources")
          (file ,(expand-file-name "project.org" (+org--templates-directory))))))
 
 ;; Markdown
