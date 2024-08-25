@@ -42,9 +42,9 @@
        file-templates
        fold
        (format +onsave)
-       lispy
+       ;; lispy
        ;;multiple-cursors  ; editing in many places at once
-       parinfer
+       ;; parinfer
        ;;rotate-text       ; cycle region at point between text candidates
        snippets
        word-wrap         ; soft wrapping with language-aware indent

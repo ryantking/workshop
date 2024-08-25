@@ -377,11 +377,31 @@ and `text-scale-mode-step'."
 (add-hook 'display-line-numbers-mode-hook #'+setup-text-mode-left-margin)
 (add-hook 'text-mode-hook #'+setup-text-mode-left-margin)
 
-(defadvice! +doom/toggle-line-numbers--call-hook-a ()
-  :after #'doom/toggle-line-numbers
-  (run-hooks 'display-line-numbers-mode-hook))
-
-(remove-hook 'text-mode-hook #'display-line-numbers-mode)
+;; Denote
+(use-package! denote
+  :hook
+  ((text-mode . denote-fontify-links-mode-maybe)
+   (dired-mode . denote-dired-mode))
+  :init
+  (setq denote-directory (expand-file-name "~/Documents/notes"))
+  :config
+  ;; (add-hook 'denote-mode-hook #'doom-mark-buffer-as-real-h)
+  ;; start filtering immediately
+  (map! :leader
+        (:prefix-map ("n" . "notes")
+                     "n" #'denote
+                     "N" #'denote-type
+                     "o" #'denote-sort-dired
+                     "r" #'denote-rename-file
+                     "f" #'consult-denote-find
+                     "g" #'consult-denote-grep)
+        :map text-mode-map
+        (:prefix-map ("n". "notes")
+                     "i" #'denote-link
+                     "I" #'denote-add-links
+                     "b" #'denote-backlinks
+                     "R" #'denote-rename-file-using-front-matter))
+  (consult-denote-mode 1))
 
 ;; Org appear
 (use-package! org-appear
@@ -420,9 +440,17 @@ and `text-scale-mode-step'."
         (,(+org--notes-file) . (:maxlevel . 3)))
 
       org-capture-templates
-      `(("i" "Inbox" entry (file ,(+org--inbox-file)) "* TODO %?\n%i %a")
+      `(("i" "Inbox" entry (file ,(+org--inbox-file)) "* TODO %?")
+        ("n" "Quick Note" entry (file ,(+org--notes-file)) "* %?")
+        ("N" "Note" plain
+         (file denote-last-path)
+         #'denote-org-capture
+         :no-save t
+         :immediate-finish nil
+         :kill-buffer t
+         :jump-to-captured t)
         ("p" "Project" entry (file+headline ,(+org--todo-file) "Projects")
-         (file ,(expand-file-name "projects.org" (+org--templates-directory))))))
+         (file ,(expand-file-name "project.org" (+org--templates-directory))))))
 
 ;; Markdown
 (add-hook! (gfm-mode markdown-mode) #'visual-line-mode #'turn-off-auto-fill)
