@@ -1,9 +1,4 @@
-PACKAGES := bash gnupg pinentry yubikey-manager go go-tools python3 tree emacs bash-completions
-PACKAGES += dev-lang/ocaml tree-sitter-ocaml opam dune merlin
-
-OPAM_PACKAGES := ocamlformat
-
-ETC := $(shell pwd)/etc
+# Makefile: Manage system configurations
 
 all: help
 
@@ -11,72 +6,96 @@ all: help
 help: ## Show this help screen.
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z0-9_-]+:.*?##/ { printf "  \033[36m%-25s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
-init:
-	test -L "${HOME}/.config/git" || rm -rf "${HOME}/.config/git"
-	ln -vsfn "${ETC}/git" "${HOME}/.config/git"
-	for item in bashrc; do \
-		ln -vsf {${ETC}/,${HOME}/.}$$item; \
+ETC := $(shell pwd)/etc
+
+install: shell x11 apps
+
+##@ Shell
+
+.PHONY: shell bash git ssh gnupg tldr
+
+shell: bash git ssh gnupg tldr
+shell: ## All shell programs
+
+bash: TARGET = "$(HOME)/.bashrc"
+bash: ## Configure the bash shell
+	@test -L "$(TARGET)" || rm -rf "$(TARGET)"
+	@ln -vsf "$(ETC)/bashrc" "$(HOME)/.bashrc"
+
+git: TARGET = "$(XDG_CONFIG_HOME)/git"
+git: ## Configure the Git CLI
+	@test -L "$(TARGET)" || rm -rf "$(TARGET)"
+	@ln -vsfn "$(ETC)/git" "$(TARGET)"
+
+ssh: TARGET = "$(HOME)/.ssh"
+ssh: ## Configure the SSH client
+	@test -d "$(TARGET)" || mkdir -p "$(TARGET)"
+	@test -L "$(TARGET)/config" || rm -rf "$(TARGET)/config"
+	@ln -vsf "$(ETC)/ssh_config" "$(TARGET)/config"
+
+gnupg: TARGET = "$(HOME)/.gnupg"
+gnupg: ## Configure the GnuPG daemon
+	@test -d "$(TARGET)" || mkdir -p "$(TARGET)"
+	@chmod 0700 "$(TARGET)"
+	@for item in gpg.conf gpg-agent.conf sshcontrol; do \
+		ln -vsf {$(ETC)/gnupg/,$(TARGET),}$$item; \
 	done
 
-emacs:
-ifeq ($(UNAME),darwin)
-	brew tap d12frosted/emacs-plus
-	brew install --with-elrumo1-icon emacs-plus@29
-	brew services start emacs-plus@29
-endif
-	test -L "${HOME}/.config/emacs" || rm -rf "${HOME}/.config/emacs"
-	ln -vsfn "${ETC}/emacs" "${HOME}/.config/emacs"
-	for item in bashrc; do \
-		ln -vsf {${ETC}/,${HOME}/.}$$item; \
-	done
+tldr: TARGET = "$(XDG_CONFIG_HOME)/tealdeer"
+tldr: ## Configure the tealdeer tldr page viewer
+	@test -d "$(TARGET)" || mkdir -p "$(TARGET)"
+	@test -L "$(TARGET)/config.toml" || rm -rf "$(TARGET)/config.toml"
+	@ln -vsf "$(ETC)/tealdeer.toml" "$(TARGET)/config.toml"
 
-ssh:
-	test -L "${HOME}/.ssh" || rm -rf "${HOME}/.config/ssh"
-	ln -vsfn "${ETC}/ssh" "${HOME}/.ssh"
-	sudo ln -vsf "${ETC}/authorized_keys" /etc/ssh/authorized_keys
+##@ X11
 
-##@ Linux
+.PHONY: x11 picom dunst spotifyd
 
-.PHONY: linux xmonad picom
+x11: picom dunst spotifyd
+x11: ## Configure X11
+	@ln -vsf "$(ETC)/xinitrc" "$(HOME)/.xinitrc"
+	@ln -vsf "$(ETC)/Xresources" "$(HOME)/.Xresources"
 
-linux: xmonad picom
-	for item in xinitrc; do \
-		ln -vsf ${ETC}/$$item ${HOME}/.$$item; \
-	done
+picom: TARGET = "$(XDG_CONFIG_HOME)/picom.conf"
+picom: ## Configure the Picom compositor
+	@test -L "$(TARGET)" || rm -rf "$(TARGET)"
+	@ln -vsf "${ETC}/picom.conf" "$(TARGET)"
 
-xmonad:
-	test -L "${HOME}/.config/xmonad" || rm -rf "${HOME}/.config/xmonad"
-	ln -vsfn "${ETC}/xmonad" "${HOME}/.config/xmonad"
+dunst: TARGET = "$(XDG_CONFIG_HOME)/dunst"
+dunst: ## Configure the Dunst notification daemon
+	@test -d "$(TARGET)" || mkdir -p "$(TARGET)"
+	@test -L "$(TARGET)/dunstrc" || rm -rf "$(TARGET)/dunstrc"
+	@ln -vsfn "$(ETC)/dunstrc" "$(TARGET)/dunstrc"
 
-dunst:
-	test -L "${HOME}/.config/dunst" || rm -rf "${HOME}/.config/dunst"
-	ln -vsfn "${ETC}/dunst" "${HOME}/.config/dunst"
+spotifyd: TARGET = "$(XDG_CONFIG_HOME)/spotifyd.conf"
+spotifyd: ## Configure the Spotify daemon
+	@test -L "$(TARGET)" || rm -rf "$(TARGET)"
+	@ln -vsfn "$(ETC)/spotifyd.conf" "$(TARGET)"
 
-picom:
-	test -L "${HOME}/.config/picom.conf" || rm -rf "${HOME}/.config/picom.conf"
-	ln -vsf "${ETC}/picom.conf" "${HOME}/.config/picom.conf"
+##@ Applications
 
-##@ Darwin
+.PHONY: apps emacs doom k9s
 
-.PHONY: darwin yabai skhd sketchybar
+apps: emacs k9s
+apps: ## Install all applications
 
-darwin: yabai skhd sketchybar
+emacs: TARGET = "$(XDG_CONFIG_HOME)/emacs"
+emacs: doom ## Use Doom to configure Emacs
+	@rm -rf "$(HOME)/.emacs.d"
+	@if ! test -d "$(TARGET)"; then \
+		git clone https://github.com/hlissner/doom-emacs "$(TARGET)"; \
+		$(TARGET)/bin/doom install; \
+	fi
+	@$(TARGET)/bin/doom sync
 
-yabai:
-	brew tap koekeishiya/formulae
-	brew install yabai
-	ln -vsf ${ETC}/yabairc "${HOME}/.yabairc"
-	brew services start yabai
+doom: TARGET = "$(XDG_CONFIG_HOME)/doom"
+doom: ## Configure Doom emacs
+	@test -L "$(TARGET)" || rm -rf "(TARGET)"
+	@ln -vsfn "$(ETC)/doom" "$(TARGET)"
 
-skhd:
-	brew tap koekeishiya/formulae
-	brew install skhd
-	ln -vsf ${ETC}/skhdrc "${HOME}/.skhdrc"
-	brew services start skhd
+k9s: TARGET = "$(XDG_CONFIG_HOME)/k9s"
+k9s: ## Configure the K9s Kubernetes UI
+	@test -L "$(TARGET)" || rm -rf "(TARGET)"
+	@ln -vsfn "$(ETC)/k9s" "$(TARGET)"
 
-sketchybar:
-	brew tap FelixKratz/formulae
-	brew install sketchybar ifstat
-	test -L "${HOME}/.config/sketchybar" || rm -rf "${HOME}/.config/sketchybar"
-	ln -vsfn "${ETC}/sketchybar" "${HOME}/.config/sketchybar"
-	brew services start sketchybar
+# Makefile ends herer

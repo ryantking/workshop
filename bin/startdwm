@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+while type dwm >/dev/null; do
+	xrdb ~/.Xresources > "$HOME/.local/share/dwm/xrdb.log"
+	dwm 2> "$HOME/.local/share/dwm/dwm.log" && continue || break
+done
+
+# startdwm ends here

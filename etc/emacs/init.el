@@ -1,34 +1,39 @@
 ;;; init.el --- Emacs entrypoint -*- lexical-binding: t -*-
 
-;; Copyright (c) 2022  Ryan King <ryantking@protonmail.com>
+(setq frame-title-format '("%b")
+      ring-bell-function 'ignore
+      use-short-answers t
+      initial-buffer-choice t)
 
-;; Author: Ryan King <ryantking@rotonmail.com>
-;; URL: https://github.com/ryantking/Workshop
-;; Version: 0.3.0
-;; Package-Requires: ((emacs "28.1"))
+;; Disable extra files
+(setq make-backup-files nil
+      backup-inhibited nil
+      create-lockfiles nil)
 
-;; This file is NOT part of GNU Emacs.
+;; Native compilation settings
+(setq native-comp-async-report-warnings-errors 'silent)
+;; (setq native-commpile-prune-cache t)
 
-;; This file is free software: you can redistribute it and/or modify it
-;; under the terms of the GNU General Public License as published by the
-;; Free Software Foundation, either version 3 of the License, or (at
-;; your option) any later version.
-;;
-;; This file is distributed in the hope that it will be useful, but
-;; WITHOUT ANY WARRANTY; without even the implied warranty of
-;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-;; General Public License for more details.
-;;
-;; You should have received a copy of the GNU General Public License
-;; along with this file.  If not, see <http://www.gnu.org/licenses/>.
+;; Funnel customizations to temp file
+(setq custom-file (make-temp-file "emacs-custom-"))
 
-;;; Commentary:
+;; Enable functions
+(mapc
+ (lambda (command)
+   (put command 'disabled nil))
+ '(list-timers narrow-to-region narrow-to-page upcase-region downcase-region))
 
-;; This file sets up emacs with the core package management macros.
+;; Disable functions
+(mapc
+ (lambda (command)
+   (put command 'disabled t))
+ '(eshell project-eshell overwrite-mode iconify-frame diary))
 
-;;; Code:
+;;;; Packages
 
 (require 'package)
+
+(add-hook 'package-menu-mode-hook #'hl-line-mode)
 
 (setq package-archives
       '(("elpa" . "https://elpa.gnu.org/packages/")
@@ -39,70 +44,42 @@
       '(("elpa" . 2)
 	("nongnu" . 1)))
 
-(dolist (path '("contrib-lisp" "ryan-lisp"))
+(dolist (path '("site-lisp" "lisp"))
   (add-to-list 'load-path (locate-user-emacs-file path)))
 
-(setq frame-title-format '("%b")
-      ring-bell-function 'ignore
-      use-short-answers t
-      initial-buffer-choice t)
+(unless (package-installed-p 'vc-use-package)
+  (package-vc-install "https://github.com/slotThe/vc-use-package"))
 
-(put 'overwrite-mode 'disabled t)
+(require 'vc-use-package)
 
-(add-hook 'package-menu-mode-hook #'hl-line-mode)
-
-(defmacro ryan-emacs-builtin-package (package &rest body)
-  "Set up builtin PACKAGE with rest BODY.
-PACKAGE is a quoted symbol, while BODY consists of balanced
-expressions."
-  (declare (indent 1))
-  `(progn
-     (unless (require ,package nil 'noerror)
-       (display-warning 'ryan-emacs (format "Loading `%s' failed" ,package) :warning))
-     ,@body))
-
-(defmacro ryan-emacs-elpa-package (package &rest body)
-  "Set up PACKAGE from an Elisp archive with rest BODY.
-PACKAGE is a quoted symbol, while BODY consists of balanced
-expressions."
-  (declare (indent 1))
-  `(progn
-     (unless (package-installed-p ,package)
-       (unless package-archive-contents
-	 (package-refresh-contents))
-       (package-install ,package))
-     (if (require ,package nil 'noerror)
-         (progn ,@body)
-       (display-warning 'ryan-emacs (format "Loading `%s' failed" ,package) :warning))))
-
-(defmacro ryan-emacs-manual-package (package &rest body)
-  "Set up manually installed PACKAGE with rest BODY.
-PACKAGE is a quoted symbol, while BODY consists of balanced
-expressions."
-  (declare (indent 1))
-  (let ((path (thread-last user-emacs-directory
-			   (expand-file-name "contrib-lisp")
-			   (expand-file-name (symbol-name (eval package))))))
-    `(progn
-       (eval-and-compile
-         (add-to-list 'load-path ,path))
-       (if (require ,package nil 'noerror)
-           (progn ,@body)
-         (display-warning 'ryan-emacs (format "Loading `%s' failed" ,package) :warning)
-         (display-warning 'ryan-emacs (format "This must be available at %s" ,path) :warning)))))
+;;;; Modules
 
 (require 'init-core)
+(require 'init-keymap)
 (require 'init-theme)
+(require 'init-history)
 (require 'init-font)
 (require 'init-modeline)
 (require 'init-completion)
 (require 'init-search)
+;; Need to setup tab keymap
+;; Need to setup window keymap
 (require 'init-window)
+;; Buffer keymap
+;; Register keymap
 (require 'init-dired)
+;; Setup denote (denote 2) with keymap
+;; Set up spell keymap
 (require 'init-write)
-(require 'init-shell)
+;; Redo VC and agitate keymaps
+;; Add magit keymaps?
 (require 'init-git)
+;; pass keymap
+(require 'init-shell)
 (require 'init-org)
+;; eglot keymap
+;; flymake keymap
+;; compile binding(s)
 (require 'init-langs)
 
 ;;; init.el ends here

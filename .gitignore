@@ -1,5 +1,1 @@
-result
-.shake*
-generated.json
-node_modules
-yarn-error.log
+ansible.log
