@@ -1,7 +1,10 @@
-/usr/bin/gentoo-pipewire-launcher &
+#!/usr/bin/env sh
 
-xrdb -merge ~/.Xresources
-xsetroot -cursor_name left_ptr
-# xscreensaver -no-splash &tr
+/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
+xsslaunch slock &
+autorandr --change
+feh --bg-fill ~/Pictures/wallpapers/alena-aenami-wait.jpg
 
-exec dbus-launch --sh-syntax --exit-with-session xmonad
+dbus-launch --sh-syntax --exit-with-session startdwm
+
+# .xinitrc ends here

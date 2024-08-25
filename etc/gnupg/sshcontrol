@@ -1,23 +1,18 @@
-# List of allowed ssh keys.  Only keys present in this file are used
-# in the SSH protocol.  The ssh-add tool may add new entries to this
-# file to enable them; you may also add them manually.  Comment
-# lines, like this one, as well as empty lines are ignored.  Lines do
-# have a certain length limit but this is not serious limitation as
-# the format of the entries is fixed and checked by gpg-agent. A
-# non-comment line starts with optional white spaces, followed by the
-# keygrip of the key given as 40 hex digits, optionally followed by a
-# caching TTL in seconds, and another optional field for arbitrary
-# flags.   Prepend the keygrip with an '!' mark to disable it.
-
-# RSA key added on: 2022-10-08 09:37:46
-# Fingerprints:  MD5:85:71:57:c7:23:dc:d0:57:11:3c:48:40:9e:22:a8:81
-#                SHA256:2XvJSyM+U7oWM9w9uABBOtLiDCz+UA7N6IRLnDHu5TY
-98ADDC73EB1FDBD2324AA696ABD0E5629C9D42FD 0
-# Ed25519 key added on: 2022-10-08 09:37:51
-# Fingerprints:  MD5:0e:94:d7:a6:f3:34:7c:b3:48:ba:c2:c1:b0:ef:0a:41
-#                SHA256:zLMH6E1e542H0uFFiGTD7avnx2nTLwTXJDVqCLtCBeY
-2D83EF63E0607C88BACA4B7C1F8E8FB5FF62637A 0
-
-19658115D576AAD1A20D6AD0CD6EF25BA7806408
-
+# ryan@carelesslisper.xyz [A]
 74CB8154D23D820537432F4B73446CF35A14216F
+
+# ryan.king@flipsidecrypto.com [A]
+F1C7BD57606672630294ED963BFDB9E349F54709
+
+# Ed25519 key added on: 2024-06-26 13:54:17
+# Fingerprints:  MD5:0b:c4:9a:bf:ec:b2:ec:56:84:f5:41:89:a4:de:d9:c1
+#                SHA256:IsJshQpmvjlmryRKzPaXPDWAUBoAspqcWjJXrAHeGpw
+9562A1F25BE6060D6EDF86F48B45C95420222100 0
+# Ed25519 key added on: 2024-06-26 13:54:21
+# Fingerprints:  MD5:67:9c:67:9b:b0:93:0f:be:53:1a:77:7b:9d:45:72:3c
+#                SHA256:7wdnMIfN27+CN00ZJyAkY+F3Jty6Ti1jIHUXEDxSDko
+5842737189EF1DDC2C63DC9B6C6B0B2961EC9C55 0
+# Ed25519 key added on: 2024-06-27 17:33:04
+# Fingerprints:  MD5:47:f8:59:66:05:0e:b0:5a:ea:e3:76:c1:1b:04:6b:3e
+#                SHA256:eTy2a80oHNYIiOyYIFLHmskURgAPTkupHoqoRiIr4wk
+3617FE2891C665BE9144FA03522EC9BDE1763828 0

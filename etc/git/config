@@ -3,10 +3,26 @@ email = "ryan@carelesslisper.xyz"
 name = "Ryan"
 signingKey = "0xD718BA353C298BB2"
 
-[core]
-pager = "delta"
-
 [alias]
+a = "add"
+aa = "add --all"
+b = "branch"
+c = "commit"
+ca = "commit --amend"
+cam = "commit --amend --message"
+cane = "commit --amend --no-edit"
+cm = "commit --message"
+d = "diff"
+ds = "diff --staged"
+f = "fetch"
+l = "log"
+lg = "log --graph"
+lo = "log --oneline"
+lor = "log --oneline --reverse"
+rr = "remote"
+s = "status"
+ss = "status --short"
+ssb = "status --short --branch"
 fixbare = "config remote.origin.fetch \"+refs/heads/*:refs/remotes/origin/*\""
 ignore = "!gi() { curl -sL https://www.toptal.com/developers/gitignore/api/$@ ;}; gi"
 pristine = "!git resest --hard && git clean -dffx"
@@ -28,9 +44,6 @@ whitespace-error-style = "22 reverse"
 [github]
 user = "ryantking"
 
-[gpg]
-program = "gpg2"
-
 [init]
 defaultBranch = "master"
 
@@ -48,3 +61,9 @@ sort = "version:refname"
 
 [url "git@github.com:ryantking"]
 insteadOf = https://github.com/ryantking
+
+[url "git@git.carelesslisper.xyz"]
+insteadOf = https://git.carelesslisper.xyz
+
+[includeIf "gitdir:~/Work/"]
+path = ~/.config/git/config_work
