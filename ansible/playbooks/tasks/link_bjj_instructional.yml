@@ -1,0 +1,60 @@
+---
+- name: Create instructional directory
+  ansible.builtin.file:
+    name: "{{ bjj_instructional_dir }}/{{ instructional.name }}"
+    mode: 0755
+    state: directory
+
+- name: Create instructional season directory
+  ansible.builtin.file:
+    name: "{{ bjj_instructional_dir }}/{{ instructional.name }}/Specials"
+    mode: 0755
+    state: directory
+
+- name: Find instructional files
+  ansible.builtin.find:
+    paths: ["{{ torrent_dir }}/{{ instructional.download_dir }}"]
+    file_type: file
+    recurse: yes
+  register: volumes
+
+- name: Hardlink each single digit volume
+  ansible.builtin.file:
+    src: "{{ instructional_download_path }}"
+    dest: >-
+      {{ bjj_instructional_dir }}/{{ instructional.name
+      }}/Specials/{{ instructional.name
+      }} - Volume {{ index + 1 }}.mp4
+    state: hard
+  loop: >-
+    {{ volumes.files
+    | map(attribute='path')
+    | reject('search', '10')
+    | select('search', '.mp4')
+    | sort }}
+  loop_control:
+    loop_var: instructional_download_path
+    index_var: index
+
+- name: Hardlink each double digit volume
+  ansible.builtin.file:
+    src: "{{ instructional_download_path }}"
+    dest: >-
+      {{ bjj_instructional_dir }}/{{ instructional.name
+      }}/Specials/{{ instructional.name
+      }} - Volume {{ index + 10 }}.mp4
+    state: hard
+  loop: >-
+    {{ volumes.files
+    | map(attribute='path')
+    | select('search', '10')
+    | select('search', '.mp4')
+    | sort }}
+  loop_control:
+    loop_var: instructional_download_path
+    index_var: index
+
+- name: Download cover
+  ansible.builtin.get_url:
+    url: "{{ instructional.cover_url }}"
+    dest: "{{ bjj_instructional_dir }}/{{ instructional.name }}/poster.jpg"

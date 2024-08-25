@@ -108,7 +108,7 @@
       (: watcher :stop))))
 
 ;; Create a global config-files-watcher. Calling it stops the default watcher
-(global config-files-watcher (watch-files configdir))
+(global config-files-watcher (watch-files hs.configdir))
 
 ;;
 ;;; Modules

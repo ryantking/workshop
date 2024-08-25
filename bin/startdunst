@@ -1,0 +1,33 @@
+#!/usr/bin/env sh
+
+bg=$(xgetres dunst.background)
+fg=$(xgetres dunst.foreground)
+fade=$(xgetres dunst.fadeColor)
+blue=$(xgetres dunst.color4)
+red=$(xgetres dunst.color1)
+
+mkdir -p ~/.config/dunst/dunstrc.d
+cat <<EOF > ~/.config/dunst/dunstrc.d/theme.conf
+[global]
+    format = "<span foreground='$blue'><b>%s</b></span>\n%b"
+    frame_color = "$bg"
+    background = "$fade"
+    foreground = "$fg"
+
+[urgency_low]
+    highlight = "$blue"
+    timeout = 10
+
+[urgency_normal]
+    highlight = "$blue"
+    timeout = 10
+
+[urgency_critical]
+    highlight = "$red"
+    timeout = 0
+EOF
+
+killall dunst 2>/dev/null
+dunst -b
+
+# startdunst ends here
