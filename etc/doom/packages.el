@@ -6,5 +6,7 @@
 (package! org-appear :recipe (:host github :repo "awth13/org-appear")
   :pin "81eba5d7a5b74cdb1bad091d85667e836f16b997")
 (package! ob-http :pin "b1428ea2a63bcb510e7382a1bf5fe82b19c104a7")
+(package! denote)
+(package! consult-denote)
 
 ;;; $DOOMDIR/packages.el ends here
