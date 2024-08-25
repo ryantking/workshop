@@ -1,30 +1,13 @@
 ;;; early-init.el --- Early Init File -*- lexical-binding: t -*-
 
-;; Copyright (c) 2022  Ryan King <ryantking@protonmail.com>
-
-;; Author: Ryan King <ryantking@rotonmail.com>
-;; URL: https://github.com/ryantking/Workshop
-;; Version: 0.3.0
-;; Package-Requires: ((emacs "28.1"))
-
-;; This file is NOT part of GNU Emacs.
-
-;;; Commentary:
-
-;; This file sets Emacs behavior before package managements starts.
-
-;;; Code:
-
-;; Initialize installed packages
+;; Package management configuration
 (setq package-enable-at-startup t)
-
 (defvar package-quickstart)
-
-;; Use the package cache
 (setq package-quickstart t)
 
 ;; Don't resize the frame
-(setq frame-inhibit-implied-resize t)
+(setq frame-inhibit-implied-resize t
+      frame-resize-pixelwise t)
 
 ;; Disable GUI elements
 (menu-bar-mode -1)
@@ -39,14 +22,22 @@
       inhibit-startup-screen t
       inhibit-startup-buffer-menu t)
 
-;; Don't spam compilation warnings
-(setq native-comp-async-report-warnings-errors 'silent)
+;; Backup variables that are changed for startup optimization
+(defvar ryan--file-name-handler-alist file-name-handler-alist)
+(defvar ryan--vc-handled-backends vc-handled-backends)
 
-;; Temporarily disable garbage collection
-(setq gc-cons-threshold most-positive-fixnum)
-(add-hook 'after-init-hook #'(lambda () (setq gc-cons-threshold (* 8 1024 1024))))
+;; Temporary values for faster startup
+(setq gc-cons-threshold most-positive-fixnum
+      gc-cons-percentage 0.5
+      file-name-handler-alist nil
+      vc-handled-backends nil)
 
-;; Move elpa
-(setq package-user-dir (expand-file-name "emacs/elpa" (getenv "XDG_DATA_HOME")))
+;; Hook to restore values
+(add-hook 'emacs-startup-hook
+	  (lambda ()
+	    (setq gc-cons-threshold (* 8 1024 1024)
+		  gc-cons-percentage 0.1
+		  file-name-handler-alist ryan--file-name-handler-alist
+		  vc-handled-backends ryan--vc-handled-backends)))
 
 ;;; early-init.el ends here

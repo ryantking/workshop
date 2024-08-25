@@ -1,0 +1,12 @@
+---
+- name: Sort BJJ instructionals
+  hosts: augustus
+  gather_facts: false
+
+  tasks:
+    - name: Include tasks for each instructional
+      ansible.builtin.include_tasks: ./tasks/link_bjj_instructional.yml
+      loop: "{{ bjj_instructionals }}"
+      loop_control:
+        loop_var: instructional
+        label: "{{ instructional.name }}"

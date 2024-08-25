@@ -1,0 +1,5 @@
+#/usr/bin/env sh
+
+colorpicker --short --one-shot | xsel -b
+
+# grabcolor ends here

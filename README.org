@@ -32,3 +32,5 @@ I designed the directory structure in this repo to rhyme with the standard Linux
 - go :: Writing scripts and other utilities.
 - agenix :: Encrypting configuration files with private information.
 - direnv :: Basically just autoloads the nix shell.
+* References
+- https://gitlab.com/rdixitv/dotfiles :: XMonad config
